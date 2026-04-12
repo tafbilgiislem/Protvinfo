@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SVG Pro Studio | Kusursuz V11</title>
+    <title>SVG Pro Studio | V12 (Smart Snapping Fix)</title>
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Merriweather:wght@400;700&family=Montserrat:wght@400;700;800&family=Nunito:wght@400;700&family=Open+Sans:wght@400;700&family=Oswald:wght@400;700&family=Pacifico&family=Playfair+Display:wght@400;700&family=Poppins:wght@400;700&family=Raleway:wght@400;700&family=Roboto:wght@400;700&family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { --accent: #10b981; --bg: #0f172a; --panel: #1e293b; --border: #334155; --handle-move: #3b82f6; --handle-rotate: #f59e0b; --handle-radius: #ec4899; }
@@ -74,12 +74,10 @@
         .action-btn.active { background: var(--accent); }
         .action-btn.danger { background: #991b1b; }
         .action-btn.special { background: #0284c7; }
-        .action-btn.svg { background: #ea580c; }
-        .action-btn.draw { background: #8b5cf6; }
 
         .group-box { background: rgba(0,0,0,0.2); padding: 12px; border-radius: 10px; border: 1px solid #1e293b; margin-top: 10px; }
         
-        /* AÇILIR MENÜLER */
+        /* AÇILIR/KAPANIR MENÜLER */
         .collapsible-section { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 12px; background: rgba(0,0,0,0.25); }
         .collapsible-header { background: #111827; padding: 12px 18px; cursor: pointer; font-size: 11px; text-transform: uppercase; font-weight: bold; color: var(--accent); letter-spacing: 1.5px; display: flex; justify-content: space-between; align-items: center; }
         .collapsible-header:hover { background: rgba(16, 185, 129, 0.1); }
@@ -180,7 +178,7 @@
 
 <div id="login-screen">
     <div class="login-card">
-        <h2 style="margin-top:0; color:white;">Pro Studio V11</h2>
+        <h2 style="margin-top:0; color:white;">Pro Studio V12</h2>
         <div style="font-size:12px; color:#94a3b8; margin-bottom:20px;">Lütfen Cloudflare Worker şifrenizi girin.</div>
         <input type="password" id="passInput" placeholder="Sunucu Şifresi">
         <button id="loginBtn">Sunucuya Bağlan</button>
@@ -205,7 +203,7 @@
         </div>
         <div id="status-bar">
             <div id="status-count">Nesne Sayısı: 0</div>
-            <div>SVG Pro Studio Ultimate V11</div>
+            <div>SVG Pro Studio | Kusursuz V12</div>
             <div id="status-time">Son Kayıt: Bekleniyor...</div>
         </div>
     </div>
@@ -239,9 +237,9 @@
             </details>
             <div class="action-row" style="margin-bottom:5px;">
                 <button id="addTextBtn" class="action-btn" style="background:#475569;">+ YAZI</button>
-                <button id="addImgBtn" class="action-btn" style="background:#475569;" title="Masaüstünden Sürükle-Bırak da Yapabilirsiniz">+ RESİM</button>
+                <button id="addImgBtn" class="action-btn" style="background:#475569;" title="Sürükle-Bırak da Yapabilirsiniz">+ RESİM</button>
                 <button onclick="addShape('rect')" class="action-btn" style="background:#475569;">+ KARE</button>
-                <button id="btn-draw" onclick="toggleDrawMode()" class="action-btn draw" title="Fırça Aracı">🖌️ ÇİZİM</button>
+                <button id="btn-draw" onclick="toggleDrawMode()" class="action-btn" style="background:#8b5cf6;" title="Fırça Aracı">🖌️ ÇİZİM</button>
             </div>
             
             <div class="label-text" style="margin-top:10px; margin-bottom:5px;">KÜTÜPHANE (ŞEKİLLER & İKONLAR)</div>
@@ -276,7 +274,6 @@
     const WORKER_URL = "https://githubtoken.tafbilgiislem.workers.dev"; 
     let SHA_KEY = "", SESSION_PASS = "";
     
-    // Proje Renkleri (Hafıza)
     let recentColors = ['#10b981', '#3b82f6', '#ef4444', '#f59e0b', '#8b5cf6', '#ffffff'];
     function addRecentColor(c) { if(!recentColors.includes(c)) { recentColors.unshift(c); if(recentColors.length > 10) recentColors.pop(); renderProperties(); } }
 
@@ -306,7 +303,6 @@
         circle: "M 12, 12 m -10, 0 a 10,10 0 1,0 20,0 a 10,10 0 1,0 -20,0" 
     };
 
-    // === GİRİŞ & YÜKLEME ===
     const login = async () => {
         if (WORKER_URL === "") { alert("Lütfen HTML kodunun içindeki WORKER_URL kısmına kendi Cloudflare Worker linkinizi yazın!"); return; }
         const passVal = document.getElementById('passInput').value;
@@ -347,7 +343,6 @@
         }
     }
 
-    // === SÜRÜKLE-BIRAK DOSYA EKLEME ===
     const mainView = document.getElementById('main-view');
     mainView.addEventListener('dragover', (e) => { e.preventDefault(); mainView.style.opacity = '0.8'; });
     mainView.addEventListener('dragleave', (e) => { e.preventDefault(); mainView.style.opacity = '1'; });
@@ -371,7 +366,6 @@
         }
     });
 
-    // SAĞ TIK MENÜSÜ
     function closeCtx() { document.getElementById('context-menu').style.display = 'none'; }
     document.addEventListener('click', closeCtx);
     document.getElementById('svg-wrapper').addEventListener('contextmenu', (e) => {
@@ -388,7 +382,6 @@
         }
     });
 
-    // GELİŞMİŞ İNDİRME
     function hideGuides(hide) { const gg = document.getElementById('guides-group'); if(gg) gg.style.display = hide ? 'none' : 'block'; }
     window.openExport = function(type) {
         document.getElementById('export-format').value = type;
@@ -456,8 +449,7 @@
         line.classList.add("guide-line"); line.dataset.type = type;
         if(type === 'h') { line.setAttribute("x1", 0); line.setAttribute("y1", vb.height/2); line.setAttribute("x2", vb.width); line.setAttribute("y2", vb.height/2); line.style.cursor = "row-resize"; }
         else { line.setAttribute("x1", vb.width/2); line.setAttribute("y1", 0); line.setAttribute("x2", vb.width/2); line.setAttribute("y2", vb.height); line.style.cursor = "col-resize"; }
-        line.ondblclick = function() { this.remove(); saveState(); };
-        gg.appendChild(line); saveState();
+        line.ondblclick = function() { this.remove(); saveState(); }; gg.appendChild(line); saveState();
     }
 
     window.toggleDrawMode = function() {
@@ -470,9 +462,7 @@
     window.applyTextStyle = function(id, style) {
         const el = document.getElementById(id); if(!el) return;
         const color = el.dataset.solidColor || el.getAttribute('fill') || '#ffffff';
-        el.setAttribute('fill', color); el.setAttribute('stroke', 'none'); el.setAttribute('paint-order', 'stroke fill');
-        el.dataset.shadowX = 0; el.dataset.shadowY = 0; el.dataset.shadowBlur = 0;
-        
+        el.setAttribute('fill', color); el.setAttribute('stroke', 'none'); el.setAttribute('paint-order', 'stroke fill'); el.dataset.shadowX = 0; el.dataset.shadowY = 0; el.dataset.shadowBlur = 0;
         if (style === 'hollow') { el.setAttribute('fill', 'none'); el.setAttribute('stroke', color); el.setAttribute('stroke-width', '4'); } 
         else if (style === 'neon') { el.setAttribute('fill', '#ffffff'); el.setAttribute('stroke', color); el.setAttribute('stroke-width', '2'); el.dataset.shadowColor = color; el.dataset.shadowX = 0; el.dataset.shadowY = 0; el.dataset.shadowBlur = 15; } 
         else if (style === '3d') { el.setAttribute('fill', color); el.setAttribute('stroke', '#000000'); el.setAttribute('stroke-width', '3'); el.dataset.shadowColor = '#000000'; el.dataset.shadowX = 6; el.dataset.shadowY = 6; el.dataset.shadowBlur = 0; }
@@ -612,10 +602,8 @@
         if (!mainSvg) return;
         if (!mainSvg.getAttribute('xmlns')) mainSvg.setAttribute('xmlns', "http://www.w3.org/2000/svg");
         const vb = mainSvg.getAttribute("viewBox") || `0 0 1920 1080`; mainSvg.setAttribute("viewBox", vb); ctrl.setAttribute("viewBox", vb);
-        
         let editables = mainSvg.querySelectorAll('.duzenlenebilir');
         if (editables.length === 0) { mainSvg.querySelectorAll('text, image, rect, svg:not(#control-layer), path:not(svg path)').forEach(el => { if(el.id !== 'control-layer' && el.id !== 'canvas-background' && !el.closest('#control-layer') && !el.classList.contains('guide-line')) { el.classList.add('duzenlenebilir'); } }); }
-
         mainSvg.querySelectorAll('.duzenlenebilir').forEach(el => {
             if(!el.id) el.id = "el_" + Math.random().toString(36).substr(2,9);
             if(el.dataset.locked === "true") el.classList.add('locked');
@@ -643,7 +631,6 @@
             }
 
             if (target.classList.contains('guide-line')) { isDraggingGuide = true; currentGuide = target; try { wrapper.setPointerCapture(e.pointerId); } catch(err){} e.preventDefault(); e.stopPropagation(); return; }
-
             if (target.classList.contains('handle')) {
                 const el = document.getElementById(target.dataset.id); if (!el || el.dataset.locked === "true") return;
                 startP = p; startData = { x: parseFloat(el.getAttribute("x")) || 0, y: parseFloat(el.getAttribute("y")) || 0, w: parseFloat(el.getAttribute("width")) || 0, h: parseFloat(el.getAttribute("height")) || 0, rx: parseFloat(el.dataset.rx) || 0, baseFontSize: parseFloat(el.dataset.baseFontSize) || 60 };
@@ -668,8 +655,8 @@
             if (!selectedEl && !resizingEl && !rotatingEl && !radiusingEl) return;
             if (selectedEl && selectedEl.dataset.locked === "true" && !resizingEl && !rotatingEl && !radiusingEl) return; 
             e.preventDefault(); const dx = p.x - startP.x; const dy = p.y - startP.y;
-            let snapX = null, snapY = null; const snapTolerance = 15; const cx = svg.viewBox.baseVal.width / 2, cy = svg.viewBox.baseVal.height / 2;
-
+            
+            // SMART SNAPPING (AKILLI HİZALAMA)
             if (resizingEl) {
                 isModified = true; let { x, y, w, h } = startData;
                 if (activeHandle === 'br') { w += dx; h += dy; } else if (activeHandle === 'bl') { x += dx; w -= dx; h += dy; } else if (activeHandle === 'tr') { y += dy; w += dx; h -= dy; } else if (activeHandle === 'tl') { x += dx; y += dy; w -= dx; h -= dy; }
@@ -686,11 +673,50 @@
             }
             else if (selectedEl && isDraggingElement) {
                 isModified = true; let newX = p.x - offset.x, newY = p.y - offset.y;
-                let bbox = {width:0, height:0}; try { bbox = selectedEl.getBBox(); }catch(e){}
-                const elCx = selectedEl.tagName === 'text' ? newX : newX + bbox.width / 2; const elCy = selectedEl.tagName === 'text' ? newY : newY + bbox.height / 2;
-                if (Math.abs(elCx - cx) < snapTolerance) { snapX = cx; newX = selectedEl.tagName === 'text' ? cx : cx - bbox.width / 2; }
-                if (Math.abs(elCy - cy) < snapTolerance) { snapY = cy; newY = selectedEl.tagName === 'text' ? cy : cy - bbox.height / 2; }
-                document.querySelectorAll('.guide-line').forEach(g => { if (g.dataset.type === 'h') { const gy = parseFloat(g.getAttribute('y1')); if (Math.abs(elCy - gy) < snapTolerance) { snapY = gy; newY = selectedEl.tagName === 'text' ? gy : gy - bbox.height / 2; } } else { const gx = parseFloat(g.getAttribute('x1')); if (Math.abs(elCx - gx) < snapTolerance) { snapX = gx; newX = selectedEl.tagName === 'text' ? gx : gx - bbox.width / 2; } } });
+                let snapX = null, snapY = null; const snapTolerance = 10; 
+                const cx = svg.viewBox.baseVal.width / 2, cy = svg.viewBox.baseVal.height / 2;
+                
+                let elW = 0, elH = 0; try { const bb = selectedEl.getBBox(); elW = bb.width; elH = bb.height; } catch(e){}
+                const isTxt = selectedEl.tagName === 'text';
+                const elLeft = isTxt ? newX - elW/2 : newX; const elRight = isTxt ? newX + elW/2 : newX + elW;
+                const elTop = isTxt ? newY - elH/2 : newY; const elBottom = isTxt ? newY + elH/2 : newY + elH;
+                const elCx = isTxt ? newX : newX + elW/2; const elCy = isTxt ? newY : newY + elH/2;
+
+                if (Math.abs(elCx - cx) < snapTolerance) { snapX = cx; newX = isTxt ? cx : cx - elW/2; }
+                if (Math.abs(elCy - cy) < snapTolerance) { snapY = cy; newY = isTxt ? cy : cy - elH/2; }
+
+                document.querySelectorAll('.guide-line').forEach(g => { 
+                    if (g.dataset.type === 'h') { 
+                        const gy = parseFloat(g.getAttribute('y1')); 
+                        if (Math.abs(elCy - gy) < snapTolerance) { snapY = gy; newY = isTxt ? gy : gy - elH/2; } 
+                        else if (Math.abs(elTop - gy) < snapTolerance) { snapY = gy; newY = isTxt ? gy + elH/2 : gy; }
+                        else if (Math.abs(elBottom - gy) < snapTolerance) { snapY = gy; newY = isTxt ? gy - elH/2 : gy - elH; }
+                    } else { 
+                        const gx = parseFloat(g.getAttribute('x1')); 
+                        if (Math.abs(elCx - gx) < snapTolerance) { snapX = gx; newX = isTxt ? gx : gx - elW/2; } 
+                        else if (Math.abs(elLeft - gx) < snapTolerance) { snapX = gx; newX = isTxt ? gx + elW/2 : gx; }
+                        else if (Math.abs(elRight - gx) < snapTolerance) { snapX = gx; newX = isTxt ? gx - elW/2 : gx - elW; }
+                    } 
+                });
+
+                // Diğer nesnelere hizalama (Akıllı Mıknatıs Düzeltmesi)
+                Array.from(document.querySelectorAll('.duzenlenebilir')).filter(e => e !== selectedEl).forEach(other => {
+                    let oBBox = {x:0, y:0, width:0, height:0}; try { oBBox = other.getBBox(); } catch(e){ return; }
+                    const oIsTxt = other.tagName === 'text';
+                    const ox = parseFloat(other.getAttribute('x'))||0; const oy = parseFloat(other.getAttribute('y'))||0;
+                    const oLeft = oIsTxt ? ox - oBBox.width/2 : ox; const oRight = oIsTxt ? ox + oBBox.width/2 : ox + oBBox.width;
+                    const oTop = oIsTxt ? oy - oBBox.height/2 : oy; const oBottom = oIsTxt ? oy + oBBox.height/2 : oy + oBBox.height;
+                    const oCx = oLeft + oBBox.width/2; const oCy = oTop + oBBox.height/2;
+
+                    if (Math.abs(elCx - oCx) < snapTolerance) { snapX = oCx; newX = isTxt ? oCx : oCx - elW/2; }
+                    else if (Math.abs(elLeft - oLeft) < snapTolerance) { snapX = oLeft; newX = isTxt ? oLeft + elW/2 : oLeft; }
+                    else if (Math.abs(elRight - oRight) < snapTolerance) { snapX = oRight; newX = isTxt ? oRight - elW/2 : oRight - elW; }
+
+                    if (Math.abs(elCy - oCy) < snapTolerance) { snapY = oCy; newY = isTxt ? oCy : oCy - elH/2; }
+                    else if (Math.abs(elTop - oTop) < snapTolerance) { snapY = oTop; newY = isTxt ? oTop + elH/2 : oTop; }
+                    else if (Math.abs(elBottom - oBottom) < snapTolerance) { snapY = oBottom; newY = isTxt ? oBottom - elH/2 : oBottom - elH; }
+                });
+
                 selectedEl.setAttribute("x", newX); selectedEl.setAttribute("y", newY);
                 if((selectedEl.tagName === 'image' || selectedEl.tagName === 'rect') && selectedEl.dataset.maskShape && selectedEl.dataset.maskShape !== "none") window.applyShapeMask(selectedEl); 
                 if(selectedEl.tagName === 'text' && selectedEl.dataset.curve) window.applyTextCurve(selectedEl);
@@ -738,7 +764,7 @@
         window.updateEditorUI = updateUI; 
     }
 
-    // === KATMANLAR VE ÖZELLİK PANELİ ===
+    // === KATMANLAR VE ÖZELLİK PANELİ RENDER ===
     function renderEditor() { renderLayers(); renderProperties(); }
 
     function renderLayers() {
@@ -856,7 +882,7 @@
             let fxHtml = `<div class="input-group" style="margin-bottom:15px;"><div class="label-row" style="margin-top:0;"><span class="label-text">SAYDAMLIK (OPACITY)</span><span class="value-badge">${Math.round(opacityVal*100)}%</span></div><input type="range" min="0" max="1" step="0.05" value="${opacityVal}" oninput="const t=document.getElementById('${id}'); t.setAttribute('opacity', this.value); this.previousElementSibling.querySelector('.value-badge').innerText=Math.round(this.value*100)+'%';"></div><div class="input-group" style="margin-bottom:15px;"><span class="label-text">KARIŞIM MODU (BLEND)</span><select class="font-select" style="margin-top:5px;" onchange="const t=document.getElementById('${id}'); t.dataset.blend=this.value; window.applyFilters(t);"><option value="normal" ${blend === 'normal' ? 'selected' : ''}>Normal</option><option value="multiply" ${blend === 'multiply' ? 'selected' : ''}>Çoğalt (Multiply)</option><option value="screen" ${blend === 'screen' ? 'selected' : ''}>Ekran (Screen)</option><option value="overlay" ${blend === 'overlay' ? 'selected' : ''}>Kaplama (Overlay)</option></select></div><div class="group-box"><div class="label-text" style="color:white; margin-bottom:10px;">GÖLGE VE BLUR</div><div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;"><input type="color" value="${sC}" oninput="const t=document.getElementById('${id}'); t.dataset.shadowColor=this.value; window.applyFilters(t);" onchange="addRecentColor(this.value)" style="width:40px; height:40px; cursor:pointer; border-radius:8px; border:none; background:none;"><button class="action-btn" style="padding:10px; background:#334155;" onclick="window.pickColor('${id}', 'shadowColor', '')">💧</button><input type="text" value="${sC}" style="flex:1;" oninput="const t=document.getElementById('${id}'); t.dataset.shadowColor=this.value;" onchange="addRecentColor(this.value)"></div><div class="property-grid"><div class="input-group"><span class="label-text">GÖLGE X</span><input type="number" value="${sX}" oninput="const t=document.getElementById('${id}'); t.dataset.shadowX=this.value; window.applyFilters(t);"></div><div class="input-group"><span class="label-text">GÖLGE Y</span><input type="number" value="${sY}" oninput="const t=document.getElementById('${id}'); t.dataset.shadowY=this.value; window.applyFilters(t);"></div><div class="input-group"><span class="label-text">GÖLGE BLUR</span><input type="number" value="${sB}" oninput="const t=document.getElementById('${id}'); t.dataset.shadowBlur=this.value; window.applyFilters(t);"></div><div class="input-group"><span class="label-text">NESNE BLUR</span><input type="number" value="${bl}" oninput="const t=document.getElementById('${id}'); t.dataset.blur=this.value; window.applyFilters(t);"></div></div></div>`;
             sections.push(createPropertySection("Efektler & Görünüm", fxHtml, "effects"));
 
-            // CANLI KOD EDİTÖRÜ
+            // CANLI KOD EDİTÖRÜ (Eklenen kısım)
             const rawSvgCode = el.outerHTML.replace(/</g, "&lt;").replace(/>/g, "&gt;");
             let codeHtml = `<textarea id="raw-svg-code" style="width:100%; height:120px; background:#000; color:var(--accent); font-family:monospace; font-size:11px; padding:10px; border-radius:8px; border:1px solid var(--border); resize:vertical;">${rawSvgCode}</textarea>
             <button class="action-btn active" style="width:100%; margin-top:10px; padding:10px;" onclick="try{let p=new DOMParser(); let d=p.parseFromString(document.getElementById('raw-svg-code').value, 'image/svg+xml'); let n=d.documentElement; if(n.tagName==='parsererror') throw new Error('Geçersiz SVG'); let o=document.getElementById('${id}'); o.replaceWith(n); selectedEl=n; if(!selectedEl.id) selectedEl.id='el_'+Date.now(); if(!selectedEl.classList.contains('duzenlenebilir')) selectedEl.classList.add('duzenlenebilir'); saveState(); setupLayers(); window.updateEditorUI(selectedEl); renderEditor(); }catch(err){alert('Kod hatası: '+err.message);}">💻 KODU UYGULA</button>`;
@@ -883,12 +909,12 @@
         const svg = document.querySelector('#canvas-inner svg'); if(!svg) return; const vb = svg.viewBox.baseVal; const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
         t.id = "txt_" + Date.now(); t.setAttribute("class", "duzenlenebilir"); t.setAttribute("x", vb.width ? vb.width/2 : 500); t.setAttribute("y", vb.height ? vb.height/2 : 500); 
         t.setAttribute("text-anchor", "middle"); t.setAttribute("dominant-baseline", "central"); t.dataset.baseFontSize = "80"; t.dataset.maxWidth = "600"; t.dataset.rawText = "YENİ METİN"; t.dataset.solidColor = "#000000"; t.setAttribute("fill", "#000000"); t.setAttribute("font-size", "80"); t.setAttribute("font-family", "sans-serif"); t.textContent = "YENİ METİN";
-        svg.appendChild(t); selectedEl = t; saveState(); setupLayers(false); window.updateEditorUI(t);
+        svg.appendChild(t); selectedEl = t; saveState(); setupLayers(false); window.updateEditorUI(t); renderEditor();
     }
     function addShape(type) {
         const svg = document.querySelector('#canvas-inner svg'); if(!svg) return; const vb = svg.viewBox.baseVal; const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
         rect.id = "shp_" + Date.now(); rect.setAttribute("class", "duzenlenebilir"); rect.setAttribute("x", vb.width ? (vb.width/2)-100 : 100); rect.setAttribute("y", vb.height ? (vb.height/2)-100 : 100); rect.setAttribute("width", 200); rect.setAttribute("height", 200); rect.dataset.solidColor = "#10b981"; rect.setAttribute("fill", "#10b981"); rect.dataset.maskShape = "none";
-        svg.appendChild(rect); selectedEl = rect; saveState(); setupLayers(false); window.updateEditorUI(rect);
+        svg.appendChild(rect); selectedEl = rect; saveState(); setupLayers(false); window.updateEditorUI(rect); renderEditor();
     }
     function addIcon(type) {
         const svg = document.querySelector('#canvas-inner svg'); if(!svg) return; const vb = svg.viewBox.baseVal; 
@@ -898,7 +924,7 @@
         iconSvg.dataset.solidColor = "#ec4899"; iconSvg.setAttribute("fill", "#ec4899");
         const path = document.createElementNS("http://www.w3.org/2000/svg", "path"); path.setAttribute("d", ICONS[type]); 
         if(type === 'circle') { iconSvg.innerHTML = `<circle cx="12" cy="12" r="10" />`; } else { iconSvg.appendChild(path); }
-        svg.appendChild(iconSvg); selectedEl = iconSvg; saveState(); setupLayers(false); window.updateEditorUI(iconSvg);
+        svg.appendChild(iconSvg); selectedEl = iconSvg; saveState(); setupLayers(false); window.updateEditorUI(iconSvg); renderEditor();
     }
 
     async function saveData() {
@@ -908,7 +934,7 @@
             document.getElementById('control-layer').innerHTML = ""; hideGuides(true);
             const svgText = new XMLSerializer().serializeToString(document.querySelector('#canvas-inner svg')); const b64 = btoa(unescape(encodeURIComponent(svgText)));
             hideGuides(false);
-            const res = await fetch(WORKER_URL, { method: "PUT", headers: { "X-Auth-Key": SESSION_PASS, "X-File-Name": document.getElementById('file-selector').value }, body: JSON.stringify({message: "Pro Studio Ultimate V11", content: b64, sha: SHA_KEY}) });
+            const res = await fetch(WORKER_URL, { method: "PUT", headers: { "X-Auth-Key": SESSION_PASS, "X-File-Name": document.getElementById('file-selector').value }, body: JSON.stringify({message: "Pro Studio Ultimate V12", content: b64, sha: SHA_KEY}) });
             if(res.ok) { st.innerText = "BAŞARIYLA KAYDEDİLDİ!"; const now = new Date(); document.getElementById('status-time').innerText = `Son Kayıt: ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`; } 
             else { st.innerText = "KAYIT HATASI!"; }
             setTimeout(() => st.style.display="none", 2000);
