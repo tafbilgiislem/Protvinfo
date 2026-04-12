@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SVG Pro Studio | Katman Paneli (Layers)</title>
+    <title>SVG Pro Studio | Worker Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Merriweather:wght@400;700&family=Montserrat:wght@400;700;800&family=Nunito:wght@400;700&family=Open+Sans:wght@400;700&family=Oswald:wght@400;700&family=Pacifico&family=Playfair+Display:wght@400;700&family=Poppins:wght@400;700&family=Raleway:wght@400;700&family=Roboto:wght@400;700&family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { --accent: #10b981; --bg: #0f172a; --panel: #1e293b; --border: #334155; --handle-move: #3b82f6; --handle-rotate: #f59e0b; --handle-radius: #ec4899; }
@@ -13,8 +13,8 @@
         /* GİRİŞ EKRANI */
         #login-screen { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 10000; }
         .login-card { background: var(--panel); padding: 40px; border-radius: 20px; width: 340px; text-align: center; border: 1px solid var(--border); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-        .login-card input { width: 100%; padding: 14px; margin-bottom: 15px; border-radius: 10px; border: 1px solid var(--border); background: #000; color: #fff; text-align: center; outline: none; }
-        .login-card button { width: 100%; padding: 14px; background: var(--accent); border: none; color: white; font-weight: bold; border-radius: 10px; cursor: pointer; transition: 0.2s; }
+        .login-card input { width: 100%; padding: 14px; margin-bottom: 15px; border-radius: 10px; border: 1px solid var(--border); background: #000; color: #fff; text-align: center; outline: none; font-size:14px; }
+        .login-card button { width: 100%; padding: 14px; background: var(--accent); border: none; color: white; font-weight: bold; border-radius: 10px; cursor: pointer; transition: 0.2s; font-size:14px; }
         .login-card button:hover { opacity: 0.9; }
 
         /* ANA DÜZEN */
@@ -22,7 +22,7 @@
         #sidebar { width: 380px; background: var(--panel); border-left: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; height: 100%; z-index: 100; }
         .sidebar-nav { padding: 15px; background: #111827; border-bottom: 1px solid var(--border); flex-shrink: 0; }
         
-        /* YENİ: KATMANLAR VE ÖZELLİKLER BÖLÜMÜ */
+        /* KATMANLAR VE ÖZELLİKLER BÖLÜMÜ */
         #layers-wrapper { display: flex; flex-direction: column; height: 35%; border-bottom: 2px solid var(--border); background: #0f172a; flex-shrink: 0; }
         #layers-header { padding: 10px 15px; font-size: 12px; font-weight: bold; color: var(--accent); border-bottom: 1px solid var(--border); background: #111827; }
         #layers-list { flex: 1; overflow-y: auto; }
@@ -98,9 +98,19 @@
 
 <div id="login-screen">
     <div class="login-card">
-        <h2>Studio Girişi</h2>
-        <input type="password" id="passInput" placeholder="Sistem Şifresi">
-        <button id="loginBtn">GİRİŞ YAP</button>
+        <h2 style="margin-top:0;">Pro Studio</h2>
+        <div style="font-size:12px; color:#94a3b8; margin-bottom:20px;">Tarayıcınızda yerel çalışın veya Cloudflare Worker'a bağlanın.</div>
+        
+        <button id="localBtn" style="background:#3b82f6; margin-bottom:15px; padding:16px;">✨ BOŞ BAŞLA (YEREL ÇALIŞ)</button>
+        
+        <div style="display:flex; align-items:center; margin:15px 0;">
+            <div style="flex:1; height:1px; background:var(--border);"></div>
+            <div style="padding:0 10px; font-size:12px; color:#64748b; font-weight:bold;">VEYA</div>
+            <div style="flex:1; height:1px; background:var(--border);"></div>
+        </div>
+
+        <input type="password" id="passInput" placeholder="Worker Şifresi">
+        <button id="loginBtn" style="background:#475569;">Sunucuya Bağlan</button>
     </div>
 </div>
 
@@ -124,17 +134,17 @@
     
     <div id="sidebar">
         <div class="sidebar-nav">
-            <select id="file-selector" style="width:100%; padding:10px; background:#000; color:#fff; border-radius:8px; margin-bottom:10px; border:1px solid #334155; outline:none;">
-                <option value="slayt.svg">Ana Slayt</option>
-                <option value="kampanya.svg">Kampanya</option>
-                <option value="duyuru.svg">Duyuru</option>
-            </select>
-            
             <div style="display:flex; gap:5px; margin-bottom: 10px;">
                 <button id="saveBtn" class="action-btn active" style="flex:2; font-size:12px;">💾 KAYDET</button>
                 <button onclick="downloadPNG()" class="action-btn special" style="flex:1;">📥 PNG</button>
                 <button onclick="downloadSVG()" class="action-btn svg" style="flex:1;">📥 SVG</button>
             </div>
+
+            <select id="file-selector" style="width:100%; padding:10px; background:#000; color:#fff; border-radius:8px; margin-bottom:10px; border:1px solid #334155; outline:none;">
+                <option value="slayt.svg">Ana Slayt (slayt.svg)</option>
+                <option value="kampanya.svg">Kampanya (kampanya.svg)</option>
+                <option value="duyuru.svg">Duyuru (duyuru.svg)</option>
+            </select>
 
             <details style="margin-bottom: 10px;">
                 <summary style="font-size:11px; font-weight:bold; color:var(--accent); cursor:pointer; margin-bottom:5px;">📐 TUVAL AYARLARI (GÖSTER)</summary>
@@ -160,7 +170,7 @@
             <div class="action-row">
                 <button onclick="addIcon('star')" class="action-btn">⭐ YILDIZ</button>
                 <button onclick="addIcon('heart')" class="action-btn">❤️ KALP</button>
-                <button id="btn-draw" onclick="toggleDrawMode()" class="action-btn draw">🖌️ ÇİZİM (AÇ/KAPAT)</button>
+                <button id="btn-draw" onclick="toggleDrawMode()" class="action-btn draw">🖌️ ÇİZİM</button>
             </div>
             <input type="file" id="img-in" hidden>
         </div>
@@ -179,9 +189,11 @@
 </div>
 
 <script>
-    // === DEĞİŞKENLER VE TEMEL AYARLAR ===
-    const WORKER_URL = "https://githubtoken.tafbilgiislem.workers.dev"; // GITHUB LİNKİNİZİ BURAYA YAZIN
+    // === WORKER API YAPILANDIRMASI ===
+    const WORKER_URL = "https://githubtoken.tafbilgiislem.workers.dev"; // LÜTFEN KENDİ WORKER LİNKİNİZİ YAZIN
+    
     let SHA_KEY = "", SESSION_PASS = "";
+    let isLocalMode = false;
     
     let selectedEl = null, resizingEl = null, rotatingEl = null, radiusingEl = null, activeHandle = null;
     let offset = {x:0, y:0}, startP = {x:0, y:0}, startData = {}, isModified = false;
@@ -204,46 +216,87 @@
         heart: "M12 4.435c-1.989-5.399-12-4.597-12 3.568 0 4.068 3.06 9.481 12 14.997 8.94-5.516 12-10.929 12-14.997 0-8.118-10-8.999-12-3.568z"
     };
 
-    // === GİRİŞ ===
-    const login = async () => {
-        const passVal = document.getElementById('passInput').value;
-        if(!passVal) { alert("Şifre girin!"); return; }
-        SESSION_PASS = passVal;
-        
+    // === YEREL MOD GİRİŞİ ===
+    document.getElementById('localBtn').addEventListener('click', () => {
+        isLocalMode = true;
         document.getElementById('login-screen').style.display = "none";
         document.getElementById('app-container').style.display = "flex";
         
-        // Yeni boş belge oluştur
-        const svgHTML = `<svg width="1920" height="1080" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg"><rect id="canvas-background" x="0" y="0" width="1920" height="1080" fill="#ffffff"></rect><g id="guides-group"></g></svg>`;
-        document.getElementById('canvas-inner').innerHTML = svgHTML;
+        const localSave = localStorage.getItem("autosave_local");
+        if (localSave && confirm("Tarayıcınızda yarım kalan bir tasarım var. Geri yüklensin mi?")) {
+            document.getElementById('canvas-inner').innerHTML = localSave;
+        } else {
+            const svgHTML = `<svg width="1920" height="1080" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg"><rect id="canvas-background" x="0" y="0" width="1920" height="1080" fill="#ffffff"></rect><g id="guides-group"></g></svg>`;
+            document.getElementById('canvas-inner').innerHTML = svgHTML;
+            localStorage.removeItem("autosave_local");
+        }
         
         historyStack = []; historyIndex = -1;
         setTimeout(() => { setupLayers(); initCanvasSettings(); saveState(); }, 200);
+    });
+
+    // === SUNUCU MODU (WORKER) GİRİŞİ ===
+    const login = async () => {
+        const passVal = document.getElementById('passInput').value;
+        if(!passVal) { alert("Lütfen Worker şifrenizi girin!"); return; }
+        
+        SESSION_PASS = passVal;
+        isLocalMode = false;
+        await loadSlide(); 
     };
+    
     document.getElementById('loginBtn').addEventListener('click', login);
     document.getElementById('passInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') login(); });
-    document.getElementById('file-selector').addEventListener('change', async () => {
-        // Dosya seçildiğinde sunucudan yükleme (Eğer sunucu aktifse)
+    
+    document.getElementById('file-selector').addEventListener('change', () => {
+        if(!isLocalMode) loadSlide();
+    });
+
+    async function loadSlide() {
         const file = document.getElementById('file-selector').value;
-        const st = document.getElementById('status-info'); st.innerText = "YÜKLENİYOR..."; st.style.display = "block";
+        const st = document.getElementById('status-info'); 
+        st.innerText = "WORKER'DAN YÜKLENİYOR..."; st.style.display = "block";
+        
         try {
-            const res = await fetch(WORKER_URL, { headers: {"X-Auth-Key": SESSION_PASS, "X-File-Name": file} });
-            if (res.status === 401) { alert("Şifre Hatalı!"); st.style.display="none"; return; }
-            const data = await res.json(); SHA_KEY = data.sha;
+            // DOĞRUDAN WORKER API BAĞLANTISI (Orijinal Kod)
+            const res = await fetch(WORKER_URL, { 
+                headers: {"X-Auth-Key": SESSION_PASS, "X-File-Name": file} 
+            });
+            
+            document.getElementById('login-screen').style.display = "none";
+            document.getElementById('app-container').style.display = "flex";
+
+            if (res.status === 401) {
+                alert("Worker Şifresi Hatalı veya Yetkisiz!");
+                st.style.display="none"; 
+                document.getElementById('login-screen').style.display = "flex";
+                document.getElementById('app-container').style.display = "none";
+                return;
+            } else if (res.status === 404) {
+                SHA_KEY = "";
+                const svgHTML = `<svg width="1920" height="1080" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg"><rect id="canvas-background" x="0" y="0" width="1920" height="1080" fill="#ffffff"></rect><g id="guides-group"></g></svg>`;
+                document.getElementById('canvas-inner').innerHTML = svgHTML;
+            } else {
+                const data = await res.json(); 
+                SHA_KEY = data.sha;
+                document.getElementById('canvas-inner').innerHTML = decodeURIComponent(escape(atob(data.content)));
+            }
             
             const localSave = localStorage.getItem("autosave_" + file);
-            if (localSave && confirm("Kaydedilmemiş tasarımınız var. Geri yüklensin mi?")) {
+            if (localSave && confirm("Tarayıcınızda bu dosyanın kaydedilmemiş bir versiyonu var. O geri yüklensin mi?")) {
                 document.getElementById('canvas-inner').innerHTML = localSave;
             } else {
-                document.getElementById('canvas-inner').innerHTML = decodeURIComponent(escape(atob(data.content)));
                 localStorage.removeItem("autosave_" + file);
             }
             
             historyStack = []; historyIndex = -1;
             setTimeout(() => { setupLayers(); initCanvasSettings(); saveState(); }, 200);
             st.style.display = "none";
-        } catch(e) { alert("Bağlantı Hatası!"); st.style.display="none"; }
-    });
+        } catch(e) { 
+            alert("Cloudflare Worker'a Bağlanılamadı! Lütfen bağlantınızı kontrol edin veya Yerel Modu deneyin."); 
+            st.style.display="none"; 
+        }
+    }
 
     // === İNDİRME ===
     function hideGuides(hide) { const gg = document.getElementById('guides-group'); if(gg) gg.style.display = hide ? 'none' : 'block'; }
@@ -272,13 +325,7 @@
         const svg = document.querySelector('#canvas-inner svg'); if (!svg) return; const vb = svg.viewBox.baseVal;
         document.getElementById('canvas-w').value = vb.width || 1920; document.getElementById('canvas-h').value = vb.height || 1080;
         let bgRect = svg.querySelector('#canvas-background');
-        if (!bgRect) { bgRect = document.createElementNS("http://www.w3.org/2000/svg", "rect"); bgRect.id = "canvas-background"; bgRect.setAttribute("x", "0"); bgRect.setAttribute("y", "0"); bgRect.setAttribute("width", vb.width || 1920); bgRect.setAttribute("height", vb.height || 1080); bgRect.setAttribute("fill", "#ffffff"); svg.insertBefore(bgRect, svg.firstChild); }
         document.getElementById('canvas-bg-color').value = safeColor(bgRect.getAttribute("fill"));
-
-        if(!svg.querySelector('#guides-group')) {
-            const gg = document.createElementNS("http://www.w3.org/2000/svg", "g"); gg.id = "guides-group";
-            svg.appendChild(gg);
-        }
     }
     window.updateCanvasSize = function() { const w = document.getElementById('canvas-w').value; const h = document.getElementById('canvas-h').value; const svg = document.querySelector('#canvas-inner svg'); svg.setAttribute("viewBox", `0 0 ${w} ${h}`); document.getElementById('control-layer').setAttribute("viewBox", `0 0 ${w} ${h}`); const bgRect = svg.querySelector('#canvas-background'); if(bgRect) { bgRect.setAttribute("width", w); bgRect.setAttribute("height", h); } saveState(); };
     window.updateCanvasBg = function() { const col = document.getElementById('canvas-bg-color').value; const bgRect = document.querySelector('#canvas-background'); if(bgRect) bgRect.setAttribute("fill", col); saveState(); };
@@ -316,16 +363,25 @@
     }
 
     window.alignElement = function(id, type) {
-        const el = document.getElementById(id); if(!el) return; const svg = document.querySelector('#canvas-inner svg'); const vb = svg.viewBox.baseVal; const bbox = el.getBBox();
+        const el = document.getElementById(id); if(!el) return; const svg = document.querySelector('#canvas-inner svg'); const vb = svg.viewBox.baseVal; 
+        let bbox = {x:0, y:0, width:0, height:0};
+        try { bbox = el.getBBox(); } catch(e){}
+        
         if (el.tagName === 'text') { if(type === 'center-h') el.setAttribute('x', vb.width/2); if(type === 'center-v') el.setAttribute('y', vb.height/2); if(type === 'left') el.setAttribute('x', bbox.width/2); if(type === 'right') el.setAttribute('x', vb.width - bbox.width/2); } 
         else { let nw = parseFloat(el.getAttribute('width')) || bbox.width; let nh = parseFloat(el.getAttribute('height')) || bbox.height; if(type === 'center-h') el.setAttribute('x', (vb.width/2) - (nw/2)); if(type === 'center-v') el.setAttribute('y', (vb.height/2) - (nh/2)); if(type === 'left') el.setAttribute('x', 0); if(type === 'right') el.setAttribute('x', vb.width - nw); } 
         if(el.tagName === 'image' || el.tagName === 'rect') window.applyShapeMask(el); saveState(); if(window.updateEditorUI) window.updateEditorUI(el);
     };
 
     window.toggleFlip = function(id, dir) { const el = document.getElementById(id); if(!el) return; if(dir === 'x') el.dataset.flipX = (el.dataset.flipX === "-1") ? "1" : "-1"; else el.dataset.flipY = (el.dataset.flipY === "-1") ? "1" : "-1"; window.applyTransforms(el); saveState(); }
+    
     window.applyTransforms = function(el) {
-        const bbox = el.getBBox(); let cx = 0, cy = 0;
-        if(el.tagName === 'text') { cx = parseFloat(el.getAttribute('x')); cy = parseFloat(el.getAttribute('y')); } else { cx = (parseFloat(el.getAttribute('x')) || 0) + (parseFloat(el.getAttribute('width')) || 0) / 2; cy = (parseFloat(el.getAttribute('y')) || 0) + (parseFloat(el.getAttribute('height')) || 0) / 2; }
+        let cx = 0, cy = 0;
+        if(el.tagName === 'text') { 
+            cx = parseFloat(el.getAttribute('x')) || 0; cy = parseFloat(el.getAttribute('y')) || 0; 
+        } else if(el.tagName !== 'path') { 
+            cx = (parseFloat(el.getAttribute('x')) || 0) + (parseFloat(el.getAttribute('width')) || 0) / 2; 
+            cy = (parseFloat(el.getAttribute('y')) || 0) + (parseFloat(el.getAttribute('height')) || 0) / 2; 
+        }
         const angle = parseFloat(el.dataset.angle) || 0; const fx = parseFloat(el.dataset.flipX) || 1; const fy = parseFloat(el.dataset.flipY) || 1;
         el.setAttribute("transform", `rotate(${angle} ${cx} ${cy}) translate(${cx} ${cy}) scale(${fx} ${fy}) translate(${-cx} ${-cy})`);
         if(window.updateEditorUI) window.updateEditorUI(el);
@@ -351,7 +407,10 @@
         const svg = document.querySelector('#canvas-inner svg'); if (!svg) return;
         document.getElementById('control-layer').innerHTML = ""; 
         hideGuides(true); const state = svg.innerHTML; hideGuides(false);
-        const file = document.getElementById('file-selector').value; localStorage.setItem("autosave_" + file, state);
+        
+        const fileKey = isLocalMode ? "local" : document.getElementById('file-selector').value;
+        localStorage.setItem("autosave_" + fileKey, state);
+        
         if (historyIndex < historyStack.length - 1) historyStack = historyStack.slice(0, historyIndex + 1);
         historyStack.push(state); historyIndex++; updateHistoryButtons();
         renderLayers();
@@ -377,11 +436,17 @@
         let filterStr = ''; 
         if (sx != 0 || sy != 0 || sb != 0) filterStr += `drop-shadow(${sx}px ${sy}px ${sb}px ${sc}) `; 
         if (bri != 100) filterStr += `brightness(${bri}%) `; if (con != 100) filterStr += `contrast(${con}%) `; if (sat != 100) filterStr += `saturate(${sat}%) `; if (gray > 0) filterStr += `grayscale(${gray}%) `; if (bl > 0) filterStr += `blur(${bl}px) `;
-        el.style.filter = filterStr.trim(); el.style.mixBlendMode = blend; el.setAttribute('style', el.getAttribute('style') || ''); 
+        el.style.filter = filterStr.trim(); el.style.mixBlendMode = blend; 
     }
 
     // === ALGORİTMALAR ===
-    window.autoFitText = function(el) { if (el.tagName !== 'text') return; const mw = parseFloat(el.dataset.maxWidth) || 0; const baseFs = parseFloat(el.dataset.baseFontSize) || 60; el.style.fontSize = baseFs + "px"; el.setAttribute("font-size", baseFs); if (mw > 0) { const bbox = el.getBBox(); if (bbox.width > mw && bbox.width > 0) { const scale = mw / bbox.width; const newFs = baseFs * scale; el.style.fontSize = newFs + "px"; el.setAttribute("font-size", newFs); } } };
+    window.autoFitText = function(el) { 
+        if (el.tagName !== 'text') return; const mw = parseFloat(el.dataset.maxWidth) || 0; const baseFs = parseFloat(el.dataset.baseFontSize) || 60; el.style.fontSize = baseFs + "px"; el.setAttribute("font-size", baseFs); 
+        if (mw > 0) { 
+            let bbox = {width:0}; try { bbox = el.getBBox(); } catch(e){}
+            if (bbox.width > mw && bbox.width > 0) { const scale = mw / bbox.width; const newFs = baseFs * scale; el.style.fontSize = newFs + "px"; el.setAttribute("font-size", newFs); } 
+        } 
+    };
     window.applyTextCurve = function(el) {
         if (el.tagName !== 'text') return; const curve = parseFloat(el.dataset.curve) || 0; if(!el.dataset.rawText) el.dataset.rawText = el.textContent; const rawText = el.dataset.rawText;
         if (curve === 0) { el.innerHTML = ''; el.textContent = rawText; } else {
@@ -420,7 +485,10 @@
             if(!el.id) el.id = "el_" + Math.random().toString(36).substr(2,9);
             if(el.dataset.locked === "true") el.classList.add('locked');
             if(el.tagName === 'text') {
-                if (el.getAttribute('text-anchor') !== 'middle') { const bbox = el.getBBox(); if(bbox.width > 0) { el.setAttribute('x', bbox.x + bbox.width / 2); el.setAttribute('y', bbox.y + bbox.height / 2); el.setAttribute('text-anchor', 'middle'); el.setAttribute('dominant-baseline', 'central'); } }
+                if (el.getAttribute('text-anchor') !== 'middle') { 
+                    let bbox = {width:0}; try { bbox = el.getBBox(); } catch(e){}
+                    if(bbox.width > 0) { el.setAttribute('x', bbox.x + bbox.width / 2); el.setAttribute('y', bbox.y + bbox.height / 2); el.setAttribute('text-anchor', 'middle'); el.setAttribute('dominant-baseline', 'central'); } 
+                }
                 if (!el.dataset.baseFontSize) el.dataset.baseFontSize = el.getAttribute('font-size') || 60;
                 window.applyTextCurve(el);
             }
@@ -464,7 +532,7 @@
             const el = target.closest('.duzenlenebilir');
             if (el) {
                 selectedEl = el; offset.x = p.x - (parseFloat(el.getAttribute("x")) || 0); offset.y = p.y - (parseFloat(el.getAttribute("y")) || 0); updateUI(el);
-                renderEditor();
+                renderEditor(); 
                 if(el.dataset.locked !== "true") { try { wrapper.setPointerCapture(e.pointerId); } catch(err){} }
             } else { 
                 selectedEl = null; ctrl.innerHTML = ""; renderEditor();
@@ -491,7 +559,9 @@
                 updateUI(resizingEl); syncSliders(resizingEl);
             } 
             else if (rotatingEl) {
-                isModified = true; const bbox = rotatingEl.getBBox(); const angle = Math.atan2(p.y - (bbox.y + bbox.height/2), p.x - (bbox.x + bbox.width/2)) * (180 / Math.PI) + 90; 
+                isModified = true; 
+                let bbox = {x:0, y:0, width:0, height:0}; try{ bbox = rotatingEl.getBBox(); }catch(e){}
+                const angle = Math.atan2(p.y - (bbox.y + bbox.height/2), p.x - (bbox.x + bbox.width/2)) * (180 / Math.PI) + 90; 
                 rotatingEl.dataset.angle = angle; window.applyTransforms(rotatingEl); updateUI(rotatingEl);
             }
             else if (radiusingEl && (radiusingEl.tagName === "image" || radiusingEl.tagName === "rect")) {
@@ -499,7 +569,9 @@
             }
             else if (selectedEl) {
                 isModified = true; let newX = p.x - offset.x, newY = p.y - offset.y;
-                const bbox = selectedEl.getBBox(); const elCx = selectedEl.tagName === 'text' ? newX : newX + bbox.width / 2; const elCy = selectedEl.tagName === 'text' ? newY : newY + bbox.height / 2;
+                
+                let bbox = {width:0, height:0}; try { bbox = selectedEl.getBBox(); }catch(e){}
+                const elCx = selectedEl.tagName === 'text' ? newX : newX + bbox.width / 2; const elCy = selectedEl.tagName === 'text' ? newY : newY + bbox.height / 2;
                 
                 if (Math.abs(elCx - cx) < snapTolerance) { snapX = cx; newX = selectedEl.tagName === 'text' ? cx : cx - bbox.width / 2; }
                 if (Math.abs(elCy - cy) < snapTolerance) { snapY = cy; newY = selectedEl.tagName === 'text' ? cy : cy - bbox.height / 2; }
@@ -525,7 +597,9 @@
 
         function updateUI(el, snapX=null, snapY=null) {
             ctrl.innerHTML = ""; if(!el) return;
-            const b = el.getBBox(); const transform = el.getAttribute("transform") || ""; const isLocked = el.dataset.locked === "true";
+            let b = {x:0,y:0,width:0,height:0}; try { b = el.getBBox(); }catch(e){return;}
+            
+            const transform = el.getAttribute("transform") || ""; const isLocked = el.dataset.locked === "true";
             const g = document.createElementNS("http://www.w3.org/2000/svg", "g"); g.setAttribute("transform", transform); ctrl.appendChild(g);
 
             const vb = svg.viewBox.baseVal;
@@ -554,49 +628,22 @@
     }
 
     // === YENİ NESİL KATMANLAR VE ÖZELLİK PANELİ RENDER ===
-    function renderEditor() {
-        renderLayers();
-        renderProperties();
-    }
+    function renderEditor() { renderLayers(); renderProperties(); }
 
     function renderLayers() {
-        const list = document.getElementById('layers-list');
-        list.innerHTML = "";
+        const list = document.getElementById('layers-list'); list.innerHTML = "";
         const elements = Array.from(document.querySelectorAll('.duzenlenebilir')).reverse();
         
         elements.forEach((el) => {
-            const isLocked = el.dataset.locked === "true";
-            const isActive = selectedEl === el;
-            
+            const isLocked = el.dataset.locked === "true"; const isActive = selectedEl === el;
             let typeName = el.tagName.toUpperCase(); 
-            if (typeName === 'RECT') typeName = 'ŞEKİL'; 
-            if (typeName === 'SVG') typeName = 'İKON'; 
-            if (typeName === 'PATH') typeName = 'ÇİZİM';
-            if (typeName === 'IMAGE') typeName = 'RESİM';
-            if (el.tagName === 'text') {
-                let txt = el.dataset.rawText || el.textContent;
-                typeName = `T: ${txt.substring(0,10)}${txt.length>10?'...':''}`;
-            }
+            if (typeName === 'RECT') typeName = 'ŞEKİL'; if (typeName === 'SVG') typeName = 'İKON'; 
+            if (typeName === 'PATH') typeName = 'ÇİZİM'; if (typeName === 'IMAGE') typeName = 'RESİM';
+            if (el.tagName === 'text') { let txt = el.dataset.rawText || el.textContent; typeName = `T: ${txt.substring(0,10)}${txt.length>10?'...':''}`; }
 
-            const item = document.createElement('div');
-            item.className = `layer-item ${isActive ? 'active' : ''}`;
-            
-            item.onclick = (e) => {
-                if(e.target.closest('.layer-btn')) return;
-                selectedEl = el;
-                if(window.updateEditorUI) window.updateEditorUI(el);
-                renderEditor();
-            };
-
-            item.innerHTML = `
-                <span style="flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; ${isLocked ? 'text-decoration:line-through; opacity:0.5;' : ''}">${typeName}</span>
-                <div class="layer-actions">
-                    <button class="layer-btn" onclick="moveLayer('${el.id}', 1)" title="Yukarı Taşı">▲</button>
-                    <button class="layer-btn" onclick="moveLayer('${el.id}', -1)" title="Aşağı Taşı">▼</button>
-                    <button class="layer-btn" onclick="toggleLock('${el.id}')" title="Kilitle/Aç">${isLocked ? '🔒' : '🔓'}</button>
-                    <button class="layer-btn" style="color:#ef4444;" onclick="if(confirm('Silinecek?')){ const delId='${el.id}'; if(selectedEl && selectedEl.id===delId) selectedEl=null; document.getElementById(delId).remove(); saveState(); renderEditor(); document.getElementById('control-layer').innerHTML=''; event.stopPropagation(); }">×</button>
-                </div>
-            `;
+            const item = document.createElement('div'); item.className = `layer-item ${isActive ? 'active' : ''}`;
+            item.onclick = (e) => { if(e.target.closest('.layer-btn')) return; selectedEl = el; if(window.updateEditorUI) window.updateEditorUI(el); renderEditor(); };
+            item.innerHTML = `<span style="flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; ${isLocked ? 'text-decoration:line-through; opacity:0.5;' : ''}">${typeName}</span><div class="layer-actions"><button class="layer-btn" onclick="moveLayer('${el.id}', 1)" title="Yukarı">▲</button><button class="layer-btn" onclick="moveLayer('${el.id}', -1)" title="Aşağı">▼</button><button class="layer-btn" onclick="toggleLock('${el.id}')" title="Kilit">${isLocked ? '🔒' : '🔓'}</button><button class="layer-btn" style="color:#ef4444;" onclick="if(confirm('Silinecek?')){ const delId='${el.id}'; if(selectedEl && selectedEl.id===delId) selectedEl=null; document.getElementById(delId).remove(); saveState(); renderEditor(); document.getElementById('control-layer').innerHTML=''; event.stopPropagation(); }">×</button></div>`;
             list.appendChild(item);
         });
     }
@@ -613,13 +660,8 @@
 
     function renderProperties() {
         const f = document.getElementById('editor-fields');
-        if (!selectedEl) {
-            f.innerHTML = `<div style="text-align:center; color:#64748b; margin-top:50px; font-style:italic; font-size:13px;">👆 Düzenlemek için sahneden veya katmanlardan bir nesne seçin.</div>`;
-            return;
-        }
-
-        const el = selectedEl;
-        f.innerHTML = "";
+        if (!selectedEl) { f.innerHTML = `<div style="text-align:center; color:#64748b; margin-top:50px; font-style:italic; font-size:13px;">👆 Düzenlemek için sahneden veya katmanlardan bir nesne seçin.</div>`; return; }
+        const el = selectedEl; f.innerHTML = "";
         
         const isLocked = el.dataset.locked === "true"; const blend = el.dataset.blend || 'normal';
         const col = el.getAttribute('fill') === 'none' ? el.getAttribute('stroke') : (el.dataset.solidColor || el.getAttribute('fill') || "#ffffff"); 
@@ -630,7 +672,6 @@
         let typeName = el.tagName.toUpperCase(); if (typeName === 'RECT') typeName = 'ŞEKİL'; if (typeName === 'SVG') typeName = 'İKON'; if (typeName === 'PATH') typeName = 'ÇİZİM';
 
         let html = `<div style="font-size:12px; color:var(--accent); font-weight:bold; margin-bottom:10px; border-bottom:1px solid #334155; padding-bottom:5px;">${typeName} ÖZELLİKLERİ ${isLocked ? '🔒' : ''}</div>`;
-
         html += `<div class="action-row" style="margin-bottom:10px;"><button class="action-btn special" onclick="cloneElement('${el.id}')" ${isLocked ? 'disabled':''}>⧉ KOPYASINI OLUŞTUR</button></div>`;
         
         if(el.tagName !== 'path') {
@@ -741,16 +782,37 @@
     }
 
     async function saveData() {
-        const st = document.getElementById('status-info'); st.innerText = "KAYDEDİLİYOR..."; st.style.display = "block";
+        const st = document.getElementById('status-info'); 
+        
+        if (isLocalMode) {
+            st.innerText = "YEREL BELLEĞE KAYDEDİLDİ!"; 
+            st.style.display = "block";
+            setTimeout(() => st.style.display="none", 2000);
+            return;
+        }
+
+        st.innerText = "WORKER'A KAYDEDİLİYOR..."; st.style.display = "block";
         try {
-            document.getElementById('control-layer').innerHTML = ""; 
-            hideGuides(true);
-            localStorage.removeItem("autosave_" + document.getElementById('file-selector').value);
+            document.getElementById('control-layer').innerHTML = ""; hideGuides(true);
+            const fileKey = document.getElementById('file-selector').value;
+            localStorage.removeItem("autosave_" + fileKey);
             const svgText = new XMLSerializer().serializeToString(document.querySelector('#canvas-inner svg')); const b64 = btoa(unescape(encodeURIComponent(svgText)));
             hideGuides(false);
-            await fetch(WORKER_URL, { method: "PUT", headers: {"X-Auth-Key": SESSION_PASS, "X-File-Name": document.getElementById('file-selector').value}, body: JSON.stringify({message: "Layer Properties Fix", content: b64, sha: SHA_KEY}) });
-            st.innerText = "BAŞARIYLA KAYDEDİLDİ!"; setTimeout(() => st.style.display="none", 2000);
-        } catch(e) { alert("Hata!"); st.style.display="none"; }
+            
+            // DOĞRUDAN WORKER API KAYIT (Orijinal Kod)
+            const res = await fetch(WORKER_URL, { 
+                method: "PUT", 
+                headers: { "X-Auth-Key": SESSION_PASS, "X-File-Name": fileKey }, 
+                body: JSON.stringify({message: "Pro Studio Update", content: b64, sha: SHA_KEY}) 
+            });
+            
+            if(res.ok) {
+                st.innerText = "BAŞARIYLA KAYDEDİLDİ!"; 
+            } else {
+                st.innerText = "KAYIT HATASI!"; 
+            }
+            setTimeout(() => st.style.display="none", 2000);
+        } catch(e) { alert("Hata Oluştu!"); st.style.display="none"; }
     }
 </script>
 </body>
