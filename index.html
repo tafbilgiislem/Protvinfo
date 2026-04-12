@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SVG Pro Studio | Gelişmiş Arayüz</title>
+    <title>SVG Pro Studio | Kurtarma Aktif Sürüm</title>
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Merriweather:wght@400;700&family=Montserrat:wght@400;700;800&family=Nunito:wght@400;700&family=Open+Sans:wght@400;700&family=Oswald:wght@400;700&family=Pacifico&family=Playfair+Display:wght@400;700&family=Poppins:wght@400;700&family=Raleway:wght@400;700&family=Roboto:wght@400;700&family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { --accent: #10b981; --bg: #0f172a; --panel: #1e293b; --border: #334155; --handle-move: #3b82f6; --handle-rotate: #f59e0b; --handle-radius: #ec4899; }
@@ -145,7 +145,7 @@
 
 <script>
     // === YAPILANDIRMA ===
-    const WORKER_URL = "https://githubtoken.tafbilgiislem.workers.dev"; // KENDİ LİNKİNİZİ YAZIN
+    const WORKER_URL = "https://githubtoken.tafbilgiislem.workers.dev"; // LÜTFEN KENDİ GITHUB/WORKER LİNKİNİZİ YAZIN
     let SHA_KEY = "", SESSION_PASS = "";
     let selectedEl = null, resizingEl = null, rotatingEl = null, radiusingEl = null, activeHandle = null;
     let offset = {x:0, y:0}, startP = {x:0, y:0}, startData = {}, isModified = false;
@@ -191,7 +191,6 @@
             document.getElementById('login-screen').style.display = "none";
             document.getElementById('app-container').style.display = "flex";
             
-            // AUTO-SAVE Kontrolü
             const localSave = localStorage.getItem("autosave_" + file);
             if (localSave && confirm("Kaydedilmemiş yarım kalan bir tasarımınız var. Geri yüklensin mi?")) {
                 document.getElementById('canvas-inner').innerHTML = localSave;
@@ -266,7 +265,6 @@
     window.toggleLock = function(id) { const el = document.getElementById(id); if(!el) return; const isLocked = el.dataset.locked === "true"; el.dataset.locked = isLocked ? "false" : "true"; el.classList.toggle('locked', !isLocked); saveState(); renderFields(); if(window.updateEditorUI) window.updateEditorUI(el); }
     window.alignElement = function(id, type) { const el = document.getElementById(id); if(!el) return; const svg = document.querySelector('#canvas-inner svg'); const vb = svg.viewBox.baseVal; const bbox = el.getBBox(); if (el.tagName === 'text') { if(type === 'center-h') el.setAttribute('x', vb.width/2); if(type === 'center-v') el.setAttribute('y', vb.height/2); if(type === 'left') el.setAttribute('x', bbox.width/2); if(type === 'right') el.setAttribute('x', vb.width - bbox.width/2); } else { let nw = parseFloat(el.getAttribute('width')) || bbox.width; let nh = parseFloat(el.getAttribute('height')) || bbox.height; if(type === 'center-h') el.setAttribute('x', (vb.width/2) - (nw/2)); if(type === 'center-v') el.setAttribute('y', (vb.height/2) - (nh/2)); if(type === 'left') el.setAttribute('x', 0); if(type === 'right') el.setAttribute('x', vb.width - nw); } if(el.tagName === 'image' || el.tagName === 'rect') window.applySquircle(el); saveState(); if(window.updateEditorUI) window.updateEditorUI(el); };
     
-    // GÖLGELER VE FİLTRELER
     window.applyFilters = function(el) { 
         const sx = el.dataset.shadowX || 0, sy = el.dataset.shadowY || 0, sb = el.dataset.shadowBlur || 0, sc = el.dataset.shadowColor || '#000000'; 
         const bri = el.dataset.bri || 100, con = el.dataset.con || 100, sat = el.dataset.sat || 100, gray = el.dataset.gray || 0, bl = el.dataset.blur || 0; 
@@ -286,11 +284,22 @@
     function describeRoundedRect(r, s, x, y, w, h) { if (r <= 0) return `M ${x} ${y} H ${x + w} V ${y + h} H ${x} Z`; r = Math.min(r, w / 2, h / 2); const kappa = (4 * (r * (1 - s)) * Math.tan(Math.PI / 4)) / 3; const pts = [ [x + r, y], [x + w - r, y], [x + w, y + r], [x + w, y + h - r], [x + w - r, y + h], [x + r, y + h], [x, y + h - r], [x, y + r] ]; return `M ${pts[0][0]} ${pts[0][1]} L ${pts[1][0]} ${pts[1][1]} C ${pts[1][0] + kappa} ${pts[1][1]} ${pts[2][0]} ${pts[2][1] - kappa} ${pts[2][0]} ${pts[2][1]} L ${pts[3][0]} ${pts[3][1]} C ${pts[3][0]} ${pts[3][1] + kappa} ${pts[4][0] + kappa} ${pts[4][1]} ${pts[4][0]} ${pts[4][1]} L ${pts[5][0]} ${pts[5][1]} C ${pts[5][0] - kappa} ${pts[5][1]} ${pts[6][0]} ${pts[6][1] + kappa} ${pts[6][0]} ${pts[6][1]} L ${pts[7][0]} ${pts[7][1]} C ${pts[7][0]} ${pts[7][1] - kappa} ${pts[0][0] - kappa} ${pts[0][1]} ${pts[0][0]} ${pts[0][1]} Z`; }
     window.applySquircle = function(el) { if (el.tagName !== 'image' && el.tagName !== 'rect') return; let rx = parseFloat(el.dataset.rx) || 0; let sm = parseFloat(el.dataset.smoothing); if (isNaN(sm)) sm = 0.5; const x = parseFloat(el.getAttribute('x')) || 0, y = parseFloat(el.getAttribute('y')) || 0, w = parseFloat(el.getAttribute('width')) || 0, h = parseFloat(el.getAttribute('height')) || 0; const svg = document.querySelector('#canvas-inner svg'); let defs = svg.querySelector('defs'); if (!defs) { defs = document.createElementNS("http://www.w3.org/2000/svg", "defs"); svg.prepend(defs); } const clipId = "clip_" + el.id; let clipPath = defs.querySelector("#" + clipId); if (!clipPath) { clipPath = document.createElementNS("http://www.w3.org/2000/svg", "clipPath"); clipPath.id = clipId; const path = document.createElementNS("http://www.w3.org/2000/svg", "path"); clipPath.appendChild(path); defs.appendChild(clipPath); el.setAttribute("clip-path", `url(#${clipId})`); } clipPath.querySelector('path').setAttribute("d", describeRoundedRect(rx, sm, x, y, w, h)); };
 
-    function setupLayers() {
+    // === AKILLI KURTARMA İLE SETUP LAYERS ===
+    function setupLayers(doSave = true) {
         const mainSvg = document.querySelector('#canvas-inner svg'); const ctrl = document.getElementById('control-layer');
         if (!mainSvg) return;
         if (!mainSvg.getAttribute('xmlns')) mainSvg.setAttribute('xmlns', "http://www.w3.org/2000/svg");
         const vb = mainSvg.getAttribute("viewBox") || `0 0 1920 1080`; mainSvg.setAttribute("viewBox", vb); ctrl.setAttribute("viewBox", vb);
+        
+        // AKILLI KURTARMA (Eski Dosyaları Otomatik Düzenlenebilir Yap)
+        let editables = mainSvg.querySelectorAll('.duzenlenebilir');
+        if (editables.length === 0) {
+            mainSvg.querySelectorAll('text, image, rect, svg, path').forEach(el => {
+                if(el.id !== 'control-layer' && el.id !== 'canvas-background' && !el.closest('#control-layer')) {
+                    el.classList.add('duzenlenebilir');
+                }
+            });
+        }
         
         mainSvg.querySelectorAll('.duzenlenebilir').forEach(el => {
             if(!el.id) el.id = "el_" + Math.random().toString(36).substr(2,9);
@@ -306,7 +315,7 @@
         initEngine(mainSvg); renderFields();
     }
 
-    // === PRO MOTOR ===
+    // === PRO MOTOR (SÜRÜKLE / BOYUTLANDIR) ===
     function initEngine(svg) {
         const wrapper = document.getElementById('svg-wrapper'); const ctrl = document.getElementById('control-layer');
         const getCoords = (e) => { const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY; const ctm = svg.getScreenCTM(); if (!ctm) return { x: 0, y: 0 }; const cursorpt = pt.matrixTransform(ctm.inverse()); return { x: cursorpt.x, y: cursorpt.y }; };
@@ -390,7 +399,7 @@
         window.updateEditorUI = updateUI; 
     }
 
-    // === SİDEBAR RENDER (Rozetler ve Sıfırlama Butonu İle) ===
+    // === SİDEBAR RENDER ===
     function syncSliders(el) {
         const i = Array.from(document.querySelectorAll('.duzenlenebilir')).indexOf(el); if (i === -1) return;
         if (el.tagName === 'text') { const fs = parseFloat(el.dataset.baseFontSize) || 60; const slider = document.getElementById(`fs-slider-${i}`); if(slider) slider.value = fs; const badge = document.getElementById(`val-fs-${i}`); if(badge) badge.innerText = Math.round(fs) + "px"; } 
@@ -437,53 +446,16 @@
                 }
             }
 
-            // GÖLGE, EFEKT VE RENK KUTUSU
-            html += `
-                <div class="group-box">
-                    <div style="display:flex; gap:10px; margin-bottom: 10px;">
-                        <div>
-                            <div class="label-text" style="margin-bottom:5px;">RENK</div>
-                            <input type="color" value="${safeColor(col)}" oninput="const t=document.getElementById('${el.id}'); t.setAttribute('fill', this.value); t.style.fill=this.value;" onchange="saveState()" style="width:35px; height:35px; border-radius:8px; border:none; background:none; cursor:pointer;" ${isLocked ? 'disabled' : ''}>
-                        </div>
-                        <div>
-                            <div class="label-text" style="margin-bottom:5px;">GÖLGE</div>
-                            <input type="color" value="${sC}" oninput="const t=document.getElementById('${el.id}'); t.dataset.shadowColor=this.value; window.applyFilters(t);" onchange="saveState()" style="width:35px; height:35px; border-radius:8px; border:none; background:none; cursor:pointer;" ${isLocked ? 'disabled' : ''}>
-                        </div>
-                        <div style="flex:1;">
-                            <div class="label-row" style="margin-top:0;"><span class="label-text">ŞEFFAFLIK</span><span class="value-badge" id="val-op-${i}">${Math.round(opacityVal*100)}%</span></div>
-                            <input type="range" min="0" max="1" step="0.05" value="${opacityVal}" oninput="const t=document.getElementById('${el.id}'); t.setAttribute('opacity', this.value); document.getElementById('val-op-${i}').innerText=Math.round(this.value*100)+'%';" onchange="saveState()" ${isLocked ? 'disabled' : ''}>
-                        </div>
-                    </div>
-                    
-                    <div style="display:flex; gap:10px; margin-top: 15px;">
-                        <div style="flex:1;">
-                            <div class="label-row" style="margin-top:0;"><span class="label-text">GÖLGE X</span><span class="value-badge" id="val-sx-${i}">${sX}</span></div>
-                            <input type="range" min="-50" max="50" value="${sX}" oninput="const t=document.getElementById('${el.id}'); t.dataset.shadowX=this.value; window.applyFilters(t); document.getElementById('val-sx-${i}').innerText=this.value;" onchange="saveState()" ${isLocked ? 'disabled' : ''}>
-                        </div>
-                        <div style="flex:1;">
-                            <div class="label-row" style="margin-top:0;"><span class="label-text">GÖLGE Y</span><span class="value-badge" id="val-sy-${i}">${sY}</span></div>
-                            <input type="range" min="-50" max="50" value="${sY}" oninput="const t=document.getElementById('${el.id}'); t.dataset.shadowY=this.value; window.applyFilters(t); document.getElementById('val-sy-${i}').innerText=this.value;" onchange="saveState()" ${isLocked ? 'disabled' : ''}>
-                        </div>
-                    </div>
-                    
-                    <div style="display:flex; gap:10px; margin-top: 5px;">
-                        <div style="flex:1;">
-                            <div class="label-row" style="margin-top:0;"><span class="label-text">GÖLGE BLUR</span><span class="value-badge" id="val-sb-${i}">${sB}</span></div>
-                            <input type="range" min="0" max="50" value="${sB}" oninput="const t=document.getElementById('${el.id}'); t.dataset.shadowBlur=this.value; window.applyFilters(t); document.getElementById('val-sb-${i}').innerText=this.value;" onchange="saveState()" ${isLocked ? 'disabled' : ''}>
-                        </div>
-                        <div style="flex:1;">
-                            <div class="label-row" style="margin-top:0;"><span class="label-text">ÖĞE BLUR</span><span class="value-badge" id="val-bl-${i}">${bl}</span></div>
-                            <input type="range" min="0" max="50" value="${bl}" oninput="const t=document.getElementById('${el.id}'); t.dataset.blur=this.value; window.applyFilters(t); document.getElementById('val-bl-${i}').innerText=this.value;" onchange="saveState()" ${isLocked ? 'disabled' : ''}>
-                        </div>
-                    </div>
-
-                    <button class="action-btn danger" style="width:100%; margin-top:10px;" onclick="const t=document.getElementById('${el.id}'); t.dataset.shadowX=0; t.dataset.shadowY=0; t.dataset.shadowBlur=0; t.dataset.blur=0; window.applyFilters(t); saveState(); renderFields();" ${isLocked ? 'disabled' : ''}>🚫 GÖLGE VE EFEKTLERİ SIFIRLA</button>
-                </div>
-            `;
+            html += `<div class="group-box"><div style="display:flex; gap:10px; margin-bottom: 10px;"><div><div class="label-text" style="margin-bottom:5px;">RENK</div><input type="color" value="${safeColor(col)}" oninput="const t=document.getElementById('${el.id}'); t.setAttribute('fill', this.value); t.style.fill=this.value;" onchange="saveState()" style="width:35px; height:35px; border-radius:8px; border:none; background:none; cursor:pointer;" ${isLocked ? 'disabled' : ''}></div><div><div class="label-text" style="margin-bottom:5px;">GÖLGE</div><input type="color" value="${sC}" oninput="const t=document.getElementById('${el.id}'); t.dataset.shadowColor=this.value; window.applyFilters(t);" onchange="saveState()" style="width:35px; height:35px; border-radius:8px; border:none; background:none; cursor:pointer;" ${isLocked ? 'disabled' : ''}></div><div style="flex:1;"><div class="label-row" style="margin-top:0;"><span class="label-text">ŞEFFAFLIK</span><span class="value-badge" id="val-op-${i}">${Math.round(opacityVal*100)}%</span></div><input type="range" min="0" max="1" step="0.05" value="${opacityVal}" oninput="const t=document.getElementById('${el.id}'); t.setAttribute('opacity', this.value); document.getElementById('val-op-${i}').innerText=Math.round(this.value*100)+'%';" onchange="saveState()" ${isLocked ? 'disabled' : ''}></div></div>`;
+            html += `<div style="display:flex; gap:10px; margin-top: 15px;"><div style="flex:1;"><div class="label-row" style="margin-top:0;"><span class="label-text">GÖLGE X</span><span class="value-badge" id="val-sx-${i}">${sX}</span></div><input type="range" min="-50" max="50" value="${sX}" oninput="const t=document.getElementById('${el.id}'); t.dataset.shadowX=this.value; window.applyFilters(t); document.getElementById('val-sx-${i}').innerText=this.value;" onchange="saveState()" ${isLocked ? 'disabled' : ''}></div><div style="flex:1;"><div class="label-row" style="margin-top:0;"><span class="label-text">GÖLGE Y</span><span class="value-badge" id="val-sy-${i}">${sY}</span></div><input type="range" min="-50" max="50" value="${sY}" oninput="const t=document.getElementById('${el.id}'); t.dataset.shadowY=this.value; window.applyFilters(t); document.getElementById('val-sy-${i}').innerText=this.value;" onchange="saveState()" ${isLocked ? 'disabled' : ''}></div></div>`;
+            html += `<div style="display:flex; gap:10px; margin-top: 5px;"><div style="flex:1;"><div class="label-row" style="margin-top:0;"><span class="label-text">GÖLGE BLUR</span><span class="value-badge" id="val-sb-${i}">${sB}</span></div><input type="range" min="0" max="50" value="${sB}" oninput="const t=document.getElementById('${el.id}'); t.dataset.shadowBlur=this.value; window.applyFilters(t); document.getElementById('val-sb-${i}').innerText=this.value;" onchange="saveState()" ${isLocked ? 'disabled' : ''}></div><div style="flex:1;"><div class="label-row" style="margin-top:0;"><span class="label-text">ÖĞE BLUR</span><span class="value-badge" id="val-bl-${i}">${bl}</span></div><input type="range" min="0" max="50" value="${bl}" oninput="const t=document.getElementById('${el.id}'); t.dataset.blur=this.value; window.applyFilters(t); document.getElementById('val-bl-${i}').innerText=this.value;" onchange="saveState()" ${isLocked ? 'disabled' : ''}></div></div>`;
+            html += `<button class="action-btn danger" style="width:100%; margin-top:10px;" onclick="const t=document.getElementById('${el.id}'); t.dataset.shadowX=0; t.dataset.shadowY=0; t.dataset.shadowBlur=0; t.dataset.blur=0; window.applyFilters(t); saveState(); renderFields();" ${isLocked ? 'disabled' : ''}>🚫 GÖLGE VE EFEKTLERİ SIFIRLA</button></div>`;
 
             b.innerHTML = html; f.appendChild(b);
         });
     }
+
+    function safeColor(c) { if(!c) return "#ffffff"; if(c.length === 4 && c.startsWith('#')) return "#" + c[1] + c[1] + c[2] + c[2] + c[3] + c[3]; return c.startsWith('#') && c.length === 7 ? c : "#ffffff"; }
 
     // === EKLEME FONKSİYONLARI ===
     document.getElementById('saveBtn').onclick = saveData;
@@ -523,7 +495,7 @@
             document.getElementById('control-layer').innerHTML = ""; 
             localStorage.removeItem("autosave_" + document.getElementById('file-selector').value);
             const svgText = new XMLSerializer().serializeToString(document.querySelector('#canvas-inner svg')); const b64 = btoa(unescape(encodeURIComponent(svgText)));
-            await fetch(WORKER_URL, { method: "PUT", headers: {"X-Auth-Key": SESSION_PASS, "X-File-Name": document.getElementById('file-selector').value}, body: JSON.stringify({message: "Shadow Badges Fix", content: b64, sha: SHA_KEY}) });
+            await fetch(WORKER_URL, { method: "PUT", headers: {"X-Auth-Key": SESSION_PASS, "X-File-Name": document.getElementById('file-selector').value}, body: JSON.stringify({message: "Studio Complete Fix", content: b64, sha: SHA_KEY}) });
             st.innerText = "BAŞARIYLA KAYDEDİLDİ!"; setTimeout(() => st.style.display="none", 2000);
         } catch(e) { alert("Hata!"); st.style.display="none"; }
     }
