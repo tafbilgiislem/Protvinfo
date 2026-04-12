@@ -3,35 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SVG Pro Studio | Smart Auto-Save & Snapping</title>
+    <title>SVG Pro Studio | Gelişmiş Arayüz</title>
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Merriweather:wght@400;700&family=Montserrat:wght@400;700;800&family=Nunito:wght@400;700&family=Open+Sans:wght@400;700&family=Oswald:wght@400;700&family=Pacifico&family=Playfair+Display:wght@400;700&family=Poppins:wght@400;700&family=Raleway:wght@400;700&family=Roboto:wght@400;700&family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { --accent: #10b981; --bg: #0f172a; --panel: #1e293b; --border: #334155; --handle-move: #3b82f6; --handle-rotate: #f59e0b; --handle-radius: #ec4899; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         html, body { margin: 0; padding: 0; width: 100%; height: 100vh; height: 100dvh; overflow: hidden; background: var(--bg); color: white; font-family: 'Inter', sans-serif; overscroll-behavior-y: none; }
 
+        /* GİRİŞ EKRANI */
         #login-screen { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 10000; }
         .login-card { background: var(--panel); padding: 40px; border-radius: 20px; width: 340px; text-align: center; border: 1px solid var(--border); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
         .login-card input { width: 100%; padding: 14px; margin-bottom: 15px; border-radius: 10px; border: 1px solid var(--border); background: #000; color: #fff; text-align: center; font-size: 16px; outline: none; }
         .login-card button { width: 100%; padding: 14px; background: var(--accent); border: none; color: white; font-weight: bold; border-radius: 10px; cursor: pointer; transition: 0.2s; }
         .login-card button:hover { opacity: 0.9; }
 
+        /* ANA DÜZEN */
         #app-container { display: none; height: 100%; width: 100%; flex-direction: row; }
         #sidebar { width: 380px; background: var(--panel); border-left: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; height: 100%; z-index: 100; }
         .sidebar-nav { padding: 15px; background: #111827; border-bottom: 1px solid var(--border); flex-shrink: 0; }
         #editor-fields { flex: 1; min-height: 0; overflow-y: auto; padding: 15px; background: rgba(0,0,0,0.2); padding-bottom: 100px; touch-action: pan-y; }
 
+        /* ÇİZİM VE ZOOM ALANI */
         #main-view { flex: 1; background: #020617; overflow: auto; position: relative; height: 100%; }
         #zoom-container { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; transform-origin: center center; transition: transform 0.2s ease-out; }
         #svg-wrapper { position: relative; background: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 50px black; touch-action: none; }
         #canvas-inner { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
         #canvas-inner svg { width: auto; height: auto; max-width: 100%; max-height: 100%; object-fit: contain; overflow: visible; }
 
+        /* FLOATING TOOLBAR */
         .floating-tools { position: fixed; bottom: 20px; left: 20px; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 8px; display: flex; gap: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 500; }
         .tool-btn { background: #0f172a; color: white; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; cursor: pointer; font-weight: bold; transition: 0.2s; }
         .tool-btn:hover { background: var(--accent); border-color: var(--accent); }
         .tool-btn:disabled { opacity: 0.4; cursor: not-allowed; background: #0f172a !important; border-color: var(--border) !important; }
 
+        /* TUTAMAÇLAR */
         .duzenlenebilir { cursor: move; pointer-events: all; }
         .locked { cursor: not-allowed !important; }
         #control-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; overflow: visible; }
@@ -40,10 +45,8 @@
         .handle-resize { stroke: var(--handle-move); cursor: nwse-resize; }
         .handle-rotate { stroke: var(--handle-rotate); cursor: crosshair; fill: var(--handle-rotate); }
         .handle-radius { stroke: var(--handle-radius); cursor: ns-resize; fill: var(--handle-radius); }
-        
-        /* Akıllı Kılavuz (Snapping) Çizgisi */
-        .snap-line { stroke: #ec4899; stroke-width: 1.5; stroke-dasharray: 4,4; pointer-events: none; z-index: 60; }
 
+        /* ARAYÜZ (UI) */
         .field-box { background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 15px; position: relative; border-left: 4px solid transparent; transition: 0.3s; }
         .field-box.active { border-left-color: var(--accent); background: rgba(16, 185, 129, 0.05); }
         .delete-btn { position: absolute; right: 12px; top: 12px; color: #ef4444; cursor: pointer; font-weight: bold; font-size: 20px; }
@@ -57,7 +60,7 @@
         .font-select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #000; color: #fff; margin-bottom: 5px; outline: none; font-size: 13px; cursor: pointer; }
         
         .action-row { display: flex; gap: 5px; margin-bottom: 10px; flex-wrap: wrap; }
-        .action-btn { flex: 1; background: #334155; color: white; border: none; border-radius: 6px; padding: 8px; font-size: 11px; font-weight: bold; cursor: pointer; text-align:center;}
+        .action-btn { flex: 1; background: #334155; color: white; border: none; border-radius: 6px; padding: 8px; font-size: 11px; font-weight: bold; cursor: pointer; min-width: 60px; text-align:center;}
         .action-btn:hover { background: #475569; }
         .action-btn.active { background: var(--accent); }
         .action-btn.danger { background: #991b1b; }
@@ -157,9 +160,13 @@
         { name: "Open Sans", val: "'Open Sans', sans-serif" }, { name: "Lato", val: "'Lato', sans-serif" },
         { name: "Playfair Display", val: "'Playfair Display', serif" }, { name: "Pacifico", val: "'Pacifico', cursive" }
     ];
-    const ICONS = { star: "M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z", heart: "M12 4.435c-1.989-5.399-12-4.597-12 3.568 0 4.068 3.06 9.481 12 14.997 8.94-5.516 12-10.929 12-14.997 0-8.118-10-8.999-12-3.568z" };
 
-    // === GİRİŞ & AUTO-SAVE KONTROLÜ ===
+    const ICONS = {
+        star: "M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z",
+        heart: "M12 4.435c-1.989-5.399-12-4.597-12 3.568 0 4.068 3.06 9.481 12 14.997 8.94-5.516 12-10.929 12-14.997 0-8.118-10-8.999-12-3.568z"
+    };
+
+    // === GİRİŞ ===
     const login = async () => {
         const passVal = document.getElementById('passInput').value;
         if(!passVal) { alert("Şifre girin!"); return; }
@@ -184,13 +191,13 @@
             document.getElementById('login-screen').style.display = "none";
             document.getElementById('app-container').style.display = "flex";
             
-            // AUTO-SAVE (Kurtarma) Kontrolü
+            // AUTO-SAVE Kontrolü
             const localSave = localStorage.getItem("autosave_" + file);
             if (localSave && confirm("Kaydedilmemiş yarım kalan bir tasarımınız var. Geri yüklensin mi?")) {
                 document.getElementById('canvas-inner').innerHTML = localSave;
             } else {
                 document.getElementById('canvas-inner').innerHTML = decodeURIComponent(escape(atob(data.content)));
-                localStorage.removeItem("autosave_" + file); // Yeni başlarsa eskiyi temizle
+                localStorage.removeItem("autosave_" + file);
             }
             
             historyStack = []; historyIndex = -1;
@@ -217,7 +224,7 @@
         img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgData)));
     }
 
-    // === KLAVYE KISAYOLLARI (Nudge) ===
+    // === KLAVYE KISAYOLLARI ===
     document.addEventListener('keydown', (e) => {
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') return;
         if (e.ctrlKey && e.key === 'z') { e.preventDefault(); undo(); return; }
@@ -235,16 +242,11 @@
     });
     document.addEventListener('keyup', (e) => { if(isModified && e.key.startsWith('Arrow')) { saveState(); isModified = false; } });
 
-    // === GERİ AL & AUTO-SAVE (HISTORY SYSTEM) ===
+    // === GERİ AL / İLERİ AL & AUTO-SAVE ===
     function saveState() {
         const svg = document.querySelector('#canvas-inner svg'); if (!svg) return;
-        document.getElementById('control-layer').innerHTML = ""; 
-        const state = svg.innerHTML;
-        
-        // Auto-Save: Yerel Belleğe kaydet
-        const file = document.getElementById('file-selector').value;
-        localStorage.setItem("autosave_" + file, state);
-
+        document.getElementById('control-layer').innerHTML = ""; const state = svg.innerHTML;
+        const file = document.getElementById('file-selector').value; localStorage.setItem("autosave_" + file, state);
         if (historyIndex < historyStack.length - 1) historyStack = historyStack.slice(0, historyIndex + 1);
         historyStack.push(state); historyIndex++; updateHistoryButtons();
     }
@@ -263,7 +265,21 @@
     window.cloneElement = function(id) { const el = document.getElementById(id); if(!el) return; const clone = el.cloneNode(true); clone.id = "el_" + Date.now(); clone.setAttribute("x", (parseFloat(el.getAttribute("x")) || 0) + 30); clone.setAttribute("y", (parseFloat(el.getAttribute("y")) || 0) + 30); el.parentNode.appendChild(clone); selectedEl = clone; saveState(); setupLayers(false); window.updateEditorUI(clone); };
     window.toggleLock = function(id) { const el = document.getElementById(id); if(!el) return; const isLocked = el.dataset.locked === "true"; el.dataset.locked = isLocked ? "false" : "true"; el.classList.toggle('locked', !isLocked); saveState(); renderFields(); if(window.updateEditorUI) window.updateEditorUI(el); }
     window.alignElement = function(id, type) { const el = document.getElementById(id); if(!el) return; const svg = document.querySelector('#canvas-inner svg'); const vb = svg.viewBox.baseVal; const bbox = el.getBBox(); if (el.tagName === 'text') { if(type === 'center-h') el.setAttribute('x', vb.width/2); if(type === 'center-v') el.setAttribute('y', vb.height/2); if(type === 'left') el.setAttribute('x', bbox.width/2); if(type === 'right') el.setAttribute('x', vb.width - bbox.width/2); } else { let nw = parseFloat(el.getAttribute('width')) || bbox.width; let nh = parseFloat(el.getAttribute('height')) || bbox.height; if(type === 'center-h') el.setAttribute('x', (vb.width/2) - (nw/2)); if(type === 'center-v') el.setAttribute('y', (vb.height/2) - (nh/2)); if(type === 'left') el.setAttribute('x', 0); if(type === 'right') el.setAttribute('x', vb.width - nw); } if(el.tagName === 'image' || el.tagName === 'rect') window.applySquircle(el); saveState(); if(window.updateEditorUI) window.updateEditorUI(el); };
-    window.applyFilters = function(el) { const sx = el.dataset.shadowX || 0, sy = el.dataset.shadowY || 0, sb = el.dataset.shadowBlur || 0, sc = el.dataset.shadowColor || '#000000'; const bri = el.dataset.bri || 100, con = el.dataset.con || 100, sat = el.dataset.sat || 100, gray = el.dataset.gray || 0; let filterStr = ''; if (sx != 0 || sy != 0 || sb != 0) filterStr += `drop-shadow(${sx}px ${sy}px ${sb}px ${sc}) `; if (bri != 100) filterStr += `brightness(${bri}%) `; if (con != 100) filterStr += `contrast(${con}%) `; if (sat != 100) filterStr += `saturate(${sat}%) `; if (gray > 0) filterStr += `grayscale(${gray}%) `; el.style.filter = filterStr.trim(); el.setAttribute('style', el.getAttribute('style') || ''); }
+    
+    // GÖLGELER VE FİLTRELER
+    window.applyFilters = function(el) { 
+        const sx = el.dataset.shadowX || 0, sy = el.dataset.shadowY || 0, sb = el.dataset.shadowBlur || 0, sc = el.dataset.shadowColor || '#000000'; 
+        const bri = el.dataset.bri || 100, con = el.dataset.con || 100, sat = el.dataset.sat || 100, gray = el.dataset.gray || 0, bl = el.dataset.blur || 0; 
+        let filterStr = ''; 
+        if (sx != 0 || sy != 0 || sb != 0) filterStr += `drop-shadow(${sx}px ${sy}px ${sb}px ${sc}) `; 
+        if (bri != 100) filterStr += `brightness(${bri}%) `; 
+        if (con != 100) filterStr += `contrast(${con}%) `; 
+        if (sat != 100) filterStr += `saturate(${sat}%) `; 
+        if (gray > 0) filterStr += `grayscale(${gray}%) `; 
+        if (bl > 0) filterStr += `blur(${bl}px) `;
+        el.style.filter = filterStr.trim(); 
+        el.setAttribute('style', el.getAttribute('style') || ''); 
+    }
 
     // === ALGORİTMALAR (Squircle & AutoFit) ===
     window.autoFitText = function(el) { if (el.tagName !== 'text') return; const mw = parseFloat(el.dataset.maxWidth) || 0; const baseFs = parseFloat(el.dataset.baseFontSize) || 60; el.style.fontSize = baseFs + "px"; el.setAttribute("font-size", baseFs); if (mw > 0) { const bbox = el.getBBox(); if (bbox.width > mw && bbox.width > 0) { const scale = mw / bbox.width; const newFs = baseFs * scale; el.style.fontSize = newFs + "px"; el.setAttribute("font-size", newFs); } } };
@@ -290,7 +306,7 @@
         initEngine(mainSvg); renderFields();
     }
 
-    // === PRO MOTOR (SMART GUIDES & SNAPPING EKLENDİ) ===
+    // === PRO MOTOR ===
     function initEngine(svg) {
         const wrapper = document.getElementById('svg-wrapper'); const ctrl = document.getElementById('control-layer');
         const getCoords = (e) => { const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY; const ctm = svg.getScreenCTM(); if (!ctm) return { x: 0, y: 0 }; const cursorpt = pt.matrixTransform(ctm.inverse()); return { x: cursorpt.x, y: cursorpt.y }; };
@@ -317,10 +333,6 @@
             if (selectedEl && selectedEl.dataset.locked === "true" && !resizingEl && !rotatingEl && !radiusingEl) return; 
             e.preventDefault(); const p = getCoords(e); const dx = p.x - startP.x; const dy = p.y - startP.y;
 
-            // SMART GUIDES (Akıllı Hizalama Değişkenleri)
-            let snapX = null, snapY = null; const snapTolerance = 10;
-            const cx = svg.viewBox.baseVal.width / 2, cy = svg.viewBox.baseVal.height / 2;
-
             if (resizingEl) {
                 isModified = true; let { x, y, w, h } = startData;
                 if (activeHandle === 'br') { w += dx; h += dy; } else if (activeHandle === 'bl') { x += dx; w -= dx; h += dy; } else if (activeHandle === 'tr') { y += dy; w += dx; h -= dy; } else if (activeHandle === 'tl') { x += dx; y += dy; w -= dx; h -= dy; }
@@ -338,37 +350,18 @@
                 window.applySquircle(radiusingEl); updateUI(radiusingEl); syncSliders(radiusingEl);
             }
             else if (selectedEl) {
-                isModified = true; 
-                let newX = p.x - offset.x, newY = p.y - offset.y;
-
-                // AKILLI MIKNATIS (Snapping) HESAPLAMASI
-                const bbox = selectedEl.getBBox();
-                const elCx = selectedEl.tagName === 'text' ? newX : newX + bbox.width / 2;
-                const elCy = selectedEl.tagName === 'text' ? newY : newY + bbox.height / 2;
-
-                // Ekrana Ortala (X)
-                if (Math.abs(elCx - cx) < snapTolerance) { snapX = cx; newX = selectedEl.tagName === 'text' ? cx : cx - bbox.width / 2; }
-                // Ekrana Ortala (Y)
-                if (Math.abs(elCy - cy) < snapTolerance) { snapY = cy; newY = selectedEl.tagName === 'text' ? cy : cy - bbox.height / 2; }
-
-                selectedEl.setAttribute("x", newX); selectedEl.setAttribute("y", newY);
+                isModified = true; selectedEl.setAttribute("x", p.x - offset.x); selectedEl.setAttribute("y", p.y - offset.y);
                 if(selectedEl.tagName === 'image' || selectedEl.tagName === 'rect') window.applySquircle(selectedEl);
-                updateUI(selectedEl, snapX, snapY);
+                updateUI(selectedEl);
             }
         };
 
-        const release = (e) => { try { wrapper.releasePointerCapture(e.pointerId); } catch(err){} if (isModified) saveState(); selectedEl = null; resizingEl = null; rotatingEl = null; radiusingEl = null; activeHandle = null; isModified = false; document.querySelectorAll('.snap-line').forEach(l=>l.remove()); };
+        const release = (e) => { try { wrapper.releasePointerCapture(e.pointerId); } catch(err){} if (isModified) saveState(); selectedEl = null; resizingEl = null; rotatingEl = null; radiusingEl = null; activeHandle = null; isModified = false; };
         window.onpointerup = release; window.onpointercancel = release;
 
-        // UI ÇİZİM VE PEMBE MIKNATIS ÇİZGİLERİ
-        function updateUI(el, snapX = null, snapY = null) {
+        function updateUI(el) {
             ctrl.innerHTML = ""; const b = el.getBBox(); const transform = el.getAttribute("transform") || ""; const isLocked = el.dataset.locked === "true";
             const g = document.createElementNS("http://www.w3.org/2000/svg", "g"); g.setAttribute("transform", transform); ctrl.appendChild(g);
-
-            // Pembe Akıllı Çizgileri Çiz
-            const vb = svg.viewBox.baseVal;
-            if (snapX !== null) { const lX = document.createElementNS("http://www.w3.org/2000/svg", "line"); lX.setAttribute("x1", snapX); lX.setAttribute("y1", 0); lX.setAttribute("x2", snapX); lX.setAttribute("y2", vb.height); lX.classList.add("snap-line"); ctrl.appendChild(lX); }
-            if (snapY !== null) { const lY = document.createElementNS("http://www.w3.org/2000/svg", "line"); lY.setAttribute("x1", 0); lY.setAttribute("y1", snapY); lY.setAttribute("x2", vb.width); lY.setAttribute("y2", snapY); lY.classList.add("snap-line"); ctrl.appendChild(lY); }
 
             if (el.tagName === 'text' && (parseFloat(el.dataset.maxWidth) || 0) > 0 && !isLocked) {
                 const mw = parseFloat(el.dataset.maxWidth); const cx = parseFloat(el.getAttribute("x")); const mwRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
@@ -397,7 +390,7 @@
         window.updateEditorUI = updateUI; 
     }
 
-    // === SİDEBAR RENDER ===
+    // === SİDEBAR RENDER (Rozetler ve Sıfırlama Butonu İle) ===
     function syncSliders(el) {
         const i = Array.from(document.querySelectorAll('.duzenlenebilir')).indexOf(el); if (i === -1) return;
         if (el.tagName === 'text') { const fs = parseFloat(el.dataset.baseFontSize) || 60; const slider = document.getElementById(`fs-slider-${i}`); if(slider) slider.value = fs; const badge = document.getElementById(`val-fs-${i}`); if(badge) badge.innerText = Math.round(fs) + "px"; } 
@@ -434,7 +427,8 @@
                 html += `<div class="label-row"><span class="label-text">HARF ARALIĞI</span><span class="value-badge" id="val-ls-${i}">${ls}px</span></div><input type="range" min="-10" max="50" value="${ls}" oninput="const t=document.getElementById('${el.id}'); t.setAttribute('letter-spacing', this.value); document.getElementById('val-ls-${i}').innerText=this.value+'px'; window.autoFitText(t); if(window.updateEditorUI) window.updateEditorUI(t);" onchange="saveState()" ${isLocked ? 'disabled' : ''}>`;
                 html += `<div class="label-row"><span class="label-text">SIĞDIRMA (MAX GENİŞLİK)</span><span class="value-badge" id="val-mw-${i}">${mw === 0 ? 'KAPALI' : mw + 'px'}</span></div><input type="range" id="mw-slider-${i}" min="0" max="1500" value="${mw}" oninput="const t=document.getElementById('${el.id}'); t.dataset.maxWidth=this.value; window.autoFitText(t); document.getElementById('val-mw-${i}').innerText=this.value == 0 ? 'KAPALI' : this.value+'px'; if(window.updateEditorUI) window.updateEditorUI(t);" onchange="saveState()" ${isLocked ? 'disabled' : ''}>`;
             } else {
-                const w = parseFloat(el.getAttribute("width")) || 200; const h = parseFloat(el.getAttribute("height")) || 200; const rx = parseFloat(el.dataset.rx) || 0; const sm = parseFloat(el.dataset.smoothing) || 0.5; 
+                const w = parseFloat(el.getAttribute("width")) || 200, h = parseFloat(el.getAttribute("height")) || 200;
+                const rx = parseFloat(el.dataset.rx) || 0, sm = parseFloat(el.dataset.smoothing) || 0.5; 
                 html += `<div class="label-row"><span class="label-text">GENİŞLİK</span><span class="value-badge" id="val-w-${i}">${Math.round(w)}px</span></div><input type="range" id="w-slider-${i}" min="10" max="3000" value="${w}" oninput="const img=document.getElementById('${el.id}'); img.setAttribute('width', this.value); window.applySquircle(img); document.getElementById('val-w-${i}').innerText=Math.round(this.value)+'px'; if(window.updateEditorUI) window.updateEditorUI(img);" onchange="saveState()" ${isLocked ? 'disabled' : ''}>`;
                 html += `<div class="label-row"><span class="label-text">YÜKSEKLİK</span><span class="value-badge" id="val-h-${i}">${Math.round(h)}px</span></div><input type="range" id="h-slider-${i}" min="10" max="3000" value="${h}" oninput="const img=document.getElementById('${el.id}'); img.setAttribute('height', this.value); window.applySquircle(img); document.getElementById('val-h-${i}').innerText=Math.round(this.value)+'px'; if(window.updateEditorUI) window.updateEditorUI(img);" onchange="saveState()" ${isLocked ? 'disabled' : ''}>`;
                 if (el.tagName === 'rect' || el.tagName === 'image') {
@@ -443,15 +437,53 @@
                 }
             }
 
-            html += `<div class="group-box"><div style="display:flex; gap:10px; margin-bottom: 10px;"><div><div class="label-text" style="margin-bottom:5px;">RENK</div><input type="color" value="${safeColor(col)}" oninput="const t=document.getElementById('${el.id}'); t.setAttribute('fill', this.value); t.style.fill=this.value;" onchange="saveState()" style="width:35px; height:35px; border-radius:8px; border:none; background:none; cursor:pointer;" ${isLocked ? 'disabled' : ''}></div><div><div class="label-text" style="margin-bottom:5px;">GÖLGE</div><input type="color" value="${sC}" oninput="const t=document.getElementById('${el.id}'); t.dataset.shadowColor=this.value; window.applyFilters(t);" onchange="saveState()" style="width:35px; height:35px; border-radius:8px; border:none; background:none; cursor:pointer;" ${isLocked ? 'disabled' : ''}></div><div style="flex:1;"><div class="label-row" style="margin-top:0;"><span class="label-text">ŞEFFAFLIK</span><span class="value-badge" id="val-op-${i}">${Math.round(opacityVal*100)}%</span></div><input type="range" min="0" max="1" step="0.05" value="${opacityVal}" oninput="const t=document.getElementById('${el.id}'); t.setAttribute('opacity', this.value); document.getElementById('val-op-${i}').innerText=Math.round(this.value*100)+'%';" onchange="saveState()" ${isLocked ? 'disabled' : ''}></div></div>`;
-            html += `<div class="label-row"><span class="label-text">GÖLGE UZAKLIĞI (X / Y)</span></div><div style="display:flex; gap:10px;"><input type="range" min="-50" max="50" value="${sX}" oninput="const t=document.getElementById('${el.id}'); t.dataset.shadowX=this.value; window.applyFilters(t);" onchange="saveState()" ${isLocked ? 'disabled' : ''}><input type="range" min="-50" max="50" value="${sY}" oninput="const t=document.getElementById('${el.id}'); t.dataset.shadowY=this.value; window.applyFilters(t);" onchange="saveState()" ${isLocked ? 'disabled' : ''}></div>`;
-            html += `<div class="label-row"><span class="label-text">GÖLGE YAYILIMI & BLUR</span></div><div style="display:flex; gap:10px;"><input type="range" min="0" max="50" value="${sB}" oninput="const t=document.getElementById('${el.id}'); t.dataset.shadowBlur=this.value; window.applyFilters(t);" onchange="saveState()" ${isLocked ? 'disabled' : ''}><input type="range" min="0" max="50" value="${bl}" oninput="const t=document.getElementById('${el.id}'); t.dataset.blur=this.value; window.applyFilters(t);" onchange="saveState()" ${isLocked ? 'disabled' : ''}></div></div>`;
+            // GÖLGE, EFEKT VE RENK KUTUSU
+            html += `
+                <div class="group-box">
+                    <div style="display:flex; gap:10px; margin-bottom: 10px;">
+                        <div>
+                            <div class="label-text" style="margin-bottom:5px;">RENK</div>
+                            <input type="color" value="${safeColor(col)}" oninput="const t=document.getElementById('${el.id}'); t.setAttribute('fill', this.value); t.style.fill=this.value;" onchange="saveState()" style="width:35px; height:35px; border-radius:8px; border:none; background:none; cursor:pointer;" ${isLocked ? 'disabled' : ''}>
+                        </div>
+                        <div>
+                            <div class="label-text" style="margin-bottom:5px;">GÖLGE</div>
+                            <input type="color" value="${sC}" oninput="const t=document.getElementById('${el.id}'); t.dataset.shadowColor=this.value; window.applyFilters(t);" onchange="saveState()" style="width:35px; height:35px; border-radius:8px; border:none; background:none; cursor:pointer;" ${isLocked ? 'disabled' : ''}>
+                        </div>
+                        <div style="flex:1;">
+                            <div class="label-row" style="margin-top:0;"><span class="label-text">ŞEFFAFLIK</span><span class="value-badge" id="val-op-${i}">${Math.round(opacityVal*100)}%</span></div>
+                            <input type="range" min="0" max="1" step="0.05" value="${opacityVal}" oninput="const t=document.getElementById('${el.id}'); t.setAttribute('opacity', this.value); document.getElementById('val-op-${i}').innerText=Math.round(this.value*100)+'%';" onchange="saveState()" ${isLocked ? 'disabled' : ''}>
+                        </div>
+                    </div>
+                    
+                    <div style="display:flex; gap:10px; margin-top: 15px;">
+                        <div style="flex:1;">
+                            <div class="label-row" style="margin-top:0;"><span class="label-text">GÖLGE X</span><span class="value-badge" id="val-sx-${i}">${sX}</span></div>
+                            <input type="range" min="-50" max="50" value="${sX}" oninput="const t=document.getElementById('${el.id}'); t.dataset.shadowX=this.value; window.applyFilters(t); document.getElementById('val-sx-${i}').innerText=this.value;" onchange="saveState()" ${isLocked ? 'disabled' : ''}>
+                        </div>
+                        <div style="flex:1;">
+                            <div class="label-row" style="margin-top:0;"><span class="label-text">GÖLGE Y</span><span class="value-badge" id="val-sy-${i}">${sY}</span></div>
+                            <input type="range" min="-50" max="50" value="${sY}" oninput="const t=document.getElementById('${el.id}'); t.dataset.shadowY=this.value; window.applyFilters(t); document.getElementById('val-sy-${i}').innerText=this.value;" onchange="saveState()" ${isLocked ? 'disabled' : ''}>
+                        </div>
+                    </div>
+                    
+                    <div style="display:flex; gap:10px; margin-top: 5px;">
+                        <div style="flex:1;">
+                            <div class="label-row" style="margin-top:0;"><span class="label-text">GÖLGE BLUR</span><span class="value-badge" id="val-sb-${i}">${sB}</span></div>
+                            <input type="range" min="0" max="50" value="${sB}" oninput="const t=document.getElementById('${el.id}'); t.dataset.shadowBlur=this.value; window.applyFilters(t); document.getElementById('val-sb-${i}').innerText=this.value;" onchange="saveState()" ${isLocked ? 'disabled' : ''}>
+                        </div>
+                        <div style="flex:1;">
+                            <div class="label-row" style="margin-top:0;"><span class="label-text">ÖĞE BLUR</span><span class="value-badge" id="val-bl-${i}">${bl}</span></div>
+                            <input type="range" min="0" max="50" value="${bl}" oninput="const t=document.getElementById('${el.id}'); t.dataset.blur=this.value; window.applyFilters(t); document.getElementById('val-bl-${i}').innerText=this.value;" onchange="saveState()" ${isLocked ? 'disabled' : ''}>
+                        </div>
+                    </div>
+
+                    <button class="action-btn danger" style="width:100%; margin-top:10px;" onclick="const t=document.getElementById('${el.id}'); t.dataset.shadowX=0; t.dataset.shadowY=0; t.dataset.shadowBlur=0; t.dataset.blur=0; window.applyFilters(t); saveState(); renderFields();" ${isLocked ? 'disabled' : ''}>🚫 GÖLGE VE EFEKTLERİ SIFIRLA</button>
+                </div>
+            `;
 
             b.innerHTML = html; f.appendChild(b);
         });
     }
-
-    function safeColor(c) { if(!c) return "#ffffff"; if(c.length === 4 && c.startsWith('#')) return "#" + c[1] + c[1] + c[2] + c[2] + c[3] + c[3]; return c.startsWith('#') && c.length === 7 ? c : "#ffffff"; }
 
     // === EKLEME FONKSİYONLARI ===
     document.getElementById('saveBtn').onclick = saveData;
@@ -489,9 +521,9 @@
         const st = document.getElementById('status-info'); st.innerText = "KAYDEDİLİYOR..."; st.style.display = "block";
         try {
             document.getElementById('control-layer').innerHTML = ""; 
-            localStorage.removeItem("autosave_" + document.getElementById('file-selector').value); // Tam kaydedildiğinde autosave'i temizle
+            localStorage.removeItem("autosave_" + document.getElementById('file-selector').value);
             const svgText = new XMLSerializer().serializeToString(document.querySelector('#canvas-inner svg')); const b64 = btoa(unescape(encodeURIComponent(svgText)));
-            await fetch(WORKER_URL, { method: "PUT", headers: {"X-Auth-Key": SESSION_PASS, "X-File-Name": document.getElementById('file-selector').value}, body: JSON.stringify({message: "Snapping & AutoSave Fix", content: b64, sha: SHA_KEY}) });
+            await fetch(WORKER_URL, { method: "PUT", headers: {"X-Auth-Key": SESSION_PASS, "X-File-Name": document.getElementById('file-selector').value}, body: JSON.stringify({message: "Shadow Badges Fix", content: b64, sha: SHA_KEY}) });
             st.innerText = "BAŞARIYLA KAYDEDİLDİ!"; setTimeout(() => st.style.display="none", 2000);
         } catch(e) { alert("Hata!"); st.style.display="none"; }
     }
