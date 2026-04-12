@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SVG Pro Studio | Stabil V5</title>
+    <title>SVG Pro Studio | Stabil Worker Sürümü</title>
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Merriweather:wght@400;700&family=Montserrat:wght@400;700;800&family=Nunito:wght@400;700&family=Open+Sans:wght@400;700&family=Oswald:wght@400;700&family=Pacifico&family=Playfair+Display:wght@400;700&family=Poppins:wght@400;700&family=Raleway:wght@400;700&family=Roboto:wght@400;700&family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { --accent: #10b981; --bg: #0f172a; --panel: #1e293b; --border: #334155; --handle-move: #3b82f6; --handle-rotate: #f59e0b; --handle-radius: #ec4899; }
@@ -99,18 +99,9 @@
 <div id="login-screen">
     <div class="login-card">
         <h2 style="margin-top:0;">Pro Studio</h2>
-        <div style="font-size:12px; color:#94a3b8; margin-bottom:20px;">Tarayıcınızda yerel çalışın veya Cloudflare Worker'a bağlanın.</div>
-        
-        <button id="localBtn" style="background:#3b82f6; margin-bottom:15px; padding:16px;">✨ BOŞ BAŞLA (YEREL ÇALIŞ)</button>
-        
-        <div style="display:flex; align-items:center; margin:15px 0;">
-            <div style="flex:1; height:1px; background:var(--border);"></div>
-            <div style="padding:0 10px; font-size:12px; color:#64748b; font-weight:bold;">VEYA</div>
-            <div style="flex:1; height:1px; background:var(--border);"></div>
-        </div>
-
-        <input type="password" id="passInput" placeholder="Worker Şifresi">
-        <button id="loginBtn" style="background:#475569;">Sunucuya Bağlan</button>
+        <div style="font-size:12px; color:#94a3b8; margin-bottom:20px;">Lütfen Cloudflare Worker şifrenizi girin.</div>
+        <input type="password" id="passInput" placeholder="Sunucu Şifresi">
+        <button id="loginBtn">Sunucuya Bağlan</button>
     </div>
 </div>
 
@@ -141,9 +132,9 @@
             </div>
 
             <select id="file-selector" style="width:100%; padding:10px; background:#000; color:#fff; border-radius:8px; margin-bottom:10px; border:1px solid #334155; outline:none;">
-                <option value="slayt.svg">Ana Slayt (slayt.svg)</option>
-                <option value="kampanya.svg">Kampanya (kampanya.svg)</option>
-                <option value="duyuru.svg">Duyuru (duyuru.svg)</option>
+                <option value="slayt.svg">Ana Slayt</option>
+                <option value="kampanya.svg">Kampanya</option>
+                <option value="duyuru.svg">Duyuru</option>
             </select>
 
             <details style="margin-bottom: 10px;">
@@ -193,14 +184,17 @@
     const WORKER_URL = "https://githubtoken.tafbilgiislem.workers.dev"; // LÜTFEN KENDİ WORKER LİNKİNİZİ YAZIN
     
     let SHA_KEY = "", SESSION_PASS = "";
-    let isLocalMode = false;
     
+    // Düzenleme Durumları
     let selectedEl = null, resizingEl = null, rotatingEl = null, radiusingEl = null, activeHandle = null;
     let offset = {x:0, y:0}, startP = {x:0, y:0}, startData = {}, isModified = false;
     let clipboard = null;
     let currentZoom = 1; let historyStack = []; let historyIndex = -1;
     let isDrawingMode = false; let isDrawing = false; let currentPath = null; let pathData = "";
     let isDraggingGuide = false; let currentGuide = null;
+    
+    // Zıplama Hatası Çözümü İçin Kritik Flag
+    let isDraggingElement = false; 
 
     window.updateEditorUI = null;
 
@@ -216,54 +210,40 @@
         heart: "M12 4.435c-1.989-5.399-12-4.597-12 3.568 0 4.068 3.06 9.481 12 14.997 8.94-5.516 12-10.929 12-14.997 0-8.118-10-8.999-12-3.568z"
     };
 
-    // === YEREL MOD GİRİŞİ ===
-    document.getElementById('localBtn').addEventListener('click', () => {
-        isLocalMode = true;
-        document.getElementById('login-screen').style.display = "none";
-        document.getElementById('app-container').style.display = "flex";
-        
-        const svgHTML = `<svg width="1920" height="1080" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg"><rect id="canvas-background" x="0" y="0" width="1920" height="1080" fill="#ffffff"></rect><g id="guides-group"></g></svg>`;
-        document.getElementById('canvas-inner').innerHTML = svgHTML;
-        
-        historyStack = []; historyIndex = -1;
-        setTimeout(() => { setupLayers(); initCanvasSettings(); saveState(); }, 200);
-    });
-
-    // === SUNUCU MODU (WORKER) GİRİŞİ ===
+    // === GİRİŞ & YÜKLEME ===
     const login = async () => {
         const passVal = document.getElementById('passInput').value;
+        if(!passVal) { alert("Lütfen Worker şifrenizi girin!"); return; }
         SESSION_PASS = passVal;
-        isLocalMode = false;
         await loadSlide(); 
     };
     
     document.getElementById('loginBtn').addEventListener('click', login);
     document.getElementById('passInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') login(); });
-    
-    document.getElementById('file-selector').addEventListener('change', () => {
-        if(!isLocalMode) loadSlide();
-    });
+    document.getElementById('file-selector').addEventListener('change', loadSlide);
 
     async function loadSlide() {
         const file = document.getElementById('file-selector').value;
         const st = document.getElementById('status-info'); 
-        st.innerText = "WORKER'DAN YÜKLENİYOR..."; st.style.display = "block";
+        st.innerText = "YÜKLENİYOR..."; st.style.display = "block";
         
         try {
             const res = await fetch(WORKER_URL, { 
                 headers: {"X-Auth-Key": SESSION_PASS, "X-File-Name": file} 
             });
             
-            document.getElementById('login-screen').style.display = "none";
-            document.getElementById('app-container').style.display = "flex";
-
             if (res.status === 401) {
                 alert("Worker Şifresi Hatalı veya Yetkisiz!");
                 st.style.display="none"; 
                 document.getElementById('login-screen').style.display = "flex";
                 document.getElementById('app-container').style.display = "none";
                 return;
-            } else if (res.status === 404) {
+            }
+            
+            document.getElementById('login-screen').style.display = "none";
+            document.getElementById('app-container').style.display = "flex";
+
+            if (res.status === 404) {
                 SHA_KEY = "";
                 const svgHTML = `<svg width="1920" height="1080" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg"><rect id="canvas-background" x="0" y="0" width="1920" height="1080" fill="#ffffff"></rect><g id="guides-group"></g></svg>`;
                 document.getElementById('canvas-inner').innerHTML = svgHTML;
@@ -277,7 +257,7 @@
             setTimeout(() => { setupLayers(); initCanvasSettings(); saveState(); }, 200);
             st.style.display = "none";
         } catch(e) { 
-            alert("Bağlantı Hatası! Lütfen bağlantınızı kontrol edin veya Yerel Modu deneyin."); 
+            alert("Bağlantı Hatası! Sunucuya ulaşılamıyor."); 
             st.style.display="none"; 
         }
     }
@@ -353,7 +333,10 @@
     }
 
     window.alignElement = function(id, type) {
-        const el = document.getElementById(id); if(!el) return; const svg = document.querySelector('#canvas-inner svg'); const vb = svg.viewBox.baseVal; const bbox = el.getBBox();
+        const el = document.getElementById(id); if(!el) return; const svg = document.querySelector('#canvas-inner svg'); const vb = svg.viewBox.baseVal; 
+        let bbox = {x:0, y:0, width:0, height:0};
+        try { bbox = el.getBBox(); } catch(e){}
+        
         if (el.tagName === 'text') { if(type === 'center-h') el.setAttribute('x', vb.width/2); if(type === 'center-v') el.setAttribute('y', vb.height/2); if(type === 'left') el.setAttribute('x', bbox.width/2); if(type === 'right') el.setAttribute('x', vb.width - bbox.width/2); } 
         else { let nw = parseFloat(el.getAttribute('width')) || bbox.width; let nh = parseFloat(el.getAttribute('height')) || bbox.height; if(type === 'center-h') el.setAttribute('x', (vb.width/2) - (nw/2)); if(type === 'center-v') el.setAttribute('y', (vb.height/2) - (nh/2)); if(type === 'left') el.setAttribute('x', 0); if(type === 'right') el.setAttribute('x', vb.width - nw); } 
         if(el.tagName === 'image' || el.tagName === 'rect') window.applyShapeMask(el); saveState(); if(window.updateEditorUI) window.updateEditorUI(el);
@@ -364,7 +347,8 @@
     window.applyTransforms = function(el) {
         let cx = 0, cy = 0;
         if(el.tagName === 'text') { 
-            cx = parseFloat(el.getAttribute('x')) || 0; cy = parseFloat(el.getAttribute('y')) || 0; 
+            cx = parseFloat(el.getAttribute('x')) || 0; 
+            cy = parseFloat(el.getAttribute('y')) || 0; 
         } else if(el.tagName !== 'path') { 
             cx = (parseFloat(el.getAttribute('x')) || 0) + (parseFloat(el.getAttribute('width')) || 0) / 2; 
             cy = (parseFloat(el.getAttribute('y')) || 0) + (parseFloat(el.getAttribute('height')) || 0) / 2; 
@@ -443,8 +427,9 @@
     function describeRoundedRect(r, s, x, y, w, h) { if (r <= 0) return `M ${x} ${y} H ${x + w} V ${y + h} H ${x} Z`; r = Math.min(r, w / 2, h / 2); const kappa = (4 * (r * (1 - s)) * Math.tan(Math.PI / 4)) / 3; const pts = [ [x + r, y], [x + w - r, y], [x + w, y + r], [x + w, y + h - r], [x + w - r, y + h], [x + r, y + h], [x, y + h - r], [x, y + r] ]; return `M ${pts[0][0]} ${pts[0][1]} L ${pts[1][0]} ${pts[1][1]} C ${pts[1][0] + kappa} ${pts[1][1]} ${pts[2][0]} ${pts[2][1] - kappa} ${pts[2][0]} ${pts[2][1]} L ${pts[3][0]} ${pts[3][1]} C ${pts[3][0]} ${pts[3][1] + kappa} ${pts[4][0] + kappa} ${pts[4][1]} ${pts[4][0]} ${pts[4][1]} L ${pts[5][0]} ${pts[5][1]} C ${pts[5][0] - kappa} ${pts[5][1]} ${pts[6][0]} ${pts[6][1] + kappa} ${pts[6][0]} ${pts[6][1]} L ${pts[7][0]} ${pts[7][1]} C ${pts[7][0]} ${pts[7][1] - kappa} ${pts[0][0] - kappa} ${pts[0][1]} ${pts[0][0]} ${pts[0][1]} Z`; }
     window.applyShapeMask = function(el) { 
         if (el.tagName !== 'image' && el.tagName !== 'rect') return; 
-        if (!el.dataset.maskShape) return; // Güvenlik Koruması (İstemsiz 0x0 maskeyi engeller)
-        const shape = el.dataset.maskShape || 'squircle'; const x = parseFloat(el.getAttribute('x')) || 0, y = parseFloat(el.getAttribute('y')) || 0, w = parseFloat(el.getAttribute('width')) || 0, h = parseFloat(el.getAttribute('height')) || 0; 
+        if (!el.dataset.maskShape || el.dataset.maskShape === "none") { el.removeAttribute("clip-path"); return; }
+        
+        const shape = el.dataset.maskShape; const x = parseFloat(el.getAttribute('x')) || 0, y = parseFloat(el.getAttribute('y')) || 0, w = parseFloat(el.getAttribute('width')) || 0, h = parseFloat(el.getAttribute('height')) || 0; 
         if(w === 0 || h === 0) return;
 
         let d = "";
@@ -465,10 +450,13 @@
         const vb = mainSvg.getAttribute("viewBox") || `0 0 1920 1080`; mainSvg.setAttribute("viewBox", vb); ctrl.setAttribute("viewBox", vb);
         
         let editables = mainSvg.querySelectorAll('.duzenlenebilir');
-        // KORUMA EKLENDİ: Orijinal SVG dosyası yüklenirse, içindeki path'leri parça parça seçmek yerine sadece ana objeleri seçilir yapar.
+        
+        // HATA 2 ÇÖZÜMÜ: Yalnızca Ana Öğelere Müdahale Et
         if (editables.length === 0) { 
             mainSvg.querySelectorAll('text, image, rect, g:not(#guides-group), path:not(g path)').forEach(el => { 
-                if(el.id !== 'control-layer' && el.id !== 'canvas-background' && !el.closest('#control-layer') && !el.classList.contains('guide-line')) el.classList.add('duzenlenebilir'); 
+                if(el.id !== 'control-layer' && el.id !== 'canvas-background' && !el.closest('#control-layer') && !el.classList.contains('guide-line')) {
+                    el.classList.add('duzenlenebilir'); 
+                }
             }); 
         }
 
@@ -476,24 +464,11 @@
             if(!el.id) el.id = "el_" + Math.random().toString(36).substr(2,9);
             if(el.dataset.locked === "true") el.classList.add('locked');
             
-            // KORUMA: Orijinal Metinlerin koordinatlarını EZMEZ. Sadece curve (kavis) atandıysa çalışır.
-            if(el.tagName === 'text' && el.dataset.curve) {
-                window.applyTextCurve(el);
-            }
-            
-            // KORUMA: Orijinal Resimlere "0x0" maske atamasını ENGELLER. Sadece maskShape datası varsa atar.
-            if((el.tagName === 'image' || el.tagName === 'rect') && el.dataset.maskShape) { 
-                window.applyShapeMask(el); 
-            }
-
-            // KORUMA: Orijinal SVG transformlarını EZMEZ.
-            if(el.dataset.angle || el.dataset.flipX || el.dataset.flipY) {
-                window.applyTransforms(el); 
-            }
-
-            if(el.dataset.shadowBlur || el.dataset.blend || el.dataset.blur) {
-                window.applyFilters(el);
-            }
+            // SADECE ÖNCEDEN ÖZELLİK ATANMIŞSA UYGULA (Orijinal Dosyaları Bozma)
+            if(el.tagName === 'text' && el.dataset.curve) window.applyTextCurve(el);
+            if((el.tagName === 'image' || el.tagName === 'rect') && el.dataset.maskShape && el.dataset.maskShape !== "none") window.applyShapeMask(el);
+            if(el.dataset.angle || el.dataset.flipX || el.dataset.flipY) window.applyTransforms(el);
+            if(el.dataset.shadowBlur || el.dataset.blur || el.dataset.blend) window.applyFilters(el);
         });
         initEngine(mainSvg); renderEditor();
     }
@@ -531,8 +506,10 @@
             
             const el = target.closest('.duzenlenebilir');
             if (el) {
-                selectedEl = el; offset.x = p.x - (parseFloat(el.getAttribute("x")) || 0); offset.y = p.y - (parseFloat(el.getAttribute("y")) || 0); updateUI(el);
-                renderEditor(); // HATA ÇÖZÜLDÜ: Tıklandığında anında sağ menüyü yeniler!
+                selectedEl = el; 
+                isDraggingElement = true; // HATA 1 ÇÖZÜMÜ: Sadece tuvalde tıkladıysan sürükleme modunu açar
+                offset.x = p.x - (parseFloat(el.getAttribute("x")) || 0); offset.y = p.y - (parseFloat(el.getAttribute("y")) || 0); 
+                updateUI(el); renderEditor();
                 if(el.dataset.locked !== "true") { try { wrapper.setPointerCapture(e.pointerId); } catch(err){} }
             } else { 
                 selectedEl = null; ctrl.innerHTML = ""; renderEditor();
@@ -554,7 +531,7 @@
                 isModified = true; let { x, y, w, h } = startData;
                 if (activeHandle === 'br') { w += dx; h += dy; } else if (activeHandle === 'bl') { x += dx; w -= dx; h += dy; } else if (activeHandle === 'tr') { y += dy; w += dx; h -= dy; } else if (activeHandle === 'tl') { x += dx; y += dy; w -= dx; h -= dy; }
                 if (resizingEl.tagName === "image" || resizingEl.tagName === "rect" || resizingEl.tagName === "svg") {
-                    if (w > 10 && h > 10) { resizingEl.setAttribute("x", x); resizingEl.setAttribute("y", y); resizingEl.setAttribute("width", w); resizingEl.setAttribute("height", h); if(resizingEl.tagName !== "svg") window.applyShapeMask(resizingEl); }
+                    if (w > 10 && h > 10) { resizingEl.setAttribute("x", x); resizingEl.setAttribute("y", y); resizingEl.setAttribute("width", w); resizingEl.setAttribute("height", h); if(resizingEl.tagName !== "svg" && resizingEl.dataset.maskShape && resizingEl.dataset.maskShape !== "none") window.applyShapeMask(resizingEl); }
                 } else if(resizingEl.tagName === 'text') { resizingEl.dataset.baseFontSize = Math.max(5, startData.baseFontSize + dx/2); window.applyTextCurve(resizingEl); }
                 updateUI(resizingEl); syncSliders(resizingEl);
             } 
@@ -567,7 +544,8 @@
             else if (radiusingEl && (radiusingEl.tagName === "image" || radiusingEl.tagName === "rect")) {
                 isModified = true; radiusingEl.dataset.rx = Math.max(0, Math.min(startData.w/2, startData.h/2, startData.rx + dy)); window.applyShapeMask(radiusingEl); updateUI(radiusingEl); syncSliders(radiusingEl);
             }
-            else if (selectedEl) {
+            else if (selectedEl && isDraggingElement) {
+                // SADECE FAREYLE SEÇİLDİYSE SÜRÜKLER (Katmandan seçtiğinde titreme yapmaz)
                 isModified = true; let newX = p.x - offset.x, newY = p.y - offset.y;
                 
                 let bbox = {width:0, height:0}; try { bbox = selectedEl.getBBox(); }catch(e){}
@@ -582,13 +560,16 @@
                 });
 
                 selectedEl.setAttribute("x", newX); selectedEl.setAttribute("y", newY);
-                if(selectedEl.tagName === 'image' || selectedEl.tagName === 'rect') window.applyShapeMask(selectedEl); if(selectedEl.tagName === 'text') window.applyTextCurve(selectedEl);
+                if((selectedEl.tagName === 'image' || selectedEl.tagName === 'rect') && selectedEl.dataset.maskShape && selectedEl.dataset.maskShape !== "none") window.applyShapeMask(selectedEl); 
+                if(selectedEl.tagName === 'text' && selectedEl.dataset.curve) window.applyTextCurve(selectedEl);
                 updateUI(selectedEl, snapX, snapY);
             }
         };
 
         const release = (e) => { 
             try { wrapper.releasePointerCapture(e.pointerId); } catch(err){} 
+            isDraggingElement = false; // Mouse bırakıldığında sürükleme sıfırlanır
+            
             if (isDrawing) { isDrawing = false; selectedEl = currentPath; currentPath = null; isDrawingMode = false; document.getElementById('btn-draw').classList.remove('active'); document.getElementById('svg-wrapper').classList.remove('draw-mode'); saveState(); renderEditor(); updateUI(selectedEl); return; }
             if (isDraggingGuide) { isDraggingGuide = false; currentGuide = null; saveState(); return; }
             if (isModified) saveState(); selectedEl = null; resizingEl = null; rotatingEl = null; radiusingEl = null; activeHandle = null; isModified = false; document.querySelectorAll('.snap-line').forEach(l=>l.remove()); 
@@ -607,7 +588,7 @@
             if (snapY !== null) { const lY = document.createElementNS("http://www.w3.org/2000/svg", "line"); lY.setAttribute("x1", 0); lY.setAttribute("y1", snapY); lY.setAttribute("x2", vb.width); lY.setAttribute("y2", snapY); lY.classList.add("snap-line"); ctrl.appendChild(lY); }
 
             if (el.tagName === 'text' && (parseFloat(el.dataset.maxWidth) || 0) > 0 && !isLocked) {
-                const mw = parseFloat(el.dataset.maxWidth); const cx = parseFloat(el.getAttribute("x")); const mwRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                const mw = parseFloat(el.dataset.maxWidth); const cx = parseFloat(el.getAttribute("x")) || 0; const mwRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
                 mwRect.setAttribute("x", cx - mw/2); mwRect.setAttribute("y", b.y); mwRect.setAttribute("width", mw); mwRect.setAttribute("height", b.height); mwRect.setAttribute("fill", "rgba(16, 185, 129, 0.05)"); mwRect.setAttribute("stroke", "var(--accent)"); mwRect.setAttribute("stroke-dasharray", "4,4"); g.appendChild(mwRect);
             }
             const strokeColor = isLocked ? "var(--error)" : "var(--handle-move)";
@@ -620,7 +601,7 @@
             const rotY = b.y - 40; const line = document.createElementNS("http://www.w3.org/2000/svg", "line"); line.setAttribute("x1", b.x + b.width/2); line.setAttribute("y1", b.y); line.setAttribute("x2", b.x + b.width/2); line.setAttribute("y2", rotY); line.setAttribute("stroke", "var(--handle-rotate)"); line.setAttribute("stroke-width", "2"); g.appendChild(line);
             const rotH = document.createElementNS("http://www.w3.org/2000/svg", "circle"); rotH.setAttribute("cx", b.x + b.width/2); rotH.setAttribute("cy", rotY); rotH.setAttribute("r", s/2.5); rotH.setAttribute("class", "handle handle-rotate"); rotH.dataset.id = el.id; g.appendChild(rotH);
 
-            if ((el.tagName === "image" || el.tagName === "rect") && (el.dataset.maskShape || 'squircle') === 'squircle') {
+            if ((el.tagName === "image" || el.tagName === "rect") && el.dataset.maskShape && el.dataset.maskShape === 'squircle') {
                 const radH = document.createElementNS("http://www.w3.org/2000/svg", "circle"); radH.setAttribute("cx", b.x + b.width); radH.setAttribute("cy", b.y + (parseFloat(el.dataset.rx) || 0)); radH.setAttribute("r", s/2.5); radH.setAttribute("class", "handle handle-radius"); radH.dataset.id = el.id; g.appendChild(radH);
             }
         }
@@ -642,7 +623,13 @@
             if (el.tagName === 'text') { let txt = el.dataset.rawText || el.textContent; typeName = `T: ${txt.substring(0,10)}${txt.length>10?'...':''}`; }
 
             const item = document.createElement('div'); item.className = `layer-item ${isActive ? 'active' : ''}`;
-            item.onclick = (e) => { if(e.target.closest('.layer-btn')) return; selectedEl = el; if(window.updateEditorUI) window.updateEditorUI(el); renderEditor(); };
+            item.onclick = (e) => { 
+                if(e.target.closest('.layer-btn')) return; 
+                selectedEl = el; 
+                isDraggingElement = false; // Katmandan tıklandığında sürüklenmeyi önler
+                if(window.updateEditorUI) window.updateEditorUI(el); 
+                renderEditor(); 
+            };
             item.innerHTML = `<span style="flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; ${isLocked ? 'text-decoration:line-through; opacity:0.5;' : ''}">${typeName}</span><div class="layer-actions"><button class="layer-btn" onclick="moveLayer('${el.id}', 1)" title="Yukarı">▲</button><button class="layer-btn" onclick="moveLayer('${el.id}', -1)" title="Aşağı">▼</button><button class="layer-btn" onclick="toggleLock('${el.id}')" title="Kilit">${isLocked ? '🔒' : '🔓'}</button><button class="layer-btn" style="color:#ef4444;" onclick="if(confirm('Silinecek?')){ const delId='${el.id}'; if(selectedEl && selectedEl.id===delId) selectedEl=null; document.getElementById(delId).remove(); saveState(); renderEditor(); document.getElementById('control-layer').innerHTML=''; event.stopPropagation(); }">×</button></div>`;
             list.appendChild(item);
         });
@@ -692,13 +679,14 @@
             html += `<div class="label-row"><span class="label-text">HARF ARALIĞI</span><span class="value-badge" id="val-ls">${ls}px</span></div><input type="range" min="-10" max="50" value="${ls}" oninput="const t=document.getElementById('${el.id}'); t.setAttribute('letter-spacing', this.value); document.getElementById('val-ls').innerText=this.value+'px'; window.applyTextCurve(t); if(window.updateEditorUI) window.updateEditorUI(t);" onchange="saveState()" ${isLocked ? 'disabled' : ''}>`;
             html += `<div class="label-row"><span class="label-text">SIĞDIRMA (MAX GENİŞLİK)</span><span class="value-badge" id="val-mw">${mw === 0 ? 'KAPALI' : mw + 'px'}</span></div><input type="range" id="mw-slider" min="0" max="1500" value="${mw}" oninput="const t=document.getElementById('${el.id}'); t.dataset.maxWidth=this.value; window.applyTextCurve(t); document.getElementById('val-mw').innerText=this.value == 0 ? 'KAPALI' : this.value+'px'; if(window.updateEditorUI) window.updateEditorUI(t);" onchange="saveState()" ${isLocked ? 'disabled' : ''}>`;
         } else if (el.tagName !== 'path' && el.tagName !== 'g') {
-            const w = parseFloat(el.getAttribute("width")) || 200, h = parseFloat(el.getAttribute("height")) || 200; const rx = parseFloat(el.dataset.rx) || 0, sm = parseFloat(el.dataset.smoothing) || 0.5; const maskShape = el.dataset.maskShape || 'squircle';
+            const w = parseFloat(el.getAttribute("width")) || 200, h = parseFloat(el.getAttribute("height")) || 200; const rx = parseFloat(el.dataset.rx) || 0; const maskShape = el.dataset.maskShape || 'none';
             html += `<div class="label-row"><span class="label-text">GENİŞLİK</span><span class="value-badge" id="val-w">${Math.round(w)}px</span></div><input type="range" id="w-slider" min="10" max="3000" value="${w}" oninput="const img=document.getElementById('${el.id}'); img.setAttribute('width', this.value); window.applyShapeMask(img); document.getElementById('val-w').innerText=Math.round(this.value)+'px'; if(window.updateEditorUI) window.updateEditorUI(img);" onchange="saveState()" ${isLocked ? 'disabled' : ''}>`;
             html += `<div class="label-row"><span class="label-text">YÜKSEKLİK</span><span class="value-badge" id="val-h">${Math.round(h)}px</span></div><input type="range" id="h-slider" min="10" max="3000" value="${h}" oninput="const img=document.getElementById('${el.id}'); img.setAttribute('height', this.value); window.applyShapeMask(img); document.getElementById('val-h').innerText=Math.round(this.value)+'px'; if(window.updateEditorUI) window.updateEditorUI(img);" onchange="saveState()" ${isLocked ? 'disabled' : ''}>`;
             if (el.tagName === 'rect' || el.tagName === 'image') {
                 html += `
                     <div class="label-row"><span class="label-text">MASKE (ŞEKİL)</span></div>
                     <select class="font-select" onchange="const img=document.getElementById('${el.id}'); img.dataset.maskShape=this.value; window.applyShapeMask(img); saveState(); if(window.updateEditorUI) window.updateEditorUI(img);" ${isLocked ? 'disabled' : ''}>
+                        <option value="none" ${maskShape === 'none' ? 'selected' : ''}>Yok (Düz Form)</option>
                         <option value="squircle" ${maskShape === 'squircle' ? 'selected' : ''}>Oval Kare (Squircle)</option>
                         <option value="circle" ${maskShape === 'circle' ? 'selected' : ''}>Daire</option>
                         <option value="triangle" ${maskShape === 'triangle' ? 'selected' : ''}>Üçgen</option>
@@ -762,19 +750,28 @@
         t.dataset.solidColor = "#000000"; t.setAttribute("fill", "#000000"); t.setAttribute("font-size", "80"); t.setAttribute("font-family", "sans-serif"); t.textContent = "YENİ METİN";
         svg.appendChild(t); selectedEl = t; saveState(); setupLayers(false); window.updateEditorUI(t);
     }
+    
     function addNewImage(input) {
         const file = input.files[0]; if(!file) return; const reader = new FileReader();
         reader.onload = (e) => {
             const svg = document.querySelector('#canvas-inner svg'); const vb = svg.viewBox.baseVal; const img = document.createElementNS("http://www.w3.org/2000/svg", "image");
-            img.id = "img_" + Date.now(); img.setAttribute("class", "duzenlenebilir"); img.setAttribute("x", vb.width ? (vb.width/2)-150 : 100); img.setAttribute("y", vb.height ? (vb.height/2)-150 : 100); img.setAttribute("width", 300); img.setAttribute("height", 300); img.dataset.rx = "0"; img.dataset.smoothing = "0.5"; img.setAttributeNS("http://www.w3.org/1999/xlink", "href", e.target.result);
+            img.id = "img_" + Date.now(); img.setAttribute("class", "duzenlenebilir"); img.setAttribute("x", vb.width ? (vb.width/2)-150 : 100); img.setAttribute("y", vb.height ? (vb.height/2)-150 : 100); img.setAttribute("width", 300); img.setAttribute("height", 300); 
+            
+            // HATA 3 ÇÖZÜMÜ: Resimlerin doğru yüklenmesini garantiye alır
+            img.dataset.maskShape = "none"; 
+            img.setAttribute("href", e.target.result); 
+            img.setAttributeNS("http://www.w3.org/1999/xlink", "href", e.target.result);
+            
             svg.appendChild(img); selectedEl = img; saveState(); setupLayers(false); window.updateEditorUI(img);
         }; reader.readAsDataURL(file);
     }
+    
     window.addShape = function(type) {
         const svg = document.querySelector('#canvas-inner svg'); if(!svg) return; const vb = svg.viewBox.baseVal; const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-        rect.id = "shp_" + Date.now(); rect.setAttribute("class", "duzenlenebilir"); rect.setAttribute("x", vb.width ? (vb.width/2)-100 : 100); rect.setAttribute("y", vb.height ? (vb.height/2)-100 : 100); rect.setAttribute("width", 200); rect.setAttribute("height", 200); rect.dataset.solidColor = "#10b981"; rect.setAttribute("fill", "#10b981");
+        rect.id = "shp_" + Date.now(); rect.setAttribute("class", "duzenlenebilir"); rect.setAttribute("x", vb.width ? (vb.width/2)-100 : 100); rect.setAttribute("y", vb.height ? (vb.height/2)-100 : 100); rect.setAttribute("width", 200); rect.setAttribute("height", 200); rect.dataset.solidColor = "#10b981"; rect.setAttribute("fill", "#10b981"); rect.dataset.maskShape = "none";
         svg.appendChild(rect); selectedEl = rect; saveState(); setupLayers(false); window.updateEditorUI(rect);
     }
+    
     window.addIcon = function(type) {
         const svg = document.querySelector('#canvas-inner svg'); if(!svg) return; const vb = svg.viewBox.baseVal; 
         const iconGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
@@ -789,8 +786,7 @@
     }
 
     async function saveData() {
-        const st = document.getElementById('status-info'); 
-        st.innerText = "KAYDEDİLİYOR..."; st.style.display = "block";
+        const st = document.getElementById('status-info'); st.innerText = "KAYDEDİLİYOR..."; st.style.display = "block";
         try {
             document.getElementById('control-layer').innerHTML = ""; hideGuides(true);
             const svgText = new XMLSerializer().serializeToString(document.querySelector('#canvas-inner svg')); const b64 = btoa(unescape(encodeURIComponent(svgText)));
@@ -800,10 +796,11 @@
             const res = await fetch(WORKER_URL, { 
                 method: "PUT", 
                 headers: { "X-Auth-Key": SESSION_PASS, "X-File-Name": fileKey }, 
-                body: JSON.stringify({message: "Pro Studio Final V5", content: b64, sha: SHA_KEY}) 
+                body: JSON.stringify({message: "Pro Studio Stabil V5", content: b64, sha: SHA_KEY}) 
             });
             
-            if(res.ok) { st.innerText = "BAŞARIYLA KAYDEDİLDİ!"; } else { st.innerText = "KAYIT HATASI!"; }
+            if(res.ok) { st.innerText = "BAŞARIYLA KAYDEDİLDİ!"; } 
+            else { st.innerText = "KAYIT HATASI!"; }
             setTimeout(() => st.style.display="none", 2000);
         } catch(e) { alert("Hata Oluştu!"); st.style.display="none"; }
     }
