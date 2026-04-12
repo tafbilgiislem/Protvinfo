@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SVG Pro Studio | Ultimate Pro V3</title>
+    <title>SVG Pro Studio | Kusursuz Çizim & Motor</title>
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Merriweather:wght@400;700&family=Montserrat:wght@400;700;800&family=Nunito:wght@400;700&family=Open+Sans:wght@400;700&family=Oswald:wght@400;700&family=Pacifico&family=Playfair+Display:wght@400;700&family=Poppins:wght@400;700&family=Raleway:wght@400;700&family=Roboto:wght@400;700&family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { --accent: #10b981; --bg: #0f172a; --panel: #1e293b; --border: #334155; --handle-move: #3b82f6; --handle-rotate: #f59e0b; --handle-radius: #ec4899; }
@@ -13,7 +13,7 @@
         /* GİRİŞ EKRANI */
         #login-screen { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 10000; }
         .login-card { background: var(--panel); padding: 40px; border-radius: 20px; width: 340px; text-align: center; border: 1px solid var(--border); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-        .login-card input { width: 100%; padding: 14px; margin-bottom: 15px; border-radius: 10px; border: 1px solid var(--border); background: #000; color: #fff; text-align: center; font-size: 16px; outline: none; }
+        .login-card input { width: 100%; padding: 14px; margin-bottom: 15px; border-radius: 10px; border: 1px solid var(--border); background: #000; color: #fff; text-align: center; outline: none; }
         .login-card button { width: 100%; padding: 14px; background: var(--accent); border: none; color: white; font-weight: bold; border-radius: 10px; cursor: pointer; transition: 0.2s; }
         .login-card button:hover { opacity: 0.9; }
 
@@ -23,13 +23,14 @@
         .sidebar-nav { padding: 15px; background: #111827; border-bottom: 1px solid var(--border); flex-shrink: 0; }
         #editor-fields { flex: 1; min-height: 0; overflow-y: auto; padding: 15px; background: rgba(0,0,0,0.2); padding-bottom: 100px; touch-action: pan-y; }
 
+        /* ÇİZİM VE ZOOM ALANI */
         #main-view { flex: 1; background: #020617; overflow: auto; position: relative; height: 100%; }
         #zoom-container { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; transform-origin: center center; transition: transform 0.2s ease-out; }
         #svg-wrapper { position: relative; background: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 50px black; touch-action: none; }
         #canvas-inner { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
         #canvas-inner svg { width: auto; height: auto; max-width: 100%; max-height: 100%; object-fit: contain; overflow: visible; }
         
-        /* ÇİZİM MODU */
+        /* ÇİZİM MODU CURSOR */
         .draw-mode { cursor: crosshair !important; }
 
         .floating-tools { position: fixed; bottom: 20px; left: 20px; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 8px; display: flex; gap: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 500; }
@@ -37,6 +38,7 @@
         .tool-btn:hover { background: var(--accent); border-color: var(--accent); }
         .tool-btn:disabled { opacity: 0.4; cursor: not-allowed; background: #0f172a !important; border-color: var(--border) !important; }
 
+        /* TUTAMAÇLAR VE KILAVUZLAR */
         .duzenlenebilir { cursor: move; pointer-events: all; }
         .locked { cursor: not-allowed !important; }
         #control-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; overflow: visible; }
@@ -49,6 +51,7 @@
         .snap-line { stroke: #ec4899; stroke-width: 1.5; stroke-dasharray: 4,4; pointer-events: none; z-index: 60; }
         .guide-line { stroke: #06b6d4; stroke-width: 3; stroke-dasharray: 8,4; cursor: grab; pointer-events: all; }
 
+        /* ARAYÜZ (UI) */
         .field-box { background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 15px; position: relative; border-left: 4px solid transparent; transition: 0.3s; }
         .field-box.active { border-left-color: var(--accent); background: rgba(16, 185, 129, 0.05); }
         .delete-btn { position: absolute; right: 12px; top: 12px; color: #ef4444; cursor: pointer; font-weight: bold; font-size: 20px; }
@@ -159,15 +162,17 @@
 </div>
 
 <script>
-    // === YAPILANDIRMA ===
-    const WORKER_URL = "https://githubtoken.tafbilgiislem.workers.dev"; // LÜTFEN KENDİ GITHUB/WORKER LİNKİNİZİ YAZIN
+    // === DEĞİŞKENLER VE TEMEL AYARLAR ===
+    const WORKER_URL = "https://githubtoken.tafbilgiislem.workers.dev"; // GITHUB LİNKİNİZİ BURAYA YAZIN
     let SHA_KEY = "", SESSION_PASS = "";
+    
+    // Seçim ve Transform Durumları
     let selectedEl = null, resizingEl = null, rotatingEl = null, radiusingEl = null, activeHandle = null;
     let offset = {x:0, y:0}, startP = {x:0, y:0}, startData = {}, isModified = false;
     let clipboard = null;
     let currentZoom = 1; let historyStack = []; let historyIndex = -1;
     
-    // Yeni Araç Durumları
+    // Yeni Araç Durumları (Çizim ve Kılavuz)
     let isDrawingMode = false; let isDrawing = false; let currentPath = null; let pathData = "";
     let isDraggingGuide = false; let currentGuide = null;
 
@@ -223,6 +228,8 @@
     }
 
     // === İNDİRME ===
+    function hideGuides(hide) { const gg = document.getElementById('guides-group'); if(gg) gg.style.display = hide ? 'none' : 'block'; }
+    
     function downloadPNG() {
         const svg = document.querySelector('#canvas-inner svg'); if(!svg) return;
         document.getElementById('control-layer').innerHTML = ""; selectedEl = null; renderFields();
@@ -231,6 +238,7 @@
         img.onload = function() { canvas.width = svg.viewBox.baseVal.width || 1920; canvas.height = svg.viewBox.baseVal.height || 1080; ctx.drawImage(img, 0, 0); const a = document.createElement("a"); a.download = "tasarim.png"; a.href = canvas.toDataURL("image/png"); a.click(); hideGuides(false); };
         img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgData)));
     }
+    
     function downloadSVG() {
         const svg = document.querySelector('#canvas-inner svg'); if(!svg) return;
         document.getElementById('control-layer').innerHTML = ""; selectedEl = null; renderFields();
@@ -239,10 +247,6 @@
         const blob = new Blob([svgData], {type: "image/svg+xml;charset=utf-8"}); const url = URL.createObjectURL(blob);
         const a = document.createElement("a"); a.download = "tasarim_vektor.svg"; a.href = url; a.click();
         hideGuides(false);
-    }
-    function hideGuides(hide) {
-        const gg = document.getElementById('guides-group');
-        if(gg) gg.style.display = hide ? 'none' : 'block';
     }
 
     // === TUVAL & KILAVUZ YÖNETİMİ ===
@@ -253,7 +257,6 @@
         if (!bgRect) { bgRect = document.createElementNS("http://www.w3.org/2000/svg", "rect"); bgRect.id = "canvas-background"; bgRect.setAttribute("x", "0"); bgRect.setAttribute("y", "0"); bgRect.setAttribute("width", vb.width || 1920); bgRect.setAttribute("height", vb.height || 1080); bgRect.setAttribute("fill", "#ffffff"); svg.insertBefore(bgRect, svg.firstChild); }
         document.getElementById('canvas-bg-color').value = safeColor(bgRect.getAttribute("fill"));
 
-        // Kılavuz Grubu
         if(!svg.querySelector('#guides-group')) {
             const gg = document.createElementNS("http://www.w3.org/2000/svg", "g"); gg.id = "guides-group";
             svg.appendChild(gg);
@@ -269,8 +272,6 @@
         line.classList.add("guide-line"); line.dataset.type = type;
         if(type === 'h') { line.setAttribute("x1", 0); line.setAttribute("y1", vb.height/2); line.setAttribute("x2", vb.width); line.setAttribute("y2", vb.height/2); line.style.cursor = "row-resize"; }
         else { line.setAttribute("x1", vb.width/2); line.setAttribute("y1", 0); line.setAttribute("x2", vb.width/2); line.setAttribute("y2", vb.height); line.style.cursor = "col-resize"; }
-        
-        // Çift Tıkla Sil
         line.ondblclick = function() { this.remove(); saveState(); };
         gg.appendChild(line); saveState();
     }
@@ -283,24 +284,33 @@
         selectedEl = null; document.getElementById('control-layer').innerHTML = ""; renderFields();
     }
 
-    // === HAZIR TİPOGRAFİ STİLLERİ ===
+    // === HAZIR STİLLER & HİZALAMA ===
     window.applyTextStyle = function(id, style) {
         const el = document.getElementById(id); if(!el) return;
         const color = el.dataset.solidColor || el.getAttribute('fill') || '#ffffff';
-        
         el.setAttribute('fill', color); el.setAttribute('stroke', 'none'); el.setAttribute('paint-order', 'stroke fill');
         el.dataset.shadowX = 0; el.dataset.shadowY = 0; el.dataset.shadowBlur = 0;
         
-        if (style === 'hollow') {
-            el.setAttribute('fill', 'none'); el.setAttribute('stroke', color); el.setAttribute('stroke-width', '4');
-        } else if (style === 'neon') {
-            el.setAttribute('fill', '#ffffff'); el.setAttribute('stroke', color); el.setAttribute('stroke-width', '2');
-            el.dataset.shadowColor = color; el.dataset.shadowX = 0; el.dataset.shadowY = 0; el.dataset.shadowBlur = 15;
-        } else if (style === '3d') {
-            el.setAttribute('fill', color); el.setAttribute('stroke', '#000000'); el.setAttribute('stroke-width', '3');
-            el.dataset.shadowColor = '#000000'; el.dataset.shadowX = 6; el.dataset.shadowY = 6; el.dataset.shadowBlur = 0;
-        }
+        if (style === 'hollow') { el.setAttribute('fill', 'none'); el.setAttribute('stroke', color); el.setAttribute('stroke-width', '4'); } 
+        else if (style === 'neon') { el.setAttribute('fill', '#ffffff'); el.setAttribute('stroke', color); el.setAttribute('stroke-width', '2'); el.dataset.shadowColor = color; el.dataset.shadowX = 0; el.dataset.shadowY = 0; el.dataset.shadowBlur = 15; } 
+        else if (style === '3d') { el.setAttribute('fill', color); el.setAttribute('stroke', '#000000'); el.setAttribute('stroke-width', '3'); el.dataset.shadowColor = '#000000'; el.dataset.shadowX = 6; el.dataset.shadowY = 6; el.dataset.shadowBlur = 0; }
         window.applyFilters(el); saveState(); renderFields();
+    }
+
+    window.alignElement = function(id, type) {
+        const el = document.getElementById(id); if(!el) return; const svg = document.querySelector('#canvas-inner svg'); const vb = svg.viewBox.baseVal; const bbox = el.getBBox();
+        if (el.tagName === 'text') { if(type === 'center-h') el.setAttribute('x', vb.width/2); if(type === 'center-v') el.setAttribute('y', vb.height/2); if(type === 'left') el.setAttribute('x', bbox.width/2); if(type === 'right') el.setAttribute('x', vb.width - bbox.width/2); } 
+        else { let nw = parseFloat(el.getAttribute('width')) || bbox.width; let nh = parseFloat(el.getAttribute('height')) || bbox.height; if(type === 'center-h') el.setAttribute('x', (vb.width/2) - (nw/2)); if(type === 'center-v') el.setAttribute('y', (vb.height/2) - (nh/2)); if(type === 'left') el.setAttribute('x', 0); if(type === 'right') el.setAttribute('x', vb.width - nw); } 
+        if(el.tagName === 'image' || el.tagName === 'rect') window.applyShapeMask(el); saveState(); if(window.updateEditorUI) window.updateEditorUI(el);
+    };
+
+    window.toggleFlip = function(id, dir) { const el = document.getElementById(id); if(!el) return; if(dir === 'x') el.dataset.flipX = (el.dataset.flipX === "-1") ? "1" : "-1"; else el.dataset.flipY = (el.dataset.flipY === "-1") ? "1" : "-1"; window.applyTransforms(el); saveState(); }
+    window.applyTransforms = function(el) {
+        const bbox = el.getBBox(); let cx = 0, cy = 0;
+        if(el.tagName === 'text') { cx = parseFloat(el.getAttribute('x')); cy = parseFloat(el.getAttribute('y')); } else { cx = (parseFloat(el.getAttribute('x')) || 0) + (parseFloat(el.getAttribute('width')) || 0) / 2; cy = (parseFloat(el.getAttribute('y')) || 0) + (parseFloat(el.getAttribute('height')) || 0) / 2; }
+        const angle = parseFloat(el.dataset.angle) || 0; const fx = parseFloat(el.dataset.flipX) || 1; const fy = parseFloat(el.dataset.flipY) || 1;
+        el.setAttribute("transform", `rotate(${angle} ${cx} ${cy}) translate(${cx} ${cy}) scale(${fx} ${fy}) translate(${-cx} ${-cy})`);
+        if(window.updateEditorUI) window.updateEditorUI(el);
     }
 
     // === KLAVYE KISAYOLLARI ===
@@ -310,7 +320,7 @@
         if (selectedEl && selectedEl.dataset.locked !== "true") {
             const step = e.shiftKey ? 10 : 1; let moved = false; let x = parseFloat(selectedEl.getAttribute("x")) || 0, y = parseFloat(selectedEl.getAttribute("y")) || 0;
             if (e.key === 'ArrowUp') { y -= step; moved = true; } if (e.key === 'ArrowDown') { y += step; moved = true; } if (e.key === 'ArrowLeft') { x -= step; moved = true; } if (e.key === 'ArrowRight') { x += step; moved = true; }
-            if (moved) { e.preventDefault(); selectedEl.setAttribute("x", x); selectedEl.setAttribute("y", y); if(selectedEl.tagName === 'image' || selectedEl.tagName === 'rect') window.applyShapeMask(selectedEl); if(window.updateEditorUI) window.updateEditorUI(selectedEl); isModified = true; }
+            if (moved) { e.preventDefault(); selectedEl.setAttribute("x", x); selectedEl.setAttribute("y", y); if(selectedEl.tagName === 'image' || selectedEl.tagName === 'rect') window.applyShapeMask(selectedEl); if(selectedEl.tagName === 'text') window.applyTextCurve(selectedEl); if(window.updateEditorUI) window.updateEditorUI(selectedEl); isModified = true; }
             if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); selectedEl.remove(); document.getElementById('control-layer').innerHTML = ''; selectedEl = null; saveState(); renderFields(); }
             if (e.ctrlKey && e.key === 'c') { e.preventDefault(); clipboard = selectedEl.cloneNode(true); }
         }
@@ -321,8 +331,7 @@
     // === GERİ AL / İLERİ AL & AUTO-SAVE ===
     function saveState() {
         const svg = document.querySelector('#canvas-inner svg'); if (!svg) return;
-        document.getElementById('control-layer').innerHTML = ""; 
-        hideGuides(true); const state = svg.innerHTML; hideGuides(false);
+        document.getElementById('control-layer').innerHTML = ""; hideGuides(true); const state = svg.innerHTML; hideGuides(false);
         const file = document.getElementById('file-selector').value; localStorage.setItem("autosave_" + file, state);
         if (historyIndex < historyStack.length - 1) historyStack = historyStack.slice(0, historyIndex + 1);
         historyStack.push(state); historyIndex++; updateHistoryButtons();
@@ -336,15 +345,7 @@
     function resetZoom() { currentZoom = 1; applyZoom(); }
     function applyZoom() { document.getElementById('zoom-container').style.transform = `scale(${currentZoom})`; document.getElementById('zoom-val').innerText = Math.round(currentZoom * 100) + "%"; }
 
-    // === HİZALAMA, YANSIMA, KATMAN ===
-    window.alignElement = function(id, type) {
-        const el = document.getElementById(id); if(!el) return; const svg = document.querySelector('#canvas-inner svg'); const vb = svg.viewBox.baseVal; const bbox = el.getBBox();
-        if (el.tagName === 'text') { if(type === 'center-h') el.setAttribute('x', vb.width/2); if(type === 'center-v') el.setAttribute('y', vb.height/2); if(type === 'left') el.setAttribute('x', bbox.width/2); if(type === 'right') el.setAttribute('x', vb.width - bbox.width/2); } 
-        else { let nw = parseFloat(el.getAttribute('width')) || bbox.width; let nh = parseFloat(el.getAttribute('height')) || bbox.height; if(type === 'center-h') el.setAttribute('x', (vb.width/2) - (nw/2)); if(type === 'center-v') el.setAttribute('y', (vb.height/2) - (nh/2)); if(type === 'left') el.setAttribute('x', 0); if(type === 'right') el.setAttribute('x', vb.width - nw); } 
-        if(el.tagName === 'image' || el.tagName === 'rect') window.applyShapeMask(el); saveState(); if(window.updateEditorUI) window.updateEditorUI(el);
-    };
-    window.toggleFlip = function(id, dir) { const el = document.getElementById(id); if(!el) return; if(dir === 'x') el.dataset.flipX = (el.dataset.flipX === "-1") ? "1" : "-1"; else el.dataset.flipY = (el.dataset.flipY === "-1") ? "1" : "-1"; window.applyTransforms(el); saveState(); }
-    window.applyTransforms = function(el) { const bbox = el.getBBox(); let cx = 0, cy = 0; if(el.tagName === 'text') { cx = parseFloat(el.getAttribute('x')); cy = parseFloat(el.getAttribute('y')); } else { cx = (parseFloat(el.getAttribute('x')) || 0) + (parseFloat(el.getAttribute('width')) || 0) / 2; cy = (parseFloat(el.getAttribute('y')) || 0) + (parseFloat(el.getAttribute('height')) || 0) / 2; } const angle = parseFloat(el.dataset.angle) || 0; const fx = parseFloat(el.dataset.flipX) || 1; const fy = parseFloat(el.dataset.flipY) || 1; el.setAttribute("transform", `rotate(${angle} ${cx} ${cy}) translate(${cx} ${cy}) scale(${fx} ${fy}) translate(${-cx} ${-cy})`); if(window.updateEditorUI) window.updateEditorUI(el); }
+    // === KATMAN, KİLİT ===
     window.moveLayer = function(id, dir) { const el = document.getElementById(id); if(!el) return; if (dir === 1 && el.nextElementSibling && el.nextElementSibling.id !== 'guides-group') el.parentNode.insertBefore(el.nextElementSibling, el); else if (dir === -1 && el.previousElementSibling && el.previousElementSibling.id !== 'canvas-background') el.parentNode.insertBefore(el, el.previousElementSibling); saveState(); if(window.updateEditorUI) window.updateEditorUI(el); };
     window.cloneElement = function(id) { const el = document.getElementById(id); if(!el) return; const clone = el.cloneNode(true); clone.id = "el_" + Date.now(); clone.setAttribute("x", (parseFloat(el.getAttribute("x")) || 0) + 30); clone.setAttribute("y", (parseFloat(el.getAttribute("y")) || 0) + 30); el.parentNode.insertBefore(clone, el.nextSibling); selectedEl = clone; saveState(); setupLayers(false); window.updateEditorUI(clone); };
     window.toggleLock = function(id) { const el = document.getElementById(id); if(!el) return; const isLocked = el.dataset.locked === "true"; el.dataset.locked = isLocked ? "false" : "true"; el.classList.toggle('locked', !isLocked); saveState(); renderFields(); if(window.updateEditorUI) window.updateEditorUI(el); }
@@ -386,6 +387,7 @@
         clipPath.querySelector('path').setAttribute("d", d); 
     };
 
+    // === ANA MOTOR VE KURULUM ===
     function setupLayers() {
         const mainSvg = document.querySelector('#canvas-inner svg'); const ctrl = document.getElementById('control-layer');
         if (!mainSvg) return;
@@ -409,7 +411,6 @@
         initEngine(mainSvg); renderFields();
     }
 
-    // === PRO MOTOR (DRAW & GUIDE SNAPPING) ===
     function initEngine(svg) {
         const wrapper = document.getElementById('svg-wrapper'); const ctrl = document.getElementById('control-layer');
         const getCoords = (e) => { const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY; const ctm = svg.getScreenCTM(); if (!ctm) return { x: 0, y: 0 }; const cursorpt = pt.matrixTransform(ctm.inverse()); return { x: cursorpt.x, y: cursorpt.y }; };
@@ -417,7 +418,6 @@
         wrapper.onpointerdown = (e) => {
             const p = getCoords(e); const target = e.target; isModified = false;
 
-            // Çizim Modu
             if (isDrawingMode) {
                 isDrawing = true;
                 currentPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
@@ -425,11 +425,11 @@
                 currentPath.setAttribute("fill", "none"); currentPath.setAttribute("stroke", "#10b981");
                 currentPath.setAttribute("stroke-width", "5"); currentPath.setAttribute("stroke-linecap", "round"); currentPath.setAttribute("stroke-linejoin", "round");
                 pathData = `M ${p.x} ${p.y}`; currentPath.setAttribute("d", pathData);
-                svg.insertBefore(currentPath, document.getElementById('guides-group'));
+                const guidesGroup = document.getElementById('guides-group');
+                if(guidesGroup) svg.insertBefore(currentPath, guidesGroup); else svg.appendChild(currentPath);
                 try { wrapper.setPointerCapture(e.pointerId); } catch(err){} return;
             }
 
-            // Kılavuz Taşıma
             if (target.classList.contains('guide-line')) {
                 isDraggingGuide = true; currentGuide = target;
                 try { wrapper.setPointerCapture(e.pointerId); } catch(err){} e.preventDefault(); e.stopPropagation(); return;
@@ -479,7 +479,6 @@
                 isModified = true; let newX = p.x - offset.x, newY = p.y - offset.y;
                 const bbox = selectedEl.getBBox(); const elCx = selectedEl.tagName === 'text' ? newX : newX + bbox.width / 2; const elCy = selectedEl.tagName === 'text' ? newY : newY + bbox.height / 2;
                 
-                // Mıknatıs (Orta Nokta ve Sabit Kılavuzlar)
                 if (Math.abs(elCx - cx) < snapTolerance) { snapX = cx; newX = selectedEl.tagName === 'text' ? cx : cx - bbox.width / 2; }
                 if (Math.abs(elCy - cy) < snapTolerance) { snapY = cy; newY = selectedEl.tagName === 'text' ? cy : cy - bbox.height / 2; }
                 
@@ -547,8 +546,8 @@
         document.querySelectorAll('.duzenlenebilir').forEach((el, i) => {
             const b = document.createElement('div'); b.className = 'field-box'; b.id = 'box-' + el.id;
             const isLocked = el.dataset.locked === "true"; const blend = el.dataset.blend || 'normal';
-            const col = el.dataset.solidColor || el.getAttribute('fill') || "#ffffff"; 
-            const opacityVal = parseFloat(el.getAttribute('opacity')) ?? 1;
+            const col = el.getAttribute('fill') === 'none' ? el.getAttribute('stroke') : (el.dataset.solidColor || el.getAttribute('fill') || "#ffffff"); 
+            let opacityVal = parseFloat(el.getAttribute('opacity')); if (isNaN(opacityVal)) opacityVal = 1;
             const sX = parseFloat(el.dataset.shadowX) || 0, sY = parseFloat(el.dataset.shadowY) || 0, sB = parseFloat(el.dataset.shadowBlur) || 0, sC = el.dataset.shadowColor || '#000000', bl = parseFloat(el.dataset.blur) || 0;
             const strokeCol = el.getAttribute('stroke') || '#000000'; const strokeW = parseFloat(el.getAttribute('stroke-width')) || 0;
 
@@ -569,16 +568,7 @@
                 let fontOptions = googleFonts.map(font => `<option value="${font.val}" style="font-family: ${font.val}" ${currentFont.includes(font.name) ? "selected" : ""}>${font.name}</option>`).join('');
 
                 html += `<input type="text" value="${rawText}" oninput="const t=document.getElementById('${el.id}'); t.dataset.rawText=this.value; window.applyTextCurve(t); if(window.updateEditorUI) window.updateEditorUI(t);" onchange="saveState()" ${isLocked ? 'disabled' : ''}>`;
-                
-                // HAZIR STİLLER EKLENTİSİ
-                html += `<div class="label-text" style="color:var(--accent); margin:10px 0 5px 0;">✨ HAZIR STİLLER</div>`;
-                html += `<div class="action-row">
-                            <button class="action-btn" onclick="applyTextStyle('${el.id}', 'normal')" ${isLocked ? 'disabled' : ''}>Temizle</button>
-                            <button class="action-btn" onclick="applyTextStyle('${el.id}', 'neon')" ${isLocked ? 'disabled' : ''}>Neon</button>
-                            <button class="action-btn" onclick="applyTextStyle('${el.id}', '3d')" ${isLocked ? 'disabled' : ''}>Retro 3D</button>
-                            <button class="action-btn" onclick="applyTextStyle('${el.id}', 'hollow')" ${isLocked ? 'disabled' : ''}>Hollow</button>
-                        </div>`;
-
+                html += `<div class="label-text" style="color:var(--accent); margin:10px 0 5px 0;">✨ HAZIR STİLLER</div><div class="action-row"><button class="action-btn" onclick="applyTextStyle('${el.id}', 'normal')" ${isLocked?'disabled':''}>Temizle</button><button class="action-btn" onclick="applyTextStyle('${el.id}', 'neon')" ${isLocked?'disabled':''}>Neon</button><button class="action-btn" onclick="applyTextStyle('${el.id}', '3d')" ${isLocked?'disabled':''}>Retro 3D</button><button class="action-btn" onclick="applyTextStyle('${el.id}', 'hollow')" ${isLocked?'disabled':''}>Hollow</button></div>`;
                 html += `<select class="font-select" onchange="const t=document.getElementById('${el.id}'); t.setAttribute('font-family', this.value); t.style.fontFamily=this.value; window.applyTextCurve(t); saveState(); if(window.updateEditorUI) window.updateEditorUI(t);" ${isLocked ? 'disabled' : ''}>${fontOptions}</select>`;
                 html += `<div class="label-row"><span class="label-text">ANA YAZI BOYUTU</span><span class="value-badge" id="val-fs-${i}">${Math.round(fs)}px</span></div><input type="range" id="fs-slider-${i}" min="10" max="600" value="${fs}" oninput="const t=document.getElementById('${el.id}'); t.dataset.baseFontSize=this.value; window.applyTextCurve(t); document.getElementById('val-fs-${i}').innerText=Math.round(this.value)+'px'; if(window.updateEditorUI) window.updateEditorUI(t);" onchange="saveState()" ${isLocked ? 'disabled' : ''}>`;
                 html += `<div class="label-row"><span class="label-text">KAVİS (CURVE)</span><span class="value-badge" id="val-cv-${i}">${curve}</span></div><input type="range" min="-100" max="100" value="${curve}" oninput="const t=document.getElementById('${el.id}'); t.dataset.curve=this.value; document.getElementById('val-cv-${i}').innerText=this.value; window.applyTextCurve(t); if(window.updateEditorUI) window.updateEditorUI(t);" onchange="saveState()" ${isLocked ? 'disabled' : ''}>`;
@@ -596,23 +586,21 @@
                             <option value="triangle" ${maskShape === 'triangle' ? 'selected' : ''}>Üçgen</option>
                             <option value="star" ${maskShape === 'star' ? 'selected' : ''}>Yıldız</option>
                         </select>
-                        <div class="label-row"><span class="label-text">KÖŞE YARIÇAPI (Squircle için)</span><span class="value-badge" id="val-r-${i}">${Math.round(rx)}px</span></div><input type="range" id="r-slider-${i}" min="0" max="${Math.min(w/2, h/2)}" value="${rx}" oninput="const img=document.getElementById('${el.id}'); img.dataset.rx=this.value; window.applyShapeMask(img); document.getElementById('val-r-${i}').innerText=Math.round(this.value)+'px'; if(window.updateEditorUI) window.updateEditorUI(img);" onchange="saveState()" ${isLocked ? 'disabled' : ''}>
+                        <div class="label-row"><span class="label-text">KÖŞE YARIÇAPI (Squircle)</span><span class="value-badge" id="val-r-${i}">${Math.round(rx)}px</span></div><input type="range" id="r-slider-${i}" min="0" max="${Math.min(w/2, h/2)}" value="${rx}" oninput="const img=document.getElementById('${el.id}'); img.dataset.rx=this.value; window.applyShapeMask(img); document.getElementById('val-r-${i}').innerText=Math.round(this.value)+'px'; if(window.updateEditorUI) window.updateEditorUI(img);" onchange="saveState()" ${isLocked ? 'disabled' : ''}>
                     `;
                 }
             }
 
-            if (el.tagName === 'text' || el.tagName === 'rect' || el.tagName === 'svg' || el.tagName === 'path') {
+            if (el.tagName === 'text' || el.tagName === 'rect' || el.tagName === 'svg') {
                 const dash = el.getAttribute('stroke-dasharray') || 'none';
                 html += `
                     <div class="group-box">
                         <div class="label-text" style="color:var(--accent); margin-bottom:10px;">🔲 DIŞ KENARLIK / ÇİZGİ</div>
                         <div style="display:flex; gap:10px; align-items:center;">
                             <input type="color" value="${safeColor(strokeCol)}" oninput="const t=document.getElementById('${el.id}'); t.setAttribute('stroke', this.value); t.setAttribute('paint-order', 'stroke fill'); t.setAttribute('stroke-linejoin', 'round');" onchange="saveState()" style="width:35px; height:35px; border-radius:8px; border:none; background:none; cursor:pointer;" ${isLocked ? 'disabled' : ''}>
-                            <div style="flex:1;">
-                                <div class="label-row" style="margin-top:0;"><span class="label-text">KALINLIK</span><span class="value-badge" id="val-sw-${i}">${strokeW}px</span></div>
-                                <input type="range" min="0" max="100" value="${strokeW}" oninput="const t=document.getElementById('${el.id}'); t.setAttribute('stroke-width', this.value); t.setAttribute('paint-order', 'stroke fill'); t.setAttribute('stroke-linejoin', 'round'); document.getElementById('val-sw-${i}').innerText=this.value+'px';" onchange="saveState()" ${isLocked ? 'disabled' : ''}>
-                            </div>
+                            <div style="flex:1;"><div class="label-row" style="margin-top:0;"><span class="label-text">KALINLIK</span><span class="value-badge" id="val-sw-${i}">${strokeW}px</span></div><input type="range" min="0" max="100" value="${strokeW}" oninput="const t=document.getElementById('${el.id}'); t.setAttribute('stroke-width', this.value); t.setAttribute('paint-order', 'stroke fill'); t.setAttribute('stroke-linejoin', 'round'); document.getElementById('val-sw-${i}').innerText=this.value+'px';" onchange="saveState()" ${isLocked ? 'disabled' : ''}></div>
                         </div>
+                        <select class="font-select" style="margin-top:10px;" onchange="document.getElementById('${el.id}').setAttribute('stroke-dasharray', this.value); saveState();" ${isLocked ? 'disabled' : ''}><option value="none" ${dash === 'none' ? 'selected' : ''}>Düz Çizgi</option><option value="5,5" ${dash === '5,5' ? 'selected' : ''}>Kesikli (İnce)</option><option value="15,10" ${dash === '15,10' ? 'selected' : ''}>Kesikli (Kalın)</option></select>
                     </div>
                 `;
             }
@@ -621,20 +609,23 @@
                 <div class="group-box">
                     <div class="label-row"><span class="label-text">KARIŞIM MODU (BLEND)</span></div>
                     <select class="font-select" onchange="const t=document.getElementById('${el.id}'); t.dataset.blend=this.value; window.applyFilters(t); saveState();" ${isLocked ? 'disabled' : ''}>
-                        <option value="normal" ${blend === 'normal' ? 'selected' : ''}>Normal</option>
-                        <option value="multiply" ${blend === 'multiply' ? 'selected' : ''}>Çoğalt (Multiply)</option>
-                        <option value="screen" ${blend === 'screen' ? 'selected' : ''}>Ekran (Screen)</option>
-                        <option value="overlay" ${blend === 'overlay' ? 'selected' : ''}>Kaplama (Overlay)</option>
+                        <option value="normal" ${blend === 'normal' ? 'selected' : ''}>Normal</option><option value="multiply" ${blend === 'multiply' ? 'selected' : ''}>Çoğalt (Multiply)</option><option value="screen" ${blend === 'screen' ? 'selected' : ''}>Ekran (Screen)</option><option value="overlay" ${blend === 'overlay' ? 'selected' : ''}>Kaplama (Overlay)</option>
                     </select>
                     <div style="display:flex; gap:10px; margin-bottom: 10px; margin-top: 10px;">
-                        ${el.tagName !== 'path' ? `<div><div class="label-text" style="margin-bottom:5px;">İÇ RENK</div><input type="color" value="${safeColor(col)}" oninput="const t=document.getElementById('${el.id}'); t.dataset.solidColor=this.value; t.setAttribute('fill', this.value); t.style.fill=this.value;" onchange="saveState()" style="width:35px; height:35px; border-radius:8px; border:none; background:none; cursor:pointer;" ${isLocked ? 'disabled' : ''}></div>` : ''}
+                        <div><div class="label-text" style="margin-bottom:5px;">${el.tagName==='path'?'ÇİZGİ':'İÇ'} RENK</div><input type="color" value="${safeColor(col)}" oninput="const t=document.getElementById('${el.id}'); if(t.tagName==='path') { t.setAttribute('stroke', this.value); } else { t.dataset.solidColor=this.value; t.setAttribute('fill', this.value); t.style.fill=this.value; }" onchange="saveState()" style="width:35px; height:35px; border-radius:8px; border:none; background:none; cursor:pointer;" ${isLocked ? 'disabled' : ''}></div>
+                        ${el.tagName !== 'path' ? `<div><div class="label-text" style="margin-bottom:5px;">GÖLGE</div><input type="color" value="${sC}" oninput="const t=document.getElementById('${el.id}'); t.dataset.shadowColor=this.value; window.applyFilters(t);" onchange="saveState()" style="width:35px; height:35px; border-radius:8px; border:none; background:none; cursor:pointer;" ${isLocked ? 'disabled' : ''}></div>` : ''}
                         <div style="flex:1;"><div class="label-row" style="margin-top:0;"><span class="label-text">ŞEFFAFLIK</span><span class="value-badge" id="val-op-${i}">${Math.round(opacityVal*100)}%</span></div><input type="range" min="0" max="1" step="0.05" value="${opacityVal}" oninput="const t=document.getElementById('${el.id}'); t.setAttribute('opacity', this.value); document.getElementById('val-op-${i}').innerText=Math.round(this.value*100)+'%';" onchange="saveState()" ${isLocked ? 'disabled' : ''}></div>
                     </div>
-                    <div style="display:flex; gap:10px; margin-top: 15px;"><div style="flex:1;"><div class="label-row" style="margin-top:0;"><span class="label-text">GÖLGE X</span><span class="value-badge" id="val-sx-${i}">${sX}</span></div><input type="range" min="-50" max="50" value="${sX}" oninput="const t=document.getElementById('${el.id}'); t.dataset.shadowX=this.value; window.applyFilters(t); document.getElementById('val-sx-${i}').innerText=this.value;" onchange="saveState()" ${isLocked ? 'disabled' : ''}></div><div style="flex:1;"><div class="label-row" style="margin-top:0;"><span class="label-text">GÖLGE Y</span><span class="value-badge" id="val-sy-${i}">${sY}</span></div><input type="range" min="-50" max="50" value="${sY}" oninput="const t=document.getElementById('${el.id}'); t.dataset.shadowY=this.value; window.applyFilters(t); document.getElementById('val-sy-${i}').innerText=this.value;" onchange="saveState()" ${isLocked ? 'disabled' : ''}></div></div>
-                    <div style="display:flex; gap:10px; margin-top: 5px;"><div style="flex:1;"><div class="label-row" style="margin-top:0;"><span class="label-text">GÖLGE BLUR</span><span class="value-badge" id="val-sb-${i}">${sB}</span></div><input type="range" min="0" max="50" value="${sB}" oninput="const t=document.getElementById('${el.id}'); t.dataset.shadowBlur=this.value; window.applyFilters(t); document.getElementById('val-sb-${i}').innerText=this.value;" onchange="saveState()" ${isLocked ? 'disabled' : ''}></div><div style="flex:1;"><div class="label-row" style="margin-top:0;"><span class="label-text">ÖĞE BLUR</span><span class="value-badge" id="val-bl-${i}">${bl}</span></div><input type="range" min="0" max="50" value="${bl}" oninput="const t=document.getElementById('${el.id}'); t.dataset.blur=this.value; window.applyFilters(t); document.getElementById('val-bl-${i}').innerText=this.value;" onchange="saveState()" ${isLocked ? 'disabled' : ''}></div></div>
-                    <button class="action-btn danger" style="width:100%; margin-top:10px;" onclick="const t=document.getElementById('${el.id}'); t.dataset.shadowX=0; t.dataset.shadowY=0; t.dataset.shadowBlur=0; t.dataset.blur=0; window.applyFilters(t); saveState(); renderFields();" ${isLocked ? 'disabled' : ''}>🚫 GÖLGE VE EFEKTLERİ SIFIRLA</button>
-                </div>
             `;
+            if (el.tagName === 'path') {
+                const sw = parseFloat(el.getAttribute("stroke-width")) || 5;
+                html += `<div class="label-row"><span class="label-text">ÇİZGİ KALINLIĞI</span><span class="value-badge" id="val-psw-${i}">${sw}px</span></div><input type="range" min="1" max="100" value="${sw}" oninput="document.getElementById('${el.id}').setAttribute('stroke-width', this.value); document.getElementById('val-psw-${i}').innerText=this.value+'px';" onchange="saveState()" ${isLocked ? 'disabled' : ''}>`;
+            } else {
+                html += `<div style="display:flex; gap:10px; margin-top: 15px;"><div style="flex:1;"><div class="label-row" style="margin-top:0;"><span class="label-text">GÖLGE X</span><span class="value-badge" id="val-sx-${i}">${sX}</span></div><input type="range" min="-50" max="50" value="${sX}" oninput="const t=document.getElementById('${el.id}'); t.dataset.shadowX=this.value; window.applyFilters(t); document.getElementById('val-sx-${i}').innerText=this.value;" onchange="saveState()" ${isLocked ? 'disabled' : ''}></div><div style="flex:1;"><div class="label-row" style="margin-top:0;"><span class="label-text">GÖLGE Y</span><span class="value-badge" id="val-sy-${i}">${sY}</span></div><input type="range" min="-50" max="50" value="${sY}" oninput="const t=document.getElementById('${el.id}'); t.dataset.shadowY=this.value; window.applyFilters(t); document.getElementById('val-sy-${i}').innerText=this.value;" onchange="saveState()" ${isLocked ? 'disabled' : ''}></div></div>
+                         <div style="display:flex; gap:10px; margin-top: 5px;"><div style="flex:1;"><div class="label-row" style="margin-top:0;"><span class="label-text">GÖLGE BLUR</span><span class="value-badge" id="val-sb-${i}">${sB}</span></div><input type="range" min="0" max="50" value="${sB}" oninput="const t=document.getElementById('${el.id}'); t.dataset.shadowBlur=this.value; window.applyFilters(t); document.getElementById('val-sb-${i}').innerText=this.value;" onchange="saveState()" ${isLocked ? 'disabled' : ''}></div><div style="flex:1;"><div class="label-row" style="margin-top:0;"><span class="label-text">ÖĞE BLUR</span><span class="value-badge" id="val-bl-${i}">${bl}</span></div><input type="range" min="0" max="50" value="${bl}" oninput="const t=document.getElementById('${el.id}'); t.dataset.blur=this.value; window.applyFilters(t); document.getElementById('val-bl-${i}').innerText=this.value;" onchange="saveState()" ${isLocked ? 'disabled' : ''}></div></div>
+                         <button class="action-btn danger" style="width:100%; margin-top:10px;" onclick="const t=document.getElementById('${el.id}'); t.dataset.shadowX=0; t.dataset.shadowY=0; t.dataset.shadowBlur=0; t.dataset.blur=0; window.applyFilters(t); saveState(); renderFields();" ${isLocked ? 'disabled' : ''}>🚫 GÖLGE/EFEKT SIFIRLA</button>`;
+            }
+            html += `</div>`;
             b.innerHTML = html; f.appendChild(b);
         });
     }
@@ -681,7 +672,7 @@
             localStorage.removeItem("autosave_" + document.getElementById('file-selector').value);
             const svgText = new XMLSerializer().serializeToString(document.querySelector('#canvas-inner svg')); const b64 = btoa(unescape(encodeURIComponent(svgText)));
             hideGuides(false);
-            await fetch(WORKER_URL, { method: "PUT", headers: {"X-Auth-Key": SESSION_PASS, "X-File-Name": document.getElementById('file-selector').value}, body: JSON.stringify({message: "God Tier Pro Final", content: b64, sha: SHA_KEY}) });
+            await fetch(WORKER_URL, { method: "PUT", headers: {"X-Auth-Key": SESSION_PASS, "X-File-Name": document.getElementById('file-selector').value}, body: JSON.stringify({message: "Draw Fix V3", content: b64, sha: SHA_KEY}) });
             st.innerText = "BAŞARIYLA KAYDEDİLDİ!"; setTimeout(() => st.style.display="none", 2000);
         } catch(e) { alert("Hata!"); st.style.display="none"; }
     }
