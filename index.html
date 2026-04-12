@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SVG Pro Studio | Saf Worker Sürümü</title>
+    <title>SVG Pro Studio | Yeni Nesil V9 (Collapsible UI)</title>
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Merriweather:wght@400;700&family=Montserrat:wght@400;700;800&family=Nunito:wght@400;700&family=Open+Sans:wght@400;700&family=Oswald:wght@400;700&family=Pacifico&family=Playfair+Display:wght@400;700&family=Poppins:wght@400;700&family=Raleway:wght@400;700&family=Roboto:wght@400;700&family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { --accent: #10b981; --bg: #0f172a; --panel: #1e293b; --border: #334155; --handle-move: #3b82f6; --handle-rotate: #f59e0b; --handle-radius: #ec4899; }
@@ -17,16 +17,18 @@
         .login-card button { width: 100%; padding: 14px; background: var(--accent); border: none; color: white; font-weight: bold; border-radius: 10px; cursor: pointer; transition: 0.2s; font-size:14px; }
         .login-card button:hover { opacity: 0.9; }
 
-        /* ANA DÜZEN */
+        /* ANA DÜZEN - TUVAL & SİDEBAR ORANI DEĞİŞTİ */
         #app-container { display: none; height: 100%; width: 100%; flex-direction: row; }
-        #sidebar { width: 380px; background: var(--panel); border-left: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; height: 100%; z-index: 100; }
+        #sidebar { width: 480px; /* GENİŞLİK ARTIRILDI (Eski: 380px) */ background: var(--panel); border-left: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; height: 100%; z-index: 100; }
         .sidebar-nav { padding: 15px; background: #111827; border-bottom: 1px solid var(--border); flex-shrink: 0; }
         
-        /* KATMANLAR VE ÖZELLİKLER BÖLÜMÜ */
-        #layers-wrapper { display: flex; flex-direction: column; height: 35%; border-bottom: 2px solid var(--border); background: #0f172a; flex-shrink: 0; }
+        /* KATMANLAR ÜSTE ALINDI VE KÜÇÜLTÜLDÜ */
+        #layers-wrapper { display: flex; flex-direction: column; height: 25%; /* BOYUT AZALTILDI (Eski: 35%) */ border-bottom: 2px solid var(--border); background: #0f172a; flex-shrink: 0; }
         #layers-header { padding: 10px 15px; font-size: 12px; font-weight: bold; color: var(--accent); border-bottom: 1px solid var(--border); background: #111827; }
         #layers-list { flex: 1; overflow-y: auto; }
-        #editor-fields { flex: 1; min-height: 0; overflow-y: auto; padding: 15px; background: rgba(0,0,0,0.2); }
+        
+        /* ÖZELLİKLER PANELİ ALTA ALINDI VE GENİŞLETİLDİ */
+        #editor-fields { flex: 1; min-height: 0; overflow-y: auto; padding: 20px; background: rgba(0,0,0,0.2); }
 
         .layer-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; border-bottom: 1px solid var(--border); cursor: pointer; font-size: 12px; transition: 0.2s; background: #1e293b; color: #cbd5e1; }
         .layer-item:hover { background: #334155; }
@@ -35,7 +37,7 @@
         .layer-btn { background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 14px; padding: 0; transition: 0.2s; }
         .layer-btn:hover { color: white; transform: scale(1.2); }
 
-        /* ÇİZİM VE ZOOM ALANI */
+        /* ÇİZİM VE ZOOM ALANI - TUVAL KÜÇÜLTÜLDÜ (flex 1 ile otomatik) */
         #main-view { flex: 1; background: #020617; overflow: hidden; position: relative; height: 100%; }
         #zoom-container { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; transform-origin: center center; transition: transform 0.2s ease-out; }
         #svg-wrapper { position: relative; background: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 50px black; touch-action: none; transition: transform 0.1s; }
@@ -64,21 +66,14 @@
         .snap-line { stroke: #ec4899; stroke-width: 1.5; stroke-dasharray: 4,4; pointer-events: none; z-index: 60; }
         .guide-line { stroke: #06b6d4; stroke-width: 3; stroke-dasharray: 8,4; cursor: grab; pointer-events: all; }
 
-        /* ARAYÜZ KONTROLLERİ */
-        .field-box { background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 15px; position: relative; border-left: 4px solid transparent; transition: 0.3s; }
-        .field-box.active { border-left-color: var(--accent); background: rgba(16, 185, 129, 0.05); }
-        .delete-btn { position: absolute; right: 12px; top: 12px; color: #ef4444; cursor: pointer; font-weight: bold; font-size: 20px; }
+        /* YENİ NESİL ARAYÜZ KONTROLLERİ */
+        input[type="range"] { width: 100%; accent-color: var(--accent); height: 6px; cursor: pointer; margin: 0; }
+        input[type="text"], input[type="number"] { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: #000; color: #fff; outline: none; font-size: 13px; }
+        input[type="text"]:focus, input[type="number"]:focus { border-color: var(--accent); }
+        .font-select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: #000; color: #fff; margin-bottom: 5px; outline: none; font-size: 13px; cursor: pointer; }
         
-        .label-row { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; margin-bottom: 6px; }
-        .label-text { font-size: 11px; color: #94a3b8; font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase; }
-        .value-badge { background: #0f172a; color: var(--accent); font-size: 11px; padding: 3px 6px; border-radius: 4px; font-family: monospace; font-weight:bold; }
-        
-        input[type="range"] { width: 100%; accent-color: var(--accent); height: 6px; cursor: pointer; }
-        input[type="text"], input[type="number"] { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #000; color: #fff; outline: none; }
-        .font-select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #000; color: #fff; margin-bottom: 5px; outline: none; font-size: 13px; cursor: pointer; }
-        
-        .action-row { display: flex; gap: 5px; margin-bottom: 10px; flex-wrap: wrap; }
-        .action-btn { flex: 1; background: #334155; color: white; border: none; border-radius: 6px; padding: 8px; font-size: 11px; font-weight: bold; cursor: pointer; text-align:center;}
+        .action-row { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+        .action-btn { flex: 1; background: #334155; color: white; border: none; border-radius: 8px; padding: 10px 15px; font-size: 12px; font-weight: bold; cursor: pointer; text-align:center;}
         .action-btn:hover { background: #475569; }
         .action-btn.active { background: var(--accent); }
         .action-btn.danger { background: #991b1b; }
@@ -86,8 +81,24 @@
         .action-btn.svg { background: #ea580c; }
         .action-btn.draw { background: #8b5cf6; }
 
-        .group-box { background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; border: 1px solid #1e293b; margin-top: 10px; }
-
+        .group-box { background: rgba(0,0,0,0.2); padding: 12px; border-radius: 10px; border: 1px solid #1e293b; margin-top: 10px; }
+        
+        /* AÇILIR/KAPANIR BÖLÜM STİLLERİ (PROFESYONEL) */
+        .collapsible-section { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 12px; background: rgba(0,0,0,0.25); }
+        .collapsible-header { background: #111827; padding: 12px 18px; cursor: pointer; font-size: 11px; text-transform: uppercase; font-weight: bold; color: var(--accent); letter-spacing: 1.5px; display: flex; justify-content: space-between; align-items: center; }
+        .collapsible-header:hover { background: rgba(16, 185, 129, 0.1); }
+        .collapsible-header.active::after { content: '▼'; font-size: 9px; }
+        .collapsible-header:not(.active)::after { content: '◀'; font-size: 9px; }
+        .collapsible-content { display: none; padding: 18px; }
+        .collapsible-content.active { display: block; }
+        
+        /* GRID DÜZENİ */
+        .property-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 15px; margin-bottom: 10px; }
+        .property-grid.full { grid-template-columns: 1fr; }
+        .input-group { display: flex; flex-direction: column; gap: 5px; }
+        .label-text { font-size: 11px; color: #94a3b8; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;}
+        .value-badge { background: #000; color: var(--accent); font-size: 11px; padding: 3px 6px; border-radius: 4px; font-family: monospace; font-weight: bold; }
+        
         #status-info { position: fixed; top: 0; width: 100%; background: var(--accent); text-align: center; padding: 10px; z-index: 11000; display: none; font-weight: bold; letter-spacing: 1px;}
         
         @media (max-width: 1023px) { 
@@ -105,7 +116,7 @@
 
 <div id="login-screen">
     <div class="login-card">
-        <h2 style="margin-top:0;">Pro Studio V8</h2>
+        <h2 style="margin-top:0; color:white;">Pro Studio V9</h2>
         <div style="font-size:12px; color:#94a3b8; margin-bottom:20px;">Lütfen Cloudflare Worker şifrenizi girin.</div>
         <input type="password" id="passInput" placeholder="Sunucu Şifresi">
         <button id="loginBtn">Sunucuya Bağlan</button>
@@ -154,8 +165,8 @@
                         <input type="color" id="canvas-bg-color" title="Arka Plan Rengi" oninput="updateCanvasBg()" style="width:40px; height:35px; cursor:pointer; border:none; background:none;">
                     </div>
                     <div class="action-row" style="margin:0;">
-                        <button onclick="addGuide('h')" class="action-btn" style="background:#06b6d4;">+ YATAY KILAVUZ</button>
-                        <button onclick="addGuide('v')" class="action-btn" style="background:#06b6d4;">+ DİKEY KILAVUZ</button>
+                        <button onclick="addGuide('h')" class="action-btn" style="background:#06b6d4; font-size:11px;">+ YATAY KILAVUZ</button>
+                        <button onclick="addGuide('v')" class="action-btn" style="background:#06b6d4; font-size:11px;">+ DİKEY KILAVUZ</button>
                     </div>
                 </div>
             </details>
@@ -174,7 +185,7 @@
         </div>
 
         <div id="layers-wrapper">
-            <div id="layers-header">📑 KATMANLAR</div>
+            <div id="layers-header">📑 KATMANLAR HİYERARŞİSİ</div>
             <div id="layers-list"></div>
         </div>
 
@@ -691,7 +702,7 @@
         window.updateEditorUI = updateUI; 
     }
 
-    // === YENİ NESİL KATMANLAR VE ÖZELLİK PANELİ RENDER ===
+    // === KATMANLAR VE ÖZELLİK PANELİ RENDER (YENİ NESİL) ===
     function renderEditor() { renderLayers(); renderProperties(); }
 
     function renderLayers() {
@@ -726,145 +737,286 @@
         }
     }
 
+    // YENİ: AÇILIR BÖLÜMLER İÇİN YARDIMCI FONKSİYON
+    function createPropertySection(title, content, id) {
+        return `
+            <div class="collapsible-section" id="sec-${id}">
+                <div class="collapsible-header active" onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('active');">${title}</div>
+                <div class="collapsible-content active">
+                    ${content}
+                </div>
+            </div>
+        `;
+    }
+
+    // === ÖZELLİKLER PANELİ RENDER (TAMAMEN YENİLENDİ - PROFESYONEL VE COLLAPSIBLE) ===
     function renderProperties() {
         const f = document.getElementById('editor-fields');
         if (!selectedEl) { f.innerHTML = `<div style="text-align:center; color:#64748b; margin-top:50px; font-style:italic; font-size:13px;">👆 Düzenlemek için sahneden veya katmanlardan bir nesne seçin.</div>`; return; }
-        const el = selectedEl; f.innerHTML = "";
         
-        const isLocked = el.dataset.locked === "true"; const blend = el.dataset.blend || 'normal';
-        const fillType = el.dataset.fillType || 'solid';
-        const col1 = el.dataset.color1 || '#10b981'; const col2 = el.dataset.color2 || '#3b82f6';
-        const col = el.dataset.solidColor || (el.getAttribute('fill') === 'none' ? el.getAttribute('stroke') : el.getAttribute('fill')) || "#ffffff"; 
+        const el = selectedEl;
+        const id = el.id;
+        f.innerHTML = "";
         
-        let opacityVal = parseFloat(el.getAttribute('opacity')); if (isNaN(opacityVal)) opacityVal = 1;
-        const sX = parseFloat(el.dataset.shadowX) || 0, sY = parseFloat(el.dataset.shadowY) || 0, sB = parseFloat(el.dataset.shadowBlur) || 0, sC = el.dataset.shadowColor || '#000000', bl = parseFloat(el.dataset.blur) || 0;
-        const strokeCol = el.getAttribute('stroke') || '#000000'; const strokeW = parseFloat(el.getAttribute('stroke-width')) || 0;
+        const isLocked = el.dataset.locked === "true";
+        const isPath = el.tagName === 'path';
+        const isText = el.tagName === 'text';
+        const isShape = el.tagName === 'rect';
+        const isImage = el.tagName === 'image';
+        const isIcon = el.tagName === 'g' || el.tagName === 'svg';
+        
+        let typeName = el.tagName.toUpperCase(); 
+        if (isShape) typeName = 'ŞEKİL'; if (isIcon) typeName = 'İKON'; if (isPath) typeName = 'ÇİZİM'; if (isImage) typeName = 'RESİM'; if (isText) typeName = 'METİN';
 
-        let typeName = el.tagName.toUpperCase(); if (typeName === 'RECT') typeName = 'ŞEKİL'; if (typeName === 'G' || typeName === 'SVG') typeName = 'İKON'; if (typeName === 'PATH') typeName = 'ÇİZİM';
-
-        let html = `<div style="font-size:12px; color:var(--accent); font-weight:bold; margin-bottom:10px; border-bottom:1px solid #334155; padding-bottom:5px;">${typeName} ÖZELLİKLERİ ${isLocked ? '🔒' : ''}</div>`;
-        html += `<div class="action-row" style="margin-bottom:10px;"><button class="action-btn special" onclick="cloneElement('${el.id}')" ${isLocked ? 'disabled':''}>⧉ KOPYASINI OLUŞTUR</button></div>`;
+        // 1. BAŞLIK VE ORTAK EYLEMLER (Collapsible Değil, Her Zaman Açık)
+        let headerHtml = `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; padding-bottom:10px; border-bottom:1px solid var(--border);">
+                <div style="font-size:14px; color:white; font-weight:bold; letter-spacing:1px;">${typeName} AYARLARI ${isLocked ? '🔒' : ''}</div>
+                <div class="delete-btn" title="Sil" onclick="if(confirm('Bu öğe silinecek?')){ document.getElementById('${id}').remove(); saveState(); renderEditor(); document.getElementById('control-layer').innerHTML=''; }">×</div>
+            </div>
+            <div class="action-row" style="margin-bottom:15px;">
+                <button class="action-btn" onclick="toggleLock('${id}')" style="background:${isLocked?'var(--error)':'#334155'}">${isLocked ? '🔓 KİLİDİ AÇ' : '🔒 KİLİTLE'}</button>
+                <button class="action-btn special" onclick="cloneElement('${id}')" ${isLocked ? 'disabled':''}>⧉ KOPYALA</button>
+            </div>
+        `;
         
-        if(el.tagName !== 'path') {
-            html += `<div class="action-row" style="margin-bottom:2px;"><button class="action-btn" onclick="alignElement('${el.id}', 'left')">⬅️ SOL</button><button class="action-btn" onclick="alignElement('${el.id}', 'center-h')">🎯 ORTA</button><button class="action-btn" onclick="alignElement('${el.id}', 'right')">SAĞ ➡️</button></div>`;
-            if(el.tagName !== 'text') { html += `<div class="action-row"><button class="action-btn" onclick="toggleFlip('${el.id}', 'x')" ${isLocked ? 'disabled' : ''}>↔️ YATAY ÇEVİR</button><button class="action-btn" onclick="toggleFlip('${el.id}', 'y')" ${isLocked ? 'disabled' : ''}>↕️ DİKEY ÇEVİR</button></div>`; }
+        if(!isPath && !isLocked) {
+            headerHtml += `
+                <div class="label-text" style="margin-bottom:8px;">HİZALAMA VE ÇEVİRME</div>
+                <div class="action-row" style="margin-bottom:8px;">
+                    <button class="action-btn" onclick="alignElement('${id}', 'left')">⬅️ SOL</button>
+                    <button class="action-btn" onclick="alignElement('${id}', 'center-h')">🎯 ORTA</button>
+                    <button class="action-btn" onclick="alignElement('${id}', 'right')">SAĞ ➡️</button>
+                </div>
+                <div class="action-row" style="margin-bottom:20px;">
+                    <button class="action-btn" onclick="alignElement('${id}', 'center-v')">⬆️⬇️ DİKEY ORTA</button>
+                    <button class="action-btn" onclick="toggleFlip('${id}', 'x')">↔️ YATAY ÇEVİR</button>
+                    <button class="action-btn" onclick="toggleFlip('${id}', 'y')">↕️ DİKEY ÇEVİR</button>
+                </div>
+            `;
+        }
+        f.innerHTML += headerHtml;
+
+        if (isLocked) { f.innerHTML += `<div style="text-align:center; color:#ef4444; font-size:12px; margin-top:20px;">🔒 Bu öğe kilitli. Düzenlemek için kilidini açın.</div>`; return; }
+
+        // 2. METİN İÇERİĞİ (SADECE METİN İÇİN)
+        if (isText) {
+            const rawText = el.dataset.rawText || el.textContent;
+            let contentHtml = `<input type="text" value="${rawText}" oninput="const t=document.getElementById('${id}'); t.dataset.rawText=this.value; window.applyTextCurve(t); if(window.updateEditorUI) window.updateEditorUI(t);" onchange="saveState()" placeholder="Metni girin...">`;
+            f.innerHTML += createPropertySection("Metin İçeriği", contentHtml, "text-content");
         }
 
-        if (el.tagName === 'text') {
-            const fs = parseFloat(el.dataset.baseFontSize) || 60; const mw = parseFloat(el.dataset.maxWidth) || 0; const ls = parseFloat(el.getAttribute("letter-spacing")) || 0; const currentFont = el.getAttribute("font-family") || "sans-serif"; const curve = parseFloat(el.dataset.curve) || 0;
-            const rawText = el.dataset.rawText || el.textContent;
+        // 3. KONUM VE BOYUT (Path Hariç Hepsi)
+        if (!isPath) {
+            const bbox = el.getBBox();
+            const x = Math.round(parseFloat(el.getAttribute("x")) || bbox.x);
+            const y = Math.round(parseFloat(el.getAttribute("y")) || bbox.y);
+            const w = Math.round(parseFloat(el.getAttribute("width")) || bbox.width);
+            const h = Math.round(parseFloat(el.getAttribute("height")) || bbox.height);
+            
+            let posHtml = `
+                <div class="property-grid">
+                    <div class="input-group"><span class="label-text">X KONUMU</span><input type="number" value="${x}" oninput="document.getElementById('${id}').setAttribute('x', this.value); saveState(); if(window.updateEditorUI) window.updateEditorUI(document.getElementById('${id}'));"></div>
+                    <div class="input-group"><span class="label-text">Y KONUMU</span><input type="number" value="${y}" oninput="document.getElementById('${id}').setAttribute('y', this.value); saveState(); if(window.updateEditorUI) window.updateEditorUI(document.getElementById('${id}'));"></div>
+                    <div class="input-group"><span class="label-text">GENİŞLİK (W)</span><input type="number" value="${w}" oninput="document.getElementById('${id}').setAttribute('width', this.value); saveState(); if(window.updateEditorUI) window.updateEditorUI(document.getElementById('${id}'));"></div>
+                    <div class="input-group"><span class="label-text">YÜKSEKLİK (H)</span><input type="number" value="${h}" oninput="document.getElementById('${id}').setAttribute('height', this.value); saveState(); if(window.updateEditorUI) window.updateEditorUI(document.getElementById('${id}'));"></div>
+                </div>
+            `;
+            f.innerHTML += createPropertySection("Konum ve Boyut", posHtml, "pos-size");
+        }
+
+        // 4. DÖNÜŞTÜRME (Path Hariç Hepsi)
+        if (!isPath) {
+            const angle = parseFloat(el.dataset.angle) || 0;
+            let transHtml = `
+                <div class="label-row" style="margin-top:0;"><span class="label-text">DÖNDÜRME AÇISI</span><span class="value-badge">${angle}°</span></div>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <input type="range" min="0" max="360" value="${angle}" oninput="const t=document.getElementById('${id}'); t.dataset.angle=this.value; window.applyTransforms(t); this.parentElement.previousElementSibling.querySelector('.value-badge').innerText=this.value+'°';" onchange="saveState()">
+                    <input type="number" value="${angle}" style="width:70px; padding:8px;" oninput="const t=document.getElementById('${id}'); t.dataset.angle=this.value; window.applyTransforms(t); saveState();">
+                </div>
+            `;
+            f.innerHTML += createPropertySection("Dönüştürme (Transform)", transHtml, "transform");
+        }
+
+        // 5. YAZI TİPİ VE BİÇİMLENDİRME (SADECE METİN)
+        if (isText) {
+            const fs = parseFloat(el.dataset.baseFontSize) || 60;
+            const mw = parseFloat(el.dataset.maxWidth) || 0;
+            const ls = parseFloat(el.getAttribute("letter-spacing")) || 0;
+            const currentFont = el.getAttribute("font-family") || "sans-serif";
+            const curve = parseFloat(el.dataset.curve) || 0;
+            
             let fontOptions = googleFonts.map(font => `<option value="${font.val}" style="font-family: ${font.val}" ${currentFont.includes(font.name) ? "selected" : ""}>${font.name}</option>`).join('');
 
-            html += `<input type="text" value="${rawText}" oninput="const t=document.getElementById('${el.id}'); t.dataset.rawText=this.value; window.applyTextCurve(t); if(window.updateEditorUI) window.updateEditorUI(t);" onchange="saveState()" ${isLocked ? 'disabled' : ''}>`;
-            html += `<div class="label-text" style="color:var(--accent); margin:10px 0 5px 0;">✨ HAZIR STİLLER</div><div class="action-row"><button class="action-btn" onclick="applyTextStyle('${el.id}', 'normal')" ${isLocked?'disabled':''}>Temizle</button><button class="action-btn" onclick="applyTextStyle('${el.id}', 'neon')" ${isLocked?'disabled':''}>Neon</button><button class="action-btn" onclick="applyTextStyle('${el.id}', '3d')" ${isLocked?'disabled':''}>Retro 3D</button><button class="action-btn" onclick="applyTextStyle('${el.id}', 'hollow')" ${isLocked?'disabled':''}>Hollow</button></div>`;
-            html += `<select class="font-select" onchange="const t=document.getElementById('${el.id}'); t.setAttribute('font-family', this.value); t.style.fontFamily=this.value; window.applyTextCurve(t); saveState(); if(window.updateEditorUI) window.updateEditorUI(t);" ${isLocked ? 'disabled' : ''}>${fontOptions}</select>`;
-            html += `<div class="label-row"><span class="label-text">ANA YAZI BOYUTU</span><span class="value-badge" id="val-fs">${Math.round(fs)}px</span></div><input type="range" id="fs-slider" min="10" max="600" value="${fs}" oninput="const t=document.getElementById('${el.id}'); t.dataset.baseFontSize=this.value; window.applyTextCurve(t); document.getElementById('val-fs').innerText=Math.round(this.value)+'px'; if(window.updateEditorUI) window.updateEditorUI(t);" onchange="saveState()" ${isLocked ? 'disabled' : ''}>`;
-            html += `<div class="label-row"><span class="label-text">KAVİS (CURVE)</span><span class="value-badge" id="val-cv">${curve}</span></div><input type="range" min="-100" max="100" value="${curve}" oninput="const t=document.getElementById('${el.id}'); t.dataset.curve=this.value; document.getElementById('val-cv').innerText=this.value; window.applyTextCurve(t); if(window.updateEditorUI) window.updateEditorUI(t);" onchange="saveState()" ${isLocked ? 'disabled' : ''}>`;
-            html += `<div class="label-row"><span class="label-text">HARF ARALIĞI</span><span class="value-badge" id="val-ls">${ls}px</span></div><input type="range" min="-10" max="50" value="${ls}" oninput="const t=document.getElementById('${el.id}'); t.setAttribute('letter-spacing', this.value); document.getElementById('val-ls').innerText=this.value+'px'; window.applyTextCurve(t); if(window.updateEditorUI) window.updateEditorUI(t);" onchange="saveState()" ${isLocked ? 'disabled' : ''}>`;
-            html += `<div class="label-row"><span class="label-text">SIĞDIRMA (MAX GENİŞLİK)</span><span class="value-badge" id="val-mw">${mw === 0 ? 'KAPALI' : mw + 'px'}</span></div><input type="range" id="mw-slider" min="0" max="1500" value="${mw}" oninput="const t=document.getElementById('${el.id}'); t.dataset.maxWidth=this.value; window.applyTextCurve(t); document.getElementById('val-mw').innerText=this.value == 0 ? 'KAPALI' : this.value+'px'; if(window.updateEditorUI) window.updateEditorUI(t);" onchange="saveState()" ${isLocked ? 'disabled' : ''}>`;
-        } else if (el.tagName !== 'path' && el.tagName !== 'g') {
-            const w = parseFloat(el.getAttribute("width")) || 200, h = parseFloat(el.getAttribute("height")) || 200; const rx = parseFloat(el.dataset.rx) || 0; const maskShape = el.dataset.maskShape || 'none';
-            html += `<div class="label-row"><span class="label-text">GENİŞLİK</span><span class="value-badge" id="val-w">${Math.round(w)}px</span></div><input type="range" id="w-slider" min="10" max="3000" value="${w}" oninput="const img=document.getElementById('${el.id}'); img.setAttribute('width', this.value); window.applyShapeMask(img); document.getElementById('val-w').innerText=Math.round(this.value)+'px'; if(window.updateEditorUI) window.updateEditorUI(img);" onchange="saveState()" ${isLocked ? 'disabled' : ''}>`;
-            html += `<div class="label-row"><span class="label-text">YÜKSEKLİK</span><span class="value-badge" id="val-h">${Math.round(h)}px</span></div><input type="range" id="h-slider" min="10" max="3000" value="${h}" oninput="const img=document.getElementById('${el.id}'); img.setAttribute('height', this.value); window.applyShapeMask(img); document.getElementById('val-h').innerText=Math.round(this.value)+'px'; if(window.updateEditorUI) window.updateEditorUI(img);" onchange="saveState()" ${isLocked ? 'disabled' : ''}>`;
-            if (el.tagName === 'rect' || el.tagName === 'image') {
-                html += `
-                    <div class="label-row"><span class="label-text">MASKE (ŞEKİL)</span></div>
-                    <select class="font-select" onchange="const img=document.getElementById('${el.id}'); img.dataset.maskShape=this.value; window.applyShapeMask(img); saveState(); if(window.updateEditorUI) window.updateEditorUI(img);" ${isLocked ? 'disabled' : ''}>
-                        <option value="none" ${maskShape === 'none' ? 'selected' : ''}>Yok (Düz Form)</option>
+            let fontHtml = `
+                <div class="label-text" style="margin-bottom:8px;">YAZI TİPİ (FONT)</div>
+                <select class="font-select" style="margin-bottom:15px;" onchange="const t=document.getElementById('${id}'); t.setAttribute('font-family', this.value); t.style.fontFamily=this.value; window.applyTextCurve(t); saveState(); if(window.updateEditorUI) window.updateEditorUI(t);">${fontOptions}</select>
+                
+                <div class="property-grid full">
+                    <div class="input-group">
+                        <div class="label-row" style="margin-top:0;"><span class="label-text">YAZI BOYUTU</span><span class="value-badge">${Math.round(fs)}px</span></div>
+                        <input type="range" min="10" max="400" value="${fs}" oninput="const t=document.getElementById('${id}'); t.dataset.baseFontSize=this.value; window.applyTextCurve(t); this.previousElementSibling.querySelector('.value-badge').innerText=Math.round(this.value)+'px';">
+                    </div>
+                    <div class="input-group">
+                        <div class="label-row" style="margin-top:0;"><span class="label-text">EĞRİLİK (KAVİS)</span><span class="value-badge">${curve}</span></div>
+                        <input type="range" min="-100" max="100" value="${curve}" oninput="const t=document.getElementById('${id}'); t.dataset.curve=this.value; window.applyTextCurve(t); this.previousElementSibling.querySelector('.value-badge').innerText=this.value;">
+                    </div>
+                    <div class="input-group">
+                        <div class="label-row" style="margin-top:0;"><span class="label-text">HARF ARALIĞI</span><span class="value-badge">${ls}px</span></div>
+                        <input type="range" min="-10" max="50" value="${ls}" oninput="const t=document.getElementById('${id}'); t.setAttribute('letter-spacing', this.value); window.applyTextCurve(t); this.previousElementSibling.querySelector('.value-badge').innerText=this.value+'px';">
+                    </div>
+                    <div class="input-group">
+                        <div class="label-row" style="margin-top:0;"><span class="label-text">OTOMATİK SIĞDIRMA (MAX GENİŞLİK)</span><span class="value-badge">${mw === 0 ? 'KAPALI' : mw + 'px'}</span></div>
+                        <input type="range" min="0" max="1500" value="${mw}" oninput="const t=document.getElementById('${id}'); t.dataset.maxWidth=this.value; window.applyTextCurve(t); this.previousElementSibling.querySelector('.value-badge').innerText=this.value == 0 ? 'KAPALI' : this.value+'px';">
+                    </div>
+                </div>
+            `;
+            f.innerHTML += createPropertySection("Yazı Tipi & Biçimlendirme", fontHtml, "font-format");
+        }
+
+        // 6. FORM VE MASKELEME (ŞEKİL VE RESİM)
+        if (isShape || isImage) {
+            const rx = parseFloat(el.dataset.rx) || 0;
+            const maskShape = el.dataset.maskShape || 'none';
+            const bbox = el.getBBox();
+            const maxR = Math.min(bbox.width, bbox.height) / 2;
+
+            let formHtml = `
+                <div class="input-group" style="margin-bottom:15px;">
+                    <span class="label-text">MASKELEME ŞEKLİ</span>
+                    <select class="font-select" style="margin-top:5px;" onchange="const img=document.getElementById('${id}'); img.dataset.maskShape=this.value; window.applyShapeMask(img); saveState(); if(window.updateEditorUI) window.updateEditorUI(img);">
+                        <option value="none" ${maskShape === 'none' ? 'selected' : ''}>Yok (Düz)</option>
                         <option value="squircle" ${maskShape === 'squircle' ? 'selected' : ''}>Oval Kare (Squircle)</option>
                         <option value="circle" ${maskShape === 'circle' ? 'selected' : ''}>Daire</option>
                         <option value="triangle" ${maskShape === 'triangle' ? 'selected' : ''}>Üçgen</option>
                         <option value="star" ${maskShape === 'star' ? 'selected' : ''}>Yıldız</option>
                     </select>
-                    <div class="label-row"><span class="label-text">KÖŞE YARIÇAPI (Squircle)</span><span class="value-badge" id="val-r">${Math.round(rx)}px</span></div><input type="range" id="r-slider" min="0" max="${Math.min(w/2, h/2)}" value="${rx}" oninput="const img=document.getElementById('${el.id}'); img.dataset.rx=this.value; window.applyShapeMask(img); document.getElementById('val-r').innerText=Math.round(this.value)+'px'; if(window.updateEditorUI) window.updateEditorUI(img);" onchange="saveState()" ${isLocked ? 'disabled' : ''}>
-                `;
-            }
-        }
-
-        if (el.tagName === 'text' || el.tagName === 'rect' || el.tagName === 'g' || el.tagName === 'path') {
-            const dash = el.getAttribute('stroke-dasharray') || 'none';
-            html += `
-                <div class="group-box">
-                    <div class="label-text" style="color:var(--accent); margin-bottom:10px;">🔲 DIŞ KENARLIK / ÇİZGİ</div>
-                    <div style="display:flex; gap:10px; align-items:center;">
-                        <input type="color" value="${safeColor(strokeCol)}" oninput="const t=document.getElementById('${el.id}'); t.setAttribute('stroke', this.value); t.setAttribute('paint-order', 'stroke fill'); t.setAttribute('stroke-linejoin', 'round');" onchange="saveState()" style="width:35px; height:35px; border-radius:8px; border:none; background:none; cursor:pointer;" ${isLocked ? 'disabled' : ''}>
-                        <div style="flex:1;">
-                            <div class="label-row" style="margin-top:0;"><span class="label-text">KALINLIK</span><span class="value-badge" id="val-sw">${strokeW}px</span></div>
-                            <input type="range" min="0" max="100" value="${strokeW}" oninput="const t=document.getElementById('${el.id}'); t.setAttribute('stroke-width', this.value); t.setAttribute('paint-order', 'stroke fill'); t.setAttribute('stroke-linejoin', 'round'); document.getElementById('val-sw').innerText=this.value+'px';" onchange="saveState()" ${isLocked ? 'disabled' : ''}>
-                        </div>
-                    </div>
-                    <select class="font-select" style="margin-top:10px;" onchange="document.getElementById('${el.id}').setAttribute('stroke-dasharray', this.value); saveState();" ${isLocked ? 'disabled' : ''}><option value="none" ${dash === 'none' ? 'selected' : ''}>Düz Çizgi</option><option value="5,5" ${dash === '5,5' ? 'selected' : ''}>Kesikli (İnce)</option><option value="15,10" ${dash === '15,10' ? 'selected' : ''}>Kesikli (Kalın)</option></select>
+                </div>
+                <div class="input-group">
+                    <div class="label-row" style="margin-top:0;"><span class="label-text">KÖŞE YARIÇAPI (SQUIRCLE)</span><span class="value-badge">${Math.round(rx)}px</span></div>
+                    <input type="range" min="0" max="${maxR}" value="${rx}" oninput="const img=document.getElementById('${id}'); img.dataset.rx=this.value; window.applyShapeMask(img); this.previousElementSibling.querySelector('.value-badge').innerText=Math.round(this.value)+'px';">
                 </div>
             `;
+            f.innerHTML += createPropertySection("Form & Maskeleme", formHtml, "form-mask");
         }
 
-        html += `
-            <div class="group-box">
-                <div class="label-row"><span class="label-text">RENK TİPİ</span></div>
-                <select class="font-select" onchange="const t=document.getElementById('${el.id}'); t.dataset.fillType=this.value; window.applyFill(t); saveState(); renderProperties();" ${isLocked ? 'disabled' : ''}>
-                    <option value="solid" ${fillType === 'solid' ? 'selected' : ''}>Düz Renk</option>
-                    <option value="gradient" ${fillType === 'gradient' ? 'selected' : ''}>Renk Geçişi (Gradient)</option>
-                </select>
-                
-                <div style="display:flex; gap:10px; margin-bottom: 10px; margin-top: 10px; align-items:center;">
-        `;
-        
-        if (fillType === 'solid') {
-            html += `
-                    <div>
-                        <div class="label-text" style="margin-bottom:5px;">${el.tagName==='path'?'ÇİZGİ':'İÇ'} RENK</div>
-                        <div style="display:flex; gap:5px;">
-                            <input type="color" value="${safeColor(col)}" oninput="const t=document.getElementById('${el.id}'); t.dataset.solidColor=this.value; window.applyFill(t);" onchange="saveState()" style="width:35px; height:35px; border-radius:8px; border:none; background:none; cursor:pointer;" ${isLocked ? 'disabled' : ''}>
-                            <button class="action-btn" style="width:35px; padding:0; background:#334155;" onclick="window.pickColor('${el.id}', 'solidColor', 'fill')" title="Göz Damlası">💧</button>
-                        </div>
-                    </div>`;
-        } else {
-            html += `
-                    <div>
-                        <div class="label-text" style="margin-bottom:5px;">RENK 1</div>
-                        <div style="display:flex; gap:5px;">
-                            <input type="color" value="${safeColor(col1)}" oninput="const t=document.getElementById('${el.id}'); t.dataset.color1=this.value; window.applyFill(t);" onchange="saveState()" style="width:35px; height:35px; border-radius:8px; border:none; background:none; cursor:pointer;" ${isLocked ? 'disabled' : ''}>
-                            <button class="action-btn" style="width:35px; padding:0; background:#334155;" onclick="window.pickColor('${el.id}', 'color1', '')" title="Göz Damlası">💧</button>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="label-text" style="margin-bottom:5px;">RENK 2</div>
-                        <div style="display:flex; gap:5px;">
-                            <input type="color" value="${safeColor(col2)}" oninput="const t=document.getElementById('${el.id}'); t.dataset.color2=this.value; window.applyFill(t);" onchange="saveState()" style="width:35px; height:35px; border-radius:8px; border:none; background:none; cursor:pointer;" ${isLocked ? 'disabled' : ''}>
-                            <button class="action-btn" style="width:35px; padding:0; background:#334155;" onclick="window.pickColor('${el.id}', 'color2', '')" title="Göz Damlası">💧</button>
-                        </div>
-                    </div>`;
-        }
-
-        html += `
-                    <div style="flex:1;"><div class="label-row" style="margin-top:0;"><span class="label-text">ŞEFFAFLIK</span><span class="value-badge" id="val-op">${Math.round(opacityVal*100)}%</span></div><input type="range" min="0" max="1" step="0.05" value="${opacityVal}" oninput="const t=document.getElementById('${el.id}'); t.setAttribute('opacity', this.value); document.getElementById('val-op').innerText=Math.round(this.value*100)+'%';" onchange="saveState()" ${isLocked ? 'disabled' : ''}></div>
+        // 7. DOLGU VE RENK (Resim Hariç)
+        if (!isImage) {
+            const fillType = el.dataset.fillType || 'solid';
+            const col1 = el.dataset.color1 || '#10b981';
+            const col2 = el.dataset.color2 || '#3b82f6';
+            const solidCol = el.dataset.solidColor || (el.getAttribute('fill') === 'none' ? el.getAttribute('stroke') : el.getAttribute('fill')) || "#ffffff";
+            
+            let fillHtml = `
+                <div class="input-group" style="margin-bottom:15px;">
+                    <span class="label-text">DOLGU TİPİ</span>
+                    <select class="font-select" style="margin-top:5px;" onchange="const t=document.getElementById('${id}'); t.dataset.fillType=this.value; window.applyFill(t); saveState(); renderProperties();">
+                        <option value="solid" ${fillType === 'solid' ? 'selected' : ''}>Düz Renk</option>
+                        <option value="gradient" ${fillType === 'gradient' ? 'selected' : ''}>Renk Geçişi (Gradient)</option>
+                    </select>
                 </div>
-        `;
-        
-        html += `
-                <div class="label-row" style="margin-top:15px;"><span class="label-text">KARIŞIM MODU (BLEND)</span></div>
-                <select class="font-select" onchange="const t=document.getElementById('${el.id}'); t.dataset.blend=this.value; window.applyFilters(t); saveState();" ${isLocked ? 'disabled' : ''}>
-                    <option value="normal" ${blend === 'normal' ? 'selected' : ''}>Normal</option><option value="multiply" ${blend === 'multiply' ? 'selected' : ''}>Çoğalt (Multiply)</option><option value="screen" ${blend === 'screen' ? 'selected' : ''}>Ekran (Screen)</option><option value="overlay" ${blend === 'overlay' ? 'selected' : ''}>Kaplama (Overlay)</option>
-                </select>
-        `;
-
-        if (el.tagName !== 'path') {
-            html += `<div style="display:flex; gap:10px; margin-top: 15px;">
-                        <div>
-                            <div class="label-text" style="margin-bottom:5px;">GÖLGE</div>
-                            <div style="display:flex; gap:5px;">
-                                <input type="color" value="${sC}" oninput="const t=document.getElementById('${el.id}'); t.dataset.shadowColor=this.value; window.applyFilters(t);" onchange="saveState()" style="width:35px; height:35px; border-radius:8px; border:none; background:none; cursor:pointer;" ${isLocked ? 'disabled' : ''}>
-                                <button class="action-btn" style="width:35px; padding:0; background:#334155;" onclick="window.pickColor('${el.id}', 'shadowColor', '')" title="Göz Damlası">💧</button>
+            `;
+            
+            if (fillType === 'solid') {
+                fillHtml += `
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <input type="color" value="${safeColor(solidCol)}" oninput="const t=document.getElementById('${id}'); t.dataset.solidColor=this.value; window.applyFill(t);" onchange="saveState()" style="width:60px; height:45px; border-radius:8px; border:none; background:none; cursor:pointer;">
+                        <button class="action-btn" style="flex:0 0 50px; padding:12px; background:#334155; font-size:18px;" onclick="window.pickColor('${id}', 'solidColor', 'fill')" title="Göz Damlası">💧</button>
+                        <input type="text" value="${solidCol}" style="flex:1;" oninput="const t=document.getElementById('${id}'); t.dataset.solidColor=this.value; window.applyFill(t);" onchange="saveState()">
+                    </div>
+                `;
+            } else {
+                fillHtml += `
+                    <div class="property-grid">
+                        <div class="input-group">
+                            <span class="label-text">RENK 1</span>
+                            <div style="display:flex; gap:5px; align-items:center;">
+                                <input type="color" value="${safeColor(col1)}" oninput="const t=document.getElementById('${id}'); t.dataset.color1=this.value; window.applyFill(t);" style="width:40px; height:40px; cursor:pointer;">
+                                <button class="action-btn" style="padding:10px; background:#334155;" onclick="window.pickColor('${id}', 'color1', '')">💧</button>
                             </div>
                         </div>
-                        <div style="flex:1;"><div class="label-row" style="margin-top:0;"><span class="label-text">GÖLGE X</span><span class="value-badge" id="val-sx">${sX}</span></div><input type="range" min="-50" max="50" value="${sX}" oninput="const t=document.getElementById('${el.id}'); t.dataset.shadowX=this.value; window.applyFilters(t); document.getElementById('val-sx').innerText=this.value;" onchange="saveState()" ${isLocked ? 'disabled' : ''}></div>
-                        <div style="flex:1;"><div class="label-row" style="margin-top:0;"><span class="label-text">GÖLGE Y</span><span class="value-badge" id="val-sy">${sY}</span></div><input type="range" min="-50" max="50" value="${sY}" oninput="const t=document.getElementById('${el.id}'); t.dataset.shadowY=this.value; window.applyFilters(t); document.getElementById('val-sy').innerText=this.value;" onchange="saveState()" ${isLocked ? 'disabled' : ''}></div>
-                     </div>
-                     <div style="display:flex; gap:10px; margin-top: 5px;"><div style="flex:1;"><div class="label-row" style="margin-top:0;"><span class="label-text">GÖLGE BLUR</span><span class="value-badge" id="val-sb">${sB}</span></div><input type="range" min="0" max="50" value="${sB}" oninput="const t=document.getElementById('${el.id}'); t.dataset.shadowBlur=this.value; window.applyFilters(t); document.getElementById('val-sb').innerText=this.value;" onchange="saveState()" ${isLocked ? 'disabled' : ''}></div><div style="flex:1;"><div class="label-row" style="margin-top:0;"><span class="label-text">ÖĞE BLUR</span><span class="value-badge" id="val-bl">${bl}</span></div><input type="range" min="0" max="50" value="${bl}" oninput="const t=document.getElementById('${el.id}'); t.dataset.blur=this.value; window.applyFilters(t); document.getElementById('val-bl').innerText=this.value;" onchange="saveState()" ${isLocked ? 'disabled' : ''}></div></div>
-                     <button class="action-btn danger" style="width:100%; margin-top:10px;" onclick="const t=document.getElementById('${el.id}'); t.dataset.shadowX=0; t.dataset.shadowY=0; t.dataset.shadowBlur=0; t.dataset.blur=0; window.applyFilters(t); saveState(); renderEditor();" ${isLocked ? 'disabled' : ''}>🚫 GÖLGE/EFEKT SIFIRLA</button>`;
+                        <div class="input-group">
+                            <span class="label-text">RENK 2</span>
+                            <div style="display:flex; gap:5px; align-items:center;">
+                                <input type="color" value="${safeColor(col2)}" oninput="const t=document.getElementById('${id}'); t.dataset.color2=this.value; window.applyFill(t);" style="width:40px; height:40px; cursor:pointer;">
+                                <button class="action-btn" style="padding:10px; background:#334155;" onclick="window.pickColor('${id}', 'color2', '')">💧</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            f.innerHTML += createPropertySection("Dolgu & Renk", fillHtml, "fill-color");
         }
-        html += `</div>`;
-        f.innerHTML = html;
+
+        // 8. KENARLIK (DİS ÇİZGİ) (Hepsi)
+        const strokeCol = el.getAttribute('stroke') || '#000000';
+        const strokeW = parseFloat(el.getAttribute('stroke-width')) || 0;
+        const dash = el.getAttribute('stroke-dasharray') || 'none';
+        
+        let strokeHtml = `
+            <div style="display:flex; gap:10px; align-items:center; margin-bottom:15px;">
+                <input type="color" value="${safeColor(strokeCol)}" oninput="const t=document.getElementById('${id}'); t.setAttribute('stroke', this.value); t.setAttribute('paint-order', 'stroke fill'); t.setAttribute('stroke-linejoin', 'round');" style="width:45px; height:45px; cursor:pointer;">
+                <button class="action-btn" style="flex:0 0 45px; padding:12px; background:#334155;" onclick="window.pickColor('${id}', '', 'stroke')">💧</button>
+                <input type="text" value="${strokeCol}" style="flex:1;" oninput="const t=document.getElementById('${id}'); t.setAttribute('stroke', this.value);">
+            </div>
+            <div class="property-grid" style="grid-template-columns: 2fr 1fr;">
+                <div class="input-group">
+                    <div class="label-row" style="margin-top:0;"><span class="label-text">KALINLIK</span><span class="value-badge">${strokeW}px</span></div>
+                    <input type="range" min="0" max="50" value="${strokeW}" oninput="const t=document.getElementById('${id}'); t.setAttribute('stroke-width', this.value); t.setAttribute('paint-order', 'stroke fill'); this.previousElementSibling.querySelector('.value-badge').innerText=this.value+'px';">
+                </div>
+                <div class="input-group">
+                    <span class="label-text">STİL</span>
+                    <select class="font-select" style="padding:9px;" onchange="document.getElementById('${id}').setAttribute('stroke-dasharray', this.value); saveState();">
+                        <option value="none" ${dash === 'none' ? 'selected' : ''}>Düz</option>
+                        <option value="5,5" ${dash === '5,5' ? 'selected' : ''}>Kesikli</option>
+                        <option value="2,2" ${dash === '2,2' ? 'selected' : ''}>Noktalı</option>
+                    </select>
+                </div>
+            </div>
+        `;
+        f.innerHTML += createPropertySection("Kenarlık & Çizgi", strokeHtml, "stroke");
+
+        // 9. EFEKTLER (SAYDAMLIK, GÖLGE, BLUR) (Hepsi)
+        let opacityVal = parseFloat(el.getAttribute('opacity')); if (isNaN(opacityVal)) opacityVal = 1;
+        const sX = parseFloat(el.dataset.shadowX) || 0, sY = parseFloat(el.dataset.shadowY) || 0, sB = parseFloat(el.dataset.shadowBlur) || 0, sC = el.dataset.shadowColor || '#000000', bl = parseFloat(el.dataset.blur) || 0;
+        const blend = el.dataset.blend || 'normal';
+
+        let fxHtml = `
+            <div class="input-group" style="margin-bottom:15px;">
+                <div class="label-row" style="margin-top:0;"><span class="label-text">SAYDAMLIK (OPACITY)</span><span class="value-badge">${Math.round(opacityVal*100)}%</span></div>
+                <input type="range" min="0" max="1" step="0.05" value="${opacityVal}" oninput="const t=document.getElementById('${id}'); t.setAttribute('opacity', this.value); this.previousElementSibling.querySelector('.value-badge').innerText=Math.round(this.value*100)+'%';">
+            </div>
+            <div class="input-group" style="margin-bottom:15px;">
+                <span class="label-text">KARIŞIM MODU (BLEND)</span>
+                <select class="font-select" style="margin-top:5px;" onchange="const t=document.getElementById('${id}'); t.dataset.blend=this.value; window.applyFilters(t); saveState();">
+                    <option value="normal" ${blend === 'normal' ? 'selected' : ''}>Normal</option>
+                    <option value="multiply" ${blend === 'multiply' ? 'selected' : ''}>Çoğalt (Multiply)</option>
+                    <option value="screen" ${blend === 'screen' ? 'selected' : ''}>Ekran (Screen)</option>
+                    <option value="overlay" ${blend === 'overlay' ? 'selected' : ''}>Kaplama (Overlay)</option>
+                </select>
+            </div>
+            
+            <div class="group-box">
+                <div class="label-text" style="color:white; margin-bottom:10px;">GÖLGE VE BLUR</div>
+                <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
+                    <input type="color" value="${sC}" oninput="const t=document.getElementById('${id}'); t.dataset.shadowColor=this.value; window.applyFilters(t);" style="width:40px; height:40px; cursor:pointer;">
+                    <button class="action-btn" style="padding:10px; background:#334155;" onclick="window.pickColor('${id}', 'shadowColor', '')">💧</button>
+                    <input type="text" value="${sC}" style="flex:1;" oninput="const t=document.getElementById('${id}'); t.dataset.shadowColor=this.value;">
+                </div>
+                <div class="property-grid">
+                    <div class="input-group"><span class="label-text">GÖLGE X</span><input type="number" value="${sX}" oninput="const t=document.getElementById('${id}'); t.dataset.shadowX=this.value; window.applyFilters(t);"></div>
+                    <div class="input-group"><span class="label-text">GÖLGE Y</span><input type="number" value="${sY}" oninput="const t=document.getElementById('${id}'); t.dataset.shadowY=this.value; window.applyFilters(t);"></div>
+                    <div class="input-group"><span class="label-text">GÖLGE BLUR</span><input type="number" value="${sB}" oninput="const t=document.getElementById('${id}'); t.dataset.shadowBlur=this.value; window.applyFilters(t);"></div>
+                    <div class="input-group"><span class="label-text">NESNE BLUR</span><input type="number" value="${bl}" oninput="const t=document.getElementById('${id}'); t.dataset.blur=this.value; window.applyFilters(t);"></div>
+                </div>
+            </div>
+        `;
+        f.innerHTML += createPropertySection("Efektler & Görünüm", fxHtml, "effects");
+        
+        // Render sonrası input eventlerini dinleyip saveState tetikle
+        f.querySelectorAll('input, select').forEach(inpt => {
+            inpt.addEventListener('change', () => { if(!isModified) saveState(); });
+        });
     }
 
     function safeColor(c) { if(!c) return "#ffffff"; if(c.length === 4 && c.startsWith('#')) return "#" + c[1] + c[1] + c[2] + c[2] + c[3] + c[3]; return c.startsWith('#') && c.length === 7 ? c : "#ffffff"; }
@@ -913,7 +1065,7 @@
 
     async function saveData() {
         if (!WORKER_URL || WORKER_URL === "") {
-            alert("Lütfen kodun 450. satırındaki WORKER_URL kısmına kendi linkinizi yazın!");
+            alert("Lütfen HTML kodunun içindeki WORKER_URL kısmına kendi Cloudflare Worker linkinizi yazın!");
             return;
         }
 
@@ -930,7 +1082,7 @@
             const res = await fetch(WORKER_URL, { 
                 method: "PUT", 
                 headers: { "X-Auth-Key": SESSION_PASS, "X-File-Name": fileKey }, 
-                body: JSON.stringify({message: "Pro Studio Final V8", content: b64, sha: SHA_KEY}) 
+                body: JSON.stringify({message: "Pro Studio Final V9", content: b64, sha: SHA_KEY}) 
             });
             
             if(res.ok) { 
