@@ -300,8 +300,8 @@
     // =========================================================================
     // DİKKAT: BURAYA SADECE KENDİ CLOUDFLARE WORKER LİNKİNİZİ YAZIN. 
     // =========================================================================
-    const WORKER_URL = ""; 
-    let SHA_KEY = "https://githubtoken.tafbilgiislem.workers.dev", SESSION_PASS = "";
+    const WORKER_URL = "https://githubtoken.tafbilgiislem.workers.dev"; 
+    let SHA_KEY = "", SESSION_PASS = "";
     
     let recentColors = ['#10b981', '#3b82f6', '#ef4444', '#f59e0b', '#8b5cf6', '#ffffff'];
     function addRecentColor(c) { if(!recentColors.includes(c)) { recentColors.unshift(c); if(recentColors.length > 10) recentColors.pop(); renderProperties(); } }
