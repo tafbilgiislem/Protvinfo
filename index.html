@@ -3,19 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SVG Pro Studio | Kusursuz Final</title>
+    <title>SVG Pro Studio | Kusursuz V16</title>
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Merriweather:wght@400;700&family=Montserrat:wght@400;700;800&family=Nunito:wght@400;700&family=Open+Sans:wght@400;700&family=Oswald:wght@400;700&family=Pacifico&family=Playfair+Display:wght@400;700&family=Poppins:wght@400;700&family=Raleway:wght@400;700&family=Roboto:wght@400;700&family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { --accent: #10b981; --bg: #0f172a; --panel: #1e293b; --border: #334155; --handle-move: #3b82f6; --handle-rotate: #f59e0b; --handle-radius: #ec4899; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         html, body { margin: 0; padding: 0; width: 100%; height: 100vh; height: 100dvh; overflow: hidden; background: var(--bg); color: white; font-family: 'Inter', sans-serif; overscroll-behavior-y: none; }
 
+        /* GİRİŞ EKRANI */
         #login-screen { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 10000; }
         .login-card { background: var(--panel); padding: 40px; border-radius: 20px; width: 340px; text-align: center; border: 1px solid var(--border); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
         .login-card input { width: 100%; padding: 14px; margin-bottom: 15px; border-radius: 10px; border: 1px solid var(--border); background: #000; color: #fff; text-align: center; outline: none; font-size:14px; }
         .login-card button { width: 100%; padding: 14px; background: var(--accent); border: none; color: white; font-weight: bold; border-radius: 10px; cursor: pointer; transition: 0.2s; font-size:14px; }
         .login-card button:hover { opacity: 0.9; }
 
+        /* ANA DÜZEN */
         #app-container { display: none; height: 100%; width: 100%; flex-direction: row; }
         #sidebar { width: 480px; background: var(--panel); border-left: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; height: 100%; z-index: 100; position: relative; }
         .sidebar-nav { padding: 15px; background: #111827; border-bottom: 1px solid var(--border); flex-shrink: 0; }
@@ -23,14 +25,17 @@
         #layers-wrapper { display: flex; flex-direction: column; height: 25%; border-bottom: 2px solid var(--border); background: #0f172a; flex-shrink: 0; }
         #layers-header { padding: 10px 15px; font-size: 12px; font-weight: bold; color: var(--accent); border-bottom: 1px solid var(--border); background: #111827; }
         #layers-list { flex: 1; overflow-y: auto; }
+        
         #editor-fields { flex: 1; min-height: 0; overflow-y: auto; padding: 20px; background: rgba(0,0,0,0.2); padding-bottom: 80px; }
 
         .layer-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; border-bottom: 1px solid var(--border); cursor: pointer; font-size: 12px; transition: 0.2s; background: #1e293b; color: #cbd5e1; }
+        .layer-item:hover { background: #334155; }
         .layer-item.active { border-left: 4px solid var(--accent); background: rgba(16, 185, 129, 0.15); color: white; font-weight: bold; }
         .layer-actions { display: flex; gap: 10px; align-items: center; }
         .layer-btn { background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 14px; padding: 0; transition: 0.2s; }
         .layer-btn:hover { color: white; transform: scale(1.2); }
 
+        /* ÇİZİM VE ZOOM ALANI */
         #main-view { flex: 1; background: #020617; overflow: hidden; position: relative; height: calc(100% - 25px); display: flex; }
         #zoom-container { flex: 1; display: flex; align-items: center; justify-content: center; transform-origin: center center; transition: transform 0.2s ease-out; position: relative;}
         
@@ -42,6 +47,7 @@
         .pan-mode { cursor: grab !important; }
         .panning { cursor: grabbing !important; }
 
+        /* CETVELLER (RULERS) */
         .ruler { position: absolute; background: #111827; border: 1px solid var(--border); z-index: 40; pointer-events: none; overflow: hidden; }
         .ruler-h { top: 0; left: 20px; right: 0; height: 20px; border-left: none; }
         .ruler-v { top: 20px; left: 0; bottom: 0; width: 20px; border-top: none; }
@@ -51,31 +57,38 @@
         .tool-btn { background: #0f172a; color: white; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; cursor: pointer; font-weight: bold; transition: 0.2s; }
         .tool-btn:hover { background: var(--accent); border-color: var(--accent); }
 
+        /* TUTAMAÇLAR (HATA 1 ÇÖZÜMÜ: transform KESİNLİKLE KALDIRILDI) */
         .duzenlenebilir { cursor: move; pointer-events: all; }
         .locked { cursor: not-allowed !important; }
         #control-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; overflow: visible; }
-        .handle { fill: white; stroke-width: 2; pointer-events: all; transition: transform 0.2s; }
-        .handle:hover { transform: scale(1.3); }
+        .handle { fill: white; stroke-width: 2; pointer-events: all; transition: fill 0.15s, stroke-width 0.15s; }
+        .handle:hover { fill: var(--accent); stroke-width: 4; } 
         .handle-resize { stroke: var(--handle-move); cursor: nwse-resize; }
         .handle-rotate { stroke: var(--handle-rotate); cursor: crosshair; fill: var(--handle-rotate); }
         .handle-radius { stroke: var(--handle-radius); cursor: ns-resize; fill: var(--handle-radius); }
+        
         .snap-line { stroke: #ec4899; stroke-width: 1.5; stroke-dasharray: 4,4; pointer-events: none; z-index: 60; }
         .guide-line { stroke: #06b6d4; stroke-width: 3; stroke-dasharray: 8,4; cursor: grab; pointer-events: all; }
 
+        /* ARAYÜZ KONTROLLERİ */
         input[type="range"] { width: 100%; accent-color: var(--accent); height: 6px; cursor: pointer; margin: 0; }
         input[type="text"], input[type="number"] { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: #000; color: #fff; outline: none; font-size: 13px; }
+        input[type="text"]:focus, input[type="number"]:focus { border-color: var(--accent); }
         .font-select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: #000; color: #fff; margin-bottom: 5px; outline: none; font-size: 13px; cursor: pointer; }
         
         .action-row { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
         .action-btn { flex: 1; background: #334155; color: white; border: none; border-radius: 8px; padding: 10px 15px; font-size: 12px; font-weight: bold; cursor: pointer; text-align:center;}
         .action-btn:hover { background: #475569; }
-        .action-btn.active { background: var(--accent); }
+        .action-btn.active { background: var(--accent); color: white; }
         .action-btn.danger { background: #991b1b; }
         .action-btn.special { background: #0284c7; }
 
         .group-box { background: rgba(0,0,0,0.2); padding: 12px; border-radius: 10px; border: 1px solid #1e293b; margin-top: 10px; }
+        
+        /* AÇILIR/KAPANIR MENÜLER */
         .collapsible-section { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 12px; background: rgba(0,0,0,0.25); }
         .collapsible-header { background: #111827; padding: 12px 18px; cursor: pointer; font-size: 11px; text-transform: uppercase; font-weight: bold; color: var(--accent); letter-spacing: 1.5px; display: flex; justify-content: space-between; align-items: center; }
+        .collapsible-header:hover { background: rgba(16, 185, 129, 0.1); }
         .collapsible-header.active::after { content: '▼'; font-size: 9px; }
         .collapsible-header:not(.active)::after { content: '◀'; font-size: 9px; }
         .collapsible-content { display: none; padding: 18px; }
@@ -87,6 +100,7 @@
         .label-text { font-size: 11px; color: #94a3b8; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;}
         .value-badge { background: #000; color: var(--accent); font-size: 11px; padding: 3px 6px; border-radius: 4px; font-family: monospace; font-weight: bold; }
         
+        /* SAĞ TIK VE MODALLAR */
         #context-menu { display:none; position:absolute; background:#1e293b; border:1px solid var(--border); box-shadow:0 10px 30px rgba(0,0,0,0.7); border-radius:8px; padding:5px; z-index:20000; min-width:180px; }
         .ctx-item { padding:10px 15px; font-size:13px; cursor:pointer; color:#e2e8f0; border-radius:4px; display:flex; justify-content:space-between; align-items:center; }
         .ctx-item:hover { background:var(--accent); color:white; }
@@ -96,9 +110,10 @@
 
         .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:30000; align-items:center; justify-content:center; backdrop-filter:blur(5px); }
         .modal-content { background:#1e293b; border:1px solid var(--border); padding:30px; border-radius:16px; width:450px; box-shadow:0 25px 50px rgba(0,0,0,0.5); position:relative; max-height: 90vh; display: flex; flex-direction: column;}
-        .modal-content.library-modal { width: 700px; }
         
+        .modal-content.library-modal { width: 700px; }
         #library-search { width: 100%; padding: 15px; border-radius: 8px; border: 1px solid var(--border); background: #0f172a; color: white; font-size: 14px; margin-bottom: 15px; outline: none; }
+        #library-search:focus { border-color: var(--accent); }
         .library-scroll { flex: 1; overflow-y: auto; padding-right: 10px; margin-bottom: 15px; }
         .library-category { font-size: 12px; font-weight: bold; color: var(--accent); margin: 20px 0 10px 0; text-transform: uppercase; letter-spacing: 1px; }
         .library-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 10px; }
@@ -108,12 +123,14 @@
         .lib-custom { background: #0f172a; padding: 15px; border-radius: 8px; border: 1px dashed var(--border); margin-top: 10px; }
 
         .close-modal { position:absolute; top:15px; right:15px; cursor:pointer; color:#94a3b8; font-size:24px; font-weight:bold; line-height: 1; }
+        .close-modal:hover { color:white; }
         .shortcut-row { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border); font-size:13px; }
         .kbd { background:#0f172a; padding:3px 8px; border-radius:4px; border:1px solid var(--border); color:var(--accent); font-family:monospace; }
 
         .swatch-container { display:flex; gap:6px; margin-top:5px; flex-wrap:wrap; }
         .color-swatch { width:24px; height:24px; border-radius:4px; cursor:pointer; border:1px solid var(--border); transition:transform 0.1s; }
-        
+        .color-swatch:hover { transform:scale(1.2); border-color:white; }
+
         #status-info { position: fixed; top: 0; width: 100%; background: var(--accent); text-align: center; padding: 10px; z-index: 11000; display: none; font-weight: bold; letter-spacing: 1px;}
     </style>
 </head>
@@ -187,7 +204,7 @@
 
 <div id="login-screen">
     <div class="login-card">
-        <h2 style="margin-top:0; color:white;">Pro Studio V15</h2>
+        <h2 style="margin-top:0; color:white;">Pro Studio V16</h2>
         <div style="font-size:12px; color:#94a3b8; margin-bottom:20px;">Lütfen Cloudflare Worker şifrenizi girin.</div>
         <input type="password" id="passInput" placeholder="Sunucu Şifresi">
         <button id="loginBtn">Sunucuya Bağlan</button>
@@ -215,7 +232,7 @@
         </div>
         <div id="status-bar">
             <div id="status-count">Nesne Sayısı: 0</div>
-            <div>SVG Pro Studio | Kusursuz V15</div>
+            <div>SVG Pro Studio Ultimate V16</div>
             <div id="status-time">Son Kayıt: Bekleniyor...</div>
         </div>
     </div>
@@ -248,8 +265,8 @@
                 </div>
             </details>
             <div class="action-row" style="margin-bottom:5px;">
-                <button id="addTextBtn" class="action-btn" style="background:#475569;">+ YAZI</button>
-                <button id="addImgBtn" class="action-btn" style="background:#475569;" title="Sürükle-Bırak da Yapabilirsiniz">+ RESİM</button>
+                <button onclick="addNewText()" class="action-btn" style="background:#475569;">+ YAZI</button>
+                <button onclick="document.getElementById('img-in').click()" class="action-btn" style="background:#475569;" title="Sürükle-Bırak da Yapabilirsiniz">+ RESİM</button>
                 <button onclick="addShape('rect')" class="action-btn" style="background:#475569;">+ KARE</button>
                 <button id="btn-draw" onclick="toggleDrawMode()" class="action-btn draw" style="background:#8b5cf6;" title="Fırça Aracı">🖌️ ÇİZİM</button>
             </div>
@@ -280,7 +297,7 @@
     let SHA_KEY = "", SESSION_PASS = "";
     
     let recentColors = ['#10b981', '#3b82f6', '#ef4444', '#f59e0b', '#8b5cf6', '#ffffff'];
-    function addRecentColor(c) { if(!recentColors.includes(c)) { recentColors.unshift(c); if(recentColors.length > 10) recentColors.pop(); renderProperties(); } }
+    function addRecentColor(c) { if(!recentColors.includes(c)) { recentColors.unshift(c); if(recentColors.length > 10) recentColors.pop(); if(selectedEl) renderProperties(); } }
 
     let selectedEl = null, resizingEl = null, rotatingEl = null, radiusingEl = null, activeHandle = null;
     let offset = {x:0, y:0}, startP = {x:0, y:0}, startData = {}, isModified = false;
@@ -327,12 +344,16 @@
         ]
     };
 
+    // HATA 2 ÇÖZÜMÜ: MERKEZLEME FONKSİYONU
     function getCanvasCenter() {
         const svg = document.querySelector('#canvas-inner svg');
         if(!svg) return { cx: 960, cy: 540 };
-        const vb = svg.viewBox.baseVal;
-        if(vb && vb.width > 0) return { cx: vb.width / 2, cy: vb.height / 2 };
-        return { cx: 960, cy: 540 };
+        let w = 1920, h = 1080;
+        if (svg.hasAttribute('viewBox')) {
+            const vb = svg.getAttribute('viewBox').split(/\s+|,/);
+            if(vb.length >= 4) { w = parseFloat(vb[2]); h = parseFloat(vb[3]); }
+        }
+        return { cx: w / 2, cy: h / 2 };
     }
 
     const login = async () => {
@@ -341,6 +362,7 @@
         if(!passVal) { alert("Lütfen Worker şifrenizi girin!"); return; }
         SESSION_PASS = passVal; await loadSlide(); 
     };
+    
     document.getElementById('loginBtn').addEventListener('click', login);
     document.getElementById('passInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') login(); });
     document.getElementById('file-selector').addEventListener('change', loadSlide);
@@ -376,8 +398,7 @@
             if (file.type.startsWith('image/')) {
                 const reader = new FileReader();
                 reader.onload = (ev) => {
-                    const svg = document.querySelector('#canvas-inner svg'); 
-                    const center = getCanvasCenter();
+                    const svg = document.querySelector('#canvas-inner svg'); const center = getCanvasCenter();
                     const img = document.createElementNS("http://www.w3.org/2000/svg", "image");
                     img.id = "img_" + Date.now(); img.setAttribute("class", "duzenlenebilir"); 
                     const w = 300; const h = 300;
@@ -472,10 +493,9 @@
             innerSvg.setAttribute("y", center.cy - (h/2)); 
             innerSvg.setAttribute("width", w); innerSvg.setAttribute("height", h); 
             innerSvg.setAttribute("viewBox", parsedNode.getAttribute("viewBox") || "0 0 24 24");
-            innerSvg.dataset.solidColor = "#10b981"; 
-            innerSvg.setAttribute("fill", "#10b981");
+            innerSvg.dataset.solidColor = "#10b981"; innerSvg.setAttribute("fill", "#10b981");
             
-            // Alt elementlerdeki fill ve stroke'ları temizle ki kendi rengimiz geçsin
+            // HATA 4 ÇÖZÜMÜ: Kütüphaneden gelen SVG'nin alt parçalarının renklerini temizle, böylece ana renk uygulanabilsin.
             while(parsedNode.childNodes.length > 0) { 
                 let child = parsedNode.childNodes[0];
                 if(child.nodeType === 1) { child.removeAttribute('fill'); child.removeAttribute('stroke'); }
@@ -483,7 +503,7 @@
             }
             
             svg.appendChild(innerSvg); selectedEl = innerSvg; saveState(); setupLayers(); window.updateEditorUI(innerSvg); renderEditor();
-        } catch(e) { alert("SVG kodu eklenirken hata oluştu."); }
+        } catch(e) { alert("SVG kodu eklenirken hata oluştu. Lütfen geçerli bir SVG kodu girdiğinizden emin olun."); }
     }
 
     function updateRulers() {
@@ -615,9 +635,10 @@
         if (bri != 100) filterStr += `brightness(${bri}%) `; if (con != 100) filterStr += `contrast(${con}%) `; if (sat != 100) filterStr += `saturate(${sat}%) `; if (gray > 0) filterStr += `grayscale(${gray}%) `; if (bl > 0) filterStr += `blur(${bl}px) `;
         el.style.filter = filterStr.trim(); el.style.mixBlendMode = blend; el.setAttribute('style', el.getAttribute('style') || ''); 
     }
+    
+    // HATA 4 ÇÖZÜMÜ: İkonların (SVG/G) içindeki path'leri bulup KENDİ RENGİMİZLE zorla boyama fonksiyonu
     window.applyFill = function(el) {
-        if(el.tagName === 'image') return; const type = el.dataset.fillType || 'solid';
-        let fillVal = '';
+        if(el.tagName === 'image') return; const type = el.dataset.fillType || 'solid'; let fillVal = '';
         if (type === 'gradient') {
             const c1 = el.dataset.color1 || '#10b981'; const c2 = el.dataset.color2 || '#3b82f6';
             const svg = document.querySelector('#canvas-inner svg'); let defs = svg.querySelector('defs'); if (!defs) { defs = document.createElementNS("http://www.w3.org/2000/svg", "defs"); svg.prepend(defs); }
@@ -628,8 +649,15 @@
         } else { fillVal = el.dataset.solidColor || '#000000'; }
         
         el.setAttribute("fill", fillVal); if(el.tagName !== 'path') el.style.fill = fillVal;
-        if(el.tagName === 'g' || el.tagName === 'svg') { el.querySelectorAll('path, circle, rect, polygon').forEach(child => { child.removeAttribute('fill'); child.style.fill = fillVal; }); }
+        
+        // İkonların (G veya SVG) altındaki path'leri bul ve zorla boya
+        if(el.tagName === 'g' || el.tagName === 'svg') {
+            el.querySelectorAll('path, circle, rect, polygon').forEach(child => {
+                child.removeAttribute('fill'); child.style.fill = fillVal;
+            });
+        }
     }
+
     window.autoFitText = function(el) { if (el.tagName !== 'text') return; const mw = parseFloat(el.dataset.maxWidth) || 0; const baseFs = parseFloat(el.dataset.baseFontSize) || 60; el.style.fontSize = baseFs + "px"; el.setAttribute("font-size", baseFs); if (mw > 0) { let bbox = {width:0}; try { bbox = el.getBBox(); } catch(e){} if (bbox.width > mw && bbox.width > 0) { const scale = mw / bbox.width; const newFs = baseFs * scale; el.style.fontSize = newFs + "px"; el.setAttribute("font-size", newFs); } } };
     window.applyTextCurve = function(el) {
         if (el.tagName !== 'text') return; const curve = parseFloat(el.dataset.curve) || 0; if(!el.dataset.rawText) el.dataset.rawText = el.textContent; const rawText = el.dataset.rawText;
@@ -696,6 +724,7 @@
                 updateUI(selectedEl); renderEditor();
                 if(selectedEl.dataset.locked !== "true") { try { wrapper.setPointerCapture(e.pointerId); } catch(err){} }
             } else { 
+                // SADECE EKRANDA (TUVALDE) BOŞ BİR YERE TIKLANDIYSA SEÇİMİ İPTAL ET (HATA 3 ÇÖZÜMÜ)
                 if(!e.target.closest('#sidebar')) { selectedEl = null; ctrl.innerHTML = ""; renderEditor(); }
             }
         };
@@ -769,12 +798,13 @@
             if (isDrawing) { isDrawing = false; selectedEl = currentPath; currentPath = null; isDrawingMode = false; document.getElementById('btn-draw').classList.remove('active'); document.getElementById('svg-wrapper').classList.remove('draw-mode'); saveState(); renderEditor(); updateUI(selectedEl); return; }
             if (isDraggingGuide) { isDraggingGuide = false; currentGuide = null; saveState(); return; }
             
-            if (isModified) saveState(); 
+            if (isModified) {
+                saveState();
+                // HATA 3 ÇÖZÜMÜ: Sadece hareket ve boyut değişimi olduysa paneli GÜNCELLE. SelectedEl asla NULL yapma.
+                if(selectedEl) renderProperties();
+            }
             resizingEl = null; rotatingEl = null; radiusingEl = null; activeHandle = null; isModified = false; 
-            document.querySelectorAll('.snap-line').forEach(l=>l.remove());
-            
-            // Seçimi sıfırlama, özellikleri yeniden oluştur!
-            if(selectedEl) renderProperties();
+            document.querySelectorAll('.snap-line').forEach(l=>l.remove()); 
         };
         window.onpointerup = release; window.onpointercancel = release;
 
@@ -808,7 +838,6 @@
         window.updateEditorUI = updateUI; 
     }
 
-    // === KATMANLAR VE ÖZELLİK PANELİ YÖNETİMİ ===
     function renderEditor() { 
         renderLayers(); 
         if(selectedEl) renderProperties(); 
@@ -877,18 +906,18 @@
 
             if (isText) {
                 const rawText = (el.dataset.rawText || el.textContent).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
-                let contentHtml = `<input type="text" value="${rawText}" oninput="const t=document.getElementById('${id}'); t.dataset.rawText=this.value; window.applyTextCurve(t); if(window.updateEditorUI) window.updateEditorUI(t);" placeholder="Metni girin...">`;
+                let contentHtml = `<input type="text" id="input-txt-${id}" value="${rawText}" oninput="const t=document.getElementById('${id}'); t.dataset.rawText=this.value; window.applyTextCurve(t); if(window.updateEditorUI) window.updateEditorUI(t);" placeholder="Metni girin...">`;
                 sections.push(createPropertySection("Metin İçeriği", contentHtml, "text-content"));
             }
 
             if (!isPath) {
                 let bbox = {x:0, y:0, width:0, height:0}; try { bbox = el.getBBox(); } catch(e){}
                 const x = Math.round(parseFloat(el.getAttribute("x")) || bbox.x || 0); const y = Math.round(parseFloat(el.getAttribute("y")) || bbox.y || 0); const w = Math.round(parseFloat(el.getAttribute("width")) || bbox.width || 0); const h = Math.round(parseFloat(el.getAttribute("height")) || bbox.height || 0);
-                let posHtml = `<div class="property-grid"><div class="input-group"><span class="label-text">X KONUMU</span><input type="number" value="${x}" oninput="document.getElementById('${id}').setAttribute('x', this.value); if(window.updateEditorUI) window.updateEditorUI(document.getElementById('${id}'));"></div><div class="input-group"><span class="label-text">Y KONUMU</span><input type="number" value="${y}" oninput="document.getElementById('${id}').setAttribute('y', this.value); if(window.updateEditorUI) window.updateEditorUI(document.getElementById('${id}'));"></div><div class="input-group"><span class="label-text">GENİŞLİK (W)</span><input type="number" value="${w}" id="w-slider" oninput="document.getElementById('${id}').setAttribute('width', this.value); if(window.updateEditorUI) window.updateEditorUI(document.getElementById('${id}'));"></div><div class="input-group"><span class="label-text">YÜKSEKLİK (H)</span><input type="number" value="${h}" id="h-slider" oninput="document.getElementById('${id}').setAttribute('height', this.value); if(window.updateEditorUI) window.updateEditorUI(document.getElementById('${id}'));"></div></div>`;
+                let posHtml = `<div class="property-grid"><div class="input-group"><span class="label-text">X KONUMU</span><input type="number" id="input-x-${id}" value="${x}" oninput="document.getElementById('${id}').setAttribute('x', this.value); if(window.updateEditorUI) window.updateEditorUI(document.getElementById('${id}'));"></div><div class="input-group"><span class="label-text">Y KONUMU</span><input type="number" id="input-y-${id}" value="${y}" oninput="document.getElementById('${id}').setAttribute('y', this.value); if(window.updateEditorUI) window.updateEditorUI(document.getElementById('${id}'));"></div><div class="input-group"><span class="label-text">GENİŞLİK (W)</span><input type="number" value="${w}" id="w-slider" oninput="document.getElementById('${id}').setAttribute('width', this.value); if(window.updateEditorUI) window.updateEditorUI(document.getElementById('${id}'));"></div><div class="input-group"><span class="label-text">YÜKSEKLİK (H)</span><input type="number" value="${h}" id="h-slider" oninput="document.getElementById('${id}').setAttribute('height', this.value); if(window.updateEditorUI) window.updateEditorUI(document.getElementById('${id}'));"></div></div>`;
                 sections.push(createPropertySection("Konum ve Boyut", posHtml, "pos-size"));
                 
                 const angle = parseFloat(el.dataset.angle) || 0;
-                let transHtml = `<div class="label-row" style="margin-top:0;"><span class="label-text">DÖNDÜRME AÇISI</span><span class="value-badge">${angle}°</span></div><div style="display:flex; gap:10px; align-items:center;"><input type="range" min="0" max="360" value="${angle}" oninput="const t=document.getElementById('${id}'); t.dataset.angle=this.value; window.applyTransforms(t); this.nextElementSibling.value=this.value;"><input type="number" value="${angle}" style="width:70px; padding:8px;" oninput="const t=document.getElementById('${id}'); t.dataset.angle=this.value; window.applyTransforms(t); this.previousElementSibling.value=this.value;"></div>`;
+                let transHtml = `<div class="label-row" style="margin-top:0;"><span class="label-text">DÖNDÜRME AÇISI</span><span class="value-badge" id="badge-ang-${id}">${angle}°</span></div><div style="display:flex; gap:10px; align-items:center;"><input type="range" id="slider-ang-${id}" min="0" max="360" value="${angle}" oninput="const t=document.getElementById('${id}'); t.dataset.angle=this.value; window.applyTransforms(t); document.getElementById('badge-ang-${id}').innerText=this.value+'°'; document.getElementById('input-ang-${id}').value=this.value;"><input type="number" id="input-ang-${id}" value="${angle}" style="width:70px; padding:8px;" oninput="const t=document.getElementById('${id}'); t.dataset.angle=this.value; window.applyTransforms(t); document.getElementById('badge-ang-${id}').innerText=this.value+'°'; document.getElementById('slider-ang-${id}').value=this.value;"></div>`;
                 sections.push(createPropertySection("Dönüştürme (Transform)", transHtml, "transform"));
             }
 
@@ -900,7 +929,7 @@
 
                 let fontOptions = googleFonts.map(font => `<option value="${font.val}" style="font-family: ${font.val}" ${currentFont.includes(font.name) ? "selected" : ""}>${font.name}</option>`).join('');
                 
-                let fontHtml = `<select class="font-select" style="margin-bottom:15px;" onchange="const t=document.getElementById('${id}'); t.setAttribute('font-family', this.value); t.style.fontFamily=this.value; window.applyTextCurve(t); if(window.updateEditorUI) window.updateEditorUI(t);">${fontOptions}</select>
+                let fontHtml = `<select id="select-font-${id}" class="font-select" style="margin-bottom:15px;" onchange="const t=document.getElementById('${id}'); t.setAttribute('font-family', this.value); t.style.fontFamily=this.value; window.applyTextCurve(t); if(window.updateEditorUI) window.updateEditorUI(t);">${fontOptions}</select>
                     <div style="display:flex; gap:5px; margin-bottom:15px;">
                         <button class="action-btn ${isB?'active':''}" style="flex:1; font-size:14px;" onclick="applyTextStyle('${id}', 'bold')"><b>B</b></button>
                         <button class="action-btn ${isI?'active':''}" style="flex:1; font-size:14px; font-style:italic;" onclick="applyTextStyle('${id}', 'italic')">I</button>
@@ -911,37 +940,37 @@
                         <button class="action-btn ${tAlign==='end'?'active':''}" style="flex:1; font-size:16px;" onclick="applyTextStyle('${id}', 'align', 'end')">⇥</button>
                     </div>
                     <div class="action-row" style="margin-bottom:15px;"><button class="action-btn" onclick="applyTextStyle('${id}', 'normal')">Temizle</button><button class="action-btn" onclick="applyTextStyle('${id}', 'neon')">Neon</button><button class="action-btn" onclick="applyTextStyle('${id}', '3d')">3D</button><button class="action-btn" onclick="applyTextStyle('${id}', 'hollow')">Hollow</button></div>
-                    <div class="property-grid full"><div class="input-group"><div class="label-row" style="margin-top:0;"><span class="label-text">YAZI BOYUTU</span><span class="value-badge" id="val-fs">${Math.round(fs)}px</span></div><input type="range" min="10" max="400" id="fs-slider" value="${fs}" oninput="const t=document.getElementById('${id}'); t.dataset.baseFontSize=this.value; window.applyTextCurve(t); this.previousElementSibling.querySelector('.value-badge').innerText=Math.round(this.value)+'px';"></div>
-                    <div class="input-group"><div class="label-row" style="margin-top:0;"><span class="label-text">EĞRİLİK (KAVİS)</span><span class="value-badge">${curve}</span></div><input type="range" min="-100" max="100" value="${curve}" oninput="const t=document.getElementById('${id}'); t.dataset.curve=this.value; window.applyTextCurve(t); this.previousElementSibling.querySelector('.value-badge').innerText=this.value;"></div>
-                    <div class="input-group"><div class="label-row" style="margin-top:0;"><span class="label-text">HARF ARALIĞI</span><span class="value-badge">${ls}px</span></div><input type="range" min="-10" max="50" value="${ls}" oninput="const t=document.getElementById('${id}'); t.setAttribute('letter-spacing', this.value); window.applyTextCurve(t); this.previousElementSibling.querySelector('.value-badge').innerText=this.value+'px';"></div>
-                    <div class="input-group"><div class="label-row" style="margin-top:0;"><span class="label-text">OTOMATİK SIĞDIRMA (MAX GENİŞLİK)</span><span class="value-badge">${mw === 0 ? 'KAPALI' : mw + 'px'}</span></div><input type="range" min="0" max="1500" value="${mw}" oninput="const t=document.getElementById('${id}'); t.dataset.maxWidth=this.value; window.applyTextCurve(t); this.previousElementSibling.querySelector('.value-badge').innerText=this.value == 0 ? 'KAPALI' : this.value+'px';"></div></div>`;
+                    <div class="property-grid full"><div class="input-group"><div class="label-row" style="margin-top:0;"><span class="label-text">YAZI BOYUTU</span><span class="value-badge" id="val-fs-${id}">${Math.round(fs)}px</span></div><input type="range" min="10" max="400" id="fs-slider" value="${fs}" oninput="const t=document.getElementById('${id}'); t.dataset.baseFontSize=this.value; window.applyTextCurve(t); document.getElementById('val-fs-${id}').innerText=Math.round(this.value)+'px';"></div>
+                    <div class="input-group"><div class="label-row" style="margin-top:0;"><span class="label-text">EĞRİLİK (KAVİS)</span><span class="value-badge" id="val-cv-${id}">${curve}</span></div><input type="range" min="-100" max="100" id="cv-slider-${id}" value="${curve}" oninput="const t=document.getElementById('${id}'); t.dataset.curve=this.value; window.applyTextCurve(t); document.getElementById('val-cv-${id}').innerText=this.value;"></div>
+                    <div class="input-group"><div class="label-row" style="margin-top:0;"><span class="label-text">HARF ARALIĞI</span><span class="value-badge" id="val-ls-${id}">${ls}px</span></div><input type="range" min="-10" max="50" id="ls-slider-${id}" value="${ls}" oninput="const t=document.getElementById('${id}'); t.setAttribute('letter-spacing', this.value); window.applyTextCurve(t); document.getElementById('val-ls-${id}').innerText=this.value+'px';"></div>
+                    <div class="input-group"><div class="label-row" style="margin-top:0;"><span class="label-text">OTOMATİK SIĞDIRMA (MAX GENİŞLİK)</span><span class="value-badge" id="val-mw-${id}">${mw === 0 ? 'KAPALI' : mw + 'px'}</span></div><input type="range" min="0" max="1500" id="mw-slider-${id}" value="${mw}" oninput="const t=document.getElementById('${id}'); t.dataset.maxWidth=this.value; window.applyTextCurve(t); document.getElementById('val-mw-${id}').innerText=this.value == 0 ? 'KAPALI' : this.value+'px';"></div></div>`;
                 sections.push(createPropertySection("Yazı Tipi & Biçimlendirme", fontHtml, "font-format"));
             }
 
             if (isShape || isImage) {
                 const rx = parseFloat(el.dataset.rx) || 0; const maskShape = el.dataset.maskShape || 'none';
                 let bbox = {width:0, height:0}; try { bbox = el.getBBox(); }catch(e){} const maxR = Math.min(bbox.width, bbox.height) / 2;
-                let formHtml = `<div class="input-group" style="margin-bottom:15px;"><span class="label-text">MASKELEME ŞEKLİ</span><select class="font-select" style="margin-top:5px;" onchange="const img=document.getElementById('${id}'); img.dataset.maskShape=this.value; window.applyShapeMask(img); if(window.updateEditorUI) window.updateEditorUI(img);"><option value="none" ${maskShape === 'none' ? 'selected' : ''}>Yok (Düz)</option><option value="squircle" ${maskShape === 'squircle' ? 'selected' : ''}>Oval Kare (Squircle)</option><option value="circle" ${maskShape === 'circle' ? 'selected' : ''}>Daire</option><option value="triangle" ${maskShape === 'triangle' ? 'selected' : ''}>Üçgen</option><option value="star" ${maskShape === 'star' ? 'selected' : ''}>Yıldız</option></select></div><div class="input-group"><div class="label-row" style="margin-top:0;"><span class="label-text">KÖŞE YARIÇAPI (SQUIRCLE)</span><span class="value-badge" id="val-r">${Math.round(rx)}px</span></div><input type="range" min="0" max="${maxR}" id="r-slider" value="${rx}" oninput="const img=document.getElementById('${id}'); img.dataset.rx=this.value; window.applyShapeMask(img); this.previousElementSibling.querySelector('.value-badge').innerText=Math.round(this.value)+'px';"></div>`;
+                let formHtml = `<div class="input-group" style="margin-bottom:15px;"><span class="label-text">MASKELEME ŞEKLİ</span><select id="mask-sel-${id}" class="font-select" style="margin-top:5px;" onchange="const img=document.getElementById('${id}'); img.dataset.maskShape=this.value; window.applyShapeMask(img); if(window.updateEditorUI) window.updateEditorUI(img);"><option value="none" ${maskShape === 'none' ? 'selected' : ''}>Yok (Düz)</option><option value="squircle" ${maskShape === 'squircle' ? 'selected' : ''}>Oval Kare (Squircle)</option><option value="circle" ${maskShape === 'circle' ? 'selected' : ''}>Daire</option><option value="triangle" ${maskShape === 'triangle' ? 'selected' : ''}>Üçgen</option><option value="star" ${maskShape === 'star' ? 'selected' : ''}>Yıldız</option></select></div><div class="input-group"><div class="label-row" style="margin-top:0;"><span class="label-text">KÖŞE YARIÇAPI (SQUIRCLE)</span><span class="value-badge" id="val-r-${id}">${Math.round(rx)}px</span></div><input type="range" min="0" max="${maxR}" id="r-slider" value="${rx}" oninput="const img=document.getElementById('${id}'); img.dataset.rx=this.value; window.applyShapeMask(img); document.getElementById('val-r-${id}').innerText=Math.round(this.value)+'px';"></div>`;
                 sections.push(createPropertySection("Form & Maskeleme", formHtml, "form-mask"));
             }
 
             if (!isImage) {
                 const fillType = el.dataset.fillType || 'solid'; const col1 = el.dataset.color1 || '#10b981'; const col2 = el.dataset.color2 || '#3b82f6'; const solidCol = el.dataset.solidColor || (el.getAttribute('fill') === 'none' ? el.getAttribute('stroke') : el.getAttribute('fill')) || "#ffffff";
                 let swatchHtml = `<div class="label-text" style="margin-top:15px; margin-bottom:8px;">PROJE RENKLERİ</div><div class="swatch-container">` + recentColors.map(c => `<div class="color-swatch" style="background:${c}" onclick="window.applyRecentColor('${id}', '${c}')" title="${c}"></div>`).join('') + `</div>`;
-                let fillHtml = `<div class="input-group" style="margin-bottom:15px;"><span class="label-text">DOLGU TİPİ</span><select class="font-select" style="margin-top:5px;" onchange="const t=document.getElementById('${id}'); t.dataset.fillType=this.value; window.applyFill(t); renderEditor();"><option value="solid" ${fillType === 'solid' ? 'selected' : ''}>Düz Renk</option><option value="gradient" ${fillType === 'gradient' ? 'selected' : ''}>Renk Geçişi (Gradient)</option></select></div>`;
-                if (fillType === 'solid') { fillHtml += `<div class="input-group"><span class="label-text" style="margin-bottom:5px;">${isPath?'ÇİZGİ':'İÇ'} RENK</span><div style="display:flex; gap:10px; align-items:center;"><input type="color" value="${safeColor(solidCol)}" oninput="const t=document.getElementById('${id}'); t.dataset.solidColor=this.value; window.applyFill(t);" onchange="addRecentColor(this.value)" style="width:45px; height:45px; cursor:pointer; border:none; background:none; border-radius:8px;"><button class="action-btn" style="flex:0 0 45px; padding:12px; background:#334155; font-size:16px;" onclick="window.pickColor('${id}', 'solidColor', 'fill')" title="Göz Damlası">💧</button><input type="text" value="${safeColor(solidCol)}" style="flex:1;" oninput="const t=document.getElementById('${id}'); t.dataset.solidColor=this.value; window.applyFill(t);" onchange="addRecentColor(this.value)"></div></div>`; } 
-                else { fillHtml += `<div class="property-grid"><div class="input-group"><span class="label-text">RENK 1</span><div style="display:flex; gap:5px; align-items:center;"><input type="color" value="${safeColor(col1)}" oninput="const t=document.getElementById('${id}'); t.dataset.color1=this.value; window.applyFill(t);" onchange="addRecentColor(this.value)" style="width:35px; height:35px; cursor:pointer; border:none; background:none;"><button class="action-btn" style="padding:8px; background:#334155;" onclick="window.pickColor('${id}', 'color1', '')">💧</button></div></div><div class="input-group"><span class="label-text">RENK 2</span><div style="display:flex; gap:5px; align-items:center;"><input type="color" value="${safeColor(col2)}" oninput="const t=document.getElementById('${id}'); t.dataset.color2=this.value; window.applyFill(t);" onchange="addRecentColor(this.value)" style="width:35px; height:35px; cursor:pointer; border:none; background:none;"><button class="action-btn" style="padding:8px; background:#334155;" onclick="window.pickColor('${id}', 'color2', '')">💧</button></div></div></div>`; }
+                let fillHtml = `<div class="input-group" style="margin-bottom:15px;"><span class="label-text">DOLGU TİPİ</span><select id="fill-sel-${id}" class="font-select" style="margin-top:5px;" onchange="const t=document.getElementById('${id}'); t.dataset.fillType=this.value; window.applyFill(t); renderProperties();"><option value="solid" ${fillType === 'solid' ? 'selected' : ''}>Düz Renk</option><option value="gradient" ${fillType === 'gradient' ? 'selected' : ''}>Renk Geçişi (Gradient)</option></select></div>`;
+                if (fillType === 'solid') { fillHtml += `<div class="input-group"><span class="label-text" style="margin-bottom:5px;">${isPath?'ÇİZGİ':'İÇ'} RENK</span><div style="display:flex; gap:10px; align-items:center;"><input type="color" id="fill-col-${id}" value="${safeColor(solidCol)}" oninput="const t=document.getElementById('${id}'); t.dataset.solidColor=this.value; window.applyFill(t);" onchange="addRecentColor(this.value)" style="width:45px; height:45px; cursor:pointer; border:none; background:none; border-radius:8px;"><button class="action-btn" style="flex:0 0 45px; padding:12px; background:#334155; font-size:16px;" onclick="window.pickColor('${id}', 'solidColor', 'fill')" title="Göz Damlası">💧</button><input type="text" id="fill-txt-${id}" value="${safeColor(solidCol)}" style="flex:1;" oninput="const t=document.getElementById('${id}'); t.dataset.solidColor=this.value; window.applyFill(t); document.getElementById('fill-col-${id}').value=this.value;" onchange="addRecentColor(this.value)"></div></div>`; } 
+                else { fillHtml += `<div class="property-grid"><div class="input-group"><span class="label-text">RENK 1</span><div style="display:flex; gap:5px; align-items:center;"><input type="color" id="grad1-${id}" value="${safeColor(col1)}" oninput="const t=document.getElementById('${id}'); t.dataset.color1=this.value; window.applyFill(t);" onchange="addRecentColor(this.value)" style="width:35px; height:35px; cursor:pointer; border:none; background:none;"><button class="action-btn" style="padding:8px; background:#334155;" onclick="window.pickColor('${id}', 'color1', '')">💧</button></div></div><div class="input-group"><span class="label-text">RENK 2</span><div style="display:flex; gap:5px; align-items:center;"><input type="color" id="grad2-${id}" value="${safeColor(col2)}" oninput="const t=document.getElementById('${id}'); t.dataset.color2=this.value; window.applyFill(t);" onchange="addRecentColor(this.value)" style="width:35px; height:35px; cursor:pointer; border:none; background:none;"><button class="action-btn" style="padding:8px; background:#334155;" onclick="window.pickColor('${id}', 'color2', '')">💧</button></div></div></div>`; }
                 fillHtml += swatchHtml;
                 sections.push(createPropertySection("Dolgu & Renk", fillHtml, "fill-color"));
             }
 
             const strokeCol = el.getAttribute('stroke') || '#000000'; const strokeW = parseFloat(el.getAttribute('stroke-width')) || 0; const dash = el.getAttribute('stroke-dasharray') || 'none';
-            let strokeHtml = `<div class="input-group" style="margin-bottom:15px;"><span class="label-text" style="margin-bottom:5px;">ÇİZGİ RENGİ</span><div style="display:flex; gap:10px; align-items:center;"><input type="color" value="${safeColor(strokeCol)}" oninput="const t=document.getElementById('${id}'); t.setAttribute('stroke', this.value); t.setAttribute('paint-order', 'stroke fill'); t.setAttribute('stroke-linejoin', 'round');" onchange="addRecentColor(this.value)" style="width:45px; height:45px; cursor:pointer; border:none; background:none; border-radius:8px;"><button class="action-btn" style="flex:0 0 45px; padding:12px; background:#334155; font-size:16px;" onclick="window.pickColor('${id}', '', 'stroke')" title="Göz Damlası">💧</button><input type="text" value="${safeColor(strokeCol)}" style="flex:1;" oninput="const t=document.getElementById('${id}'); t.setAttribute('stroke', this.value); t.setAttribute('paint-order', 'stroke fill'); t.setAttribute('stroke-linejoin', 'round');" onchange="addRecentColor(this.value)"></div></div><div class="property-grid" style="grid-template-columns: 2fr 1fr;"><div class="input-group"><div class="label-row" style="margin-top:0;"><span class="label-text">KALINLIK</span><span class="value-badge">${strokeW}px</span></div><input type="range" min="0" max="50" value="${strokeW}" oninput="const t=document.getElementById('${id}'); t.setAttribute('stroke-width', this.value); t.setAttribute('paint-order', 'stroke fill'); this.previousElementSibling.querySelector('.value-badge').innerText=this.value+'px';"></div><div class="input-group"><span class="label-text">STİL</span><select class="font-select" style="padding:9px; margin-top:5px;" onchange="document.getElementById('${id}').setAttribute('stroke-dasharray', this.value);"><option value="none" ${dash === 'none' ? 'selected' : ''}>Düz</option><option value="5,5" ${dash === '5,5' ? 'selected' : ''}>Kesikli</option><option value="2,2" ${dash === '2,2' ? 'selected' : ''}>Noktalı</option></select></div></div>`;
+            let strokeHtml = `<div class="input-group" style="margin-bottom:15px;"><span class="label-text" style="margin-bottom:5px;">ÇİZGİ RENGİ</span><div style="display:flex; gap:10px; align-items:center;"><input type="color" id="str-col-${id}" value="${safeColor(strokeCol)}" oninput="const t=document.getElementById('${id}'); t.setAttribute('stroke', this.value); t.setAttribute('paint-order', 'stroke fill'); t.setAttribute('stroke-linejoin', 'round'); document.getElementById('str-txt-${id}').value=this.value;" onchange="addRecentColor(this.value)" style="width:45px; height:45px; cursor:pointer; border:none; background:none; border-radius:8px;"><button class="action-btn" style="flex:0 0 45px; padding:12px; background:#334155; font-size:16px;" onclick="window.pickColor('${id}', '', 'stroke')" title="Göz Damlası">💧</button><input type="text" id="str-txt-${id}" value="${safeColor(strokeCol)}" style="flex:1;" oninput="const t=document.getElementById('${id}'); t.setAttribute('stroke', this.value); t.setAttribute('paint-order', 'stroke fill'); t.setAttribute('stroke-linejoin', 'round'); document.getElementById('str-col-${id}').value=this.value;" onchange="addRecentColor(this.value)"></div></div><div class="property-grid" style="grid-template-columns: 2fr 1fr;"><div class="input-group"><div class="label-row" style="margin-top:0;"><span class="label-text">KALINLIK</span><span class="value-badge" id="val-sw-${id}">${strokeW}px</span></div><input type="range" min="0" max="50" id="sw-slider-${id}" value="${strokeW}" oninput="const t=document.getElementById('${id}'); t.setAttribute('stroke-width', this.value); t.setAttribute('paint-order', 'stroke fill'); document.getElementById('val-sw-${id}').innerText=this.value+'px';"></div><div class="input-group"><span class="label-text">STİL</span><select id="dash-sel-${id}" class="font-select" style="padding:9px; margin-top:5px;" onchange="document.getElementById('${id}').setAttribute('stroke-dasharray', this.value);"><option value="none" ${dash === 'none' ? 'selected' : ''}>Düz</option><option value="5,5" ${dash === '5,5' ? 'selected' : ''}>Kesikli</option><option value="2,2" ${dash === '2,2' ? 'selected' : ''}>Noktalı</option></select></div></div>`;
             sections.push(createPropertySection("Kenarlık & Çizgi", strokeHtml, "stroke"));
 
             let opacityVal = parseFloat(el.getAttribute('opacity')); if (isNaN(opacityVal)) opacityVal = 1;
             const sX = parseFloat(el.dataset.shadowX) || 0, sY = parseFloat(el.dataset.shadowY) || 0, sB = parseFloat(el.dataset.shadowBlur) || 0, sC = el.dataset.shadowColor || '#000000', bl = parseFloat(el.dataset.blur) || 0; const blend = el.dataset.blend || 'normal';
-            let fxHtml = `<div class="input-group" style="margin-bottom:15px;"><div class="label-row" style="margin-top:0;"><span class="label-text">SAYDAMLIK (OPACITY)</span><span class="value-badge">${Math.round(opacityVal*100)}%</span></div><input type="range" min="0" max="1" step="0.05" value="${opacityVal}" oninput="const t=document.getElementById('${id}'); t.setAttribute('opacity', this.value); this.previousElementSibling.querySelector('.value-badge').innerText=Math.round(this.value*100)+'%';"></div><div class="input-group" style="margin-bottom:15px;"><span class="label-text">KARIŞIM MODU (BLEND)</span><select class="font-select" style="margin-top:5px;" onchange="const t=document.getElementById('${id}'); t.dataset.blend=this.value; window.applyFilters(t);"><option value="normal" ${blend === 'normal' ? 'selected' : ''}>Normal</option><option value="multiply" ${blend === 'multiply' ? 'selected' : ''}>Çoğalt (Multiply)</option><option value="screen" ${blend === 'screen' ? 'selected' : ''}>Ekran (Screen)</option><option value="overlay" ${blend === 'overlay' ? 'selected' : ''}>Kaplama (Overlay)</option></select></div><div class="group-box"><div class="label-text" style="color:white; margin-bottom:10px;">GÖLGE VE BLUR</div><div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;"><input type="color" value="${sC}" oninput="const t=document.getElementById('${id}'); t.dataset.shadowColor=this.value; window.applyFilters(t);" onchange="addRecentColor(this.value)" style="width:40px; height:40px; cursor:pointer; border-radius:8px; border:none; background:none;"><button class="action-btn" style="padding:10px; background:#334155;" onclick="window.pickColor('${id}', 'shadowColor', '')">💧</button><input type="text" value="${sC}" style="flex:1;" oninput="const t=document.getElementById('${id}'); t.dataset.shadowColor=this.value;" onchange="addRecentColor(this.value)"></div><div class="property-grid"><div class="input-group"><span class="label-text">GÖLGE X</span><input type="number" value="${sX}" oninput="const t=document.getElementById('${id}'); t.dataset.shadowX=this.value; window.applyFilters(t);"></div><div class="input-group"><span class="label-text">GÖLGE Y</span><input type="number" value="${sY}" oninput="const t=document.getElementById('${id}'); t.dataset.shadowY=this.value; window.applyFilters(t);"></div><div class="input-group"><span class="label-text">GÖLGE BLUR</span><input type="number" value="${sB}" oninput="const t=document.getElementById('${id}'); t.dataset.shadowBlur=this.value; window.applyFilters(t);"></div><div class="input-group"><span class="label-text">NESNE BLUR</span><input type="number" value="${bl}" oninput="const t=document.getElementById('${id}'); t.dataset.blur=this.value; window.applyFilters(t);"></div></div></div>`;
+            let fxHtml = `<div class="input-group" style="margin-bottom:15px;"><div class="label-row" style="margin-top:0;"><span class="label-text">SAYDAMLIK (OPACITY)</span><span class="value-badge" id="val-op-${id}">${Math.round(opacityVal*100)}%</span></div><input type="range" id="op-slider-${id}" min="0" max="1" step="0.05" value="${opacityVal}" oninput="const t=document.getElementById('${id}'); t.setAttribute('opacity', this.value); document.getElementById('val-op-${id}').innerText=Math.round(this.value*100)+'%';"></div><div class="input-group" style="margin-bottom:15px;"><span class="label-text">KARIŞIM MODU (BLEND)</span><select id="blend-sel-${id}" class="font-select" style="margin-top:5px;" onchange="const t=document.getElementById('${id}'); t.dataset.blend=this.value; window.applyFilters(t);"><option value="normal" ${blend === 'normal' ? 'selected' : ''}>Normal</option><option value="multiply" ${blend === 'multiply' ? 'selected' : ''}>Çoğalt (Multiply)</option><option value="screen" ${blend === 'screen' ? 'selected' : ''}>Ekran (Screen)</option><option value="overlay" ${blend === 'overlay' ? 'selected' : ''}>Kaplama (Overlay)</option></select></div><div class="group-box"><div class="label-text" style="color:white; margin-bottom:10px;">GÖLGE VE BLUR</div><div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;"><input type="color" id="shd-col-${id}" value="${sC}" oninput="const t=document.getElementById('${id}'); t.dataset.shadowColor=this.value; window.applyFilters(t); document.getElementById('shd-txt-${id}').value=this.value;" onchange="addRecentColor(this.value)" style="width:40px; height:40px; cursor:pointer; border-radius:8px; border:none; background:none;"><button class="action-btn" style="padding:10px; background:#334155;" onclick="window.pickColor('${id}', 'shadowColor', '')">💧</button><input type="text" id="shd-txt-${id}" value="${sC}" style="flex:1;" oninput="const t=document.getElementById('${id}'); t.dataset.shadowColor=this.value; document.getElementById('shd-col-${id}').value=this.value;" onchange="addRecentColor(this.value)"></div><div class="property-grid"><div class="input-group"><span class="label-text">GÖLGE X</span><input type="number" id="sx-val-${id}" value="${sX}" oninput="const t=document.getElementById('${id}'); t.dataset.shadowX=this.value; window.applyFilters(t);"></div><div class="input-group"><span class="label-text">GÖLGE Y</span><input type="number" id="sy-val-${id}" value="${sY}" oninput="const t=document.getElementById('${id}'); t.dataset.shadowY=this.value; window.applyFilters(t);"></div><div class="input-group"><span class="label-text">GÖLGE BLUR</span><input type="number" id="sb-val-${id}" value="${sB}" oninput="const t=document.getElementById('${id}'); t.dataset.shadowBlur=this.value; window.applyFilters(t);"></div><div class="input-group"><span class="label-text">NESNE BLUR</span><input type="number" id="bl-val-${id}" value="${bl}" oninput="const t=document.getElementById('${id}'); t.dataset.blur=this.value; window.applyFilters(t);"></div></div></div>`;
             sections.push(createPropertySection("Efektler & Görünüm", fxHtml, "effects"));
 
             const rawSvgCode = el.outerHTML.replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -951,7 +980,7 @@
 
             f.innerHTML = sections.join('');
             
-            // Eylem yapıldığında kaydet (Kod kutusu hariç)
+            // SADECE Blur Eventlerinde (Kullanıcı İşlemi Bitirince) SaveState Tetiklensin! (Çökme engellendi)
             f.querySelectorAll('input, select').forEach(inpt => { 
                 inpt.addEventListener('change', () => { 
                     if(inpt.id !== 'raw-svg-code') saveState(); 
@@ -968,25 +997,7 @@
 
     // === EKLEME FONKSİYONLARI ===
     document.getElementById('saveBtn').onclick = saveData;
-    document.getElementById('addTextBtn').onclick = addNewText;
-    document.getElementById('addImgBtn').onclick = () => document.getElementById('img-in').click();
-    document.getElementById('img-in').onchange = (e) => {
-        const file = e.target.files[0]; if(!file) return;
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-            const svg = document.querySelector('#canvas-inner svg'); const center = getCanvasCenter();
-            const img = document.createElementNS("http://www.w3.org/2000/svg", "image");
-            img.id = "img_" + Date.now(); img.setAttribute("class", "duzenlenebilir"); 
-            const w = 300; const h = 300;
-            img.setAttribute("x", center.cx - (w/2)); img.setAttribute("y", center.cy - (h/2)); 
-            img.setAttribute("width", w); img.setAttribute("height", h); 
-            img.dataset.rx = "0"; img.dataset.smoothing = "0.5"; img.dataset.maskShape = "none"; 
-            img.setAttribute("href", ev.target.result); img.setAttributeNS("http://www.w3.org/1999/xlink", "href", ev.target.result);
-            svg.appendChild(img); selectedEl = img; saveState(); setupLayers(); window.updateEditorUI(img); renderEditor();
-        }; reader.readAsDataURL(file);
-        e.target.value = ""; // Inputu sıfırla
-    };
-
+    
     function addNewText() {
         const svg = document.querySelector('#canvas-inner svg'); if(!svg) return; 
         const center = getCanvasCenter();
@@ -1021,7 +1032,7 @@
             const res = await fetch(WORKER_URL, { 
                 method: "PUT", 
                 headers: { "X-Auth-Key": SESSION_PASS, "X-File-Name": fileName }, 
-                body: JSON.stringify({message: "Pro Studio Ultimate Fix", content: b64, sha: SHA_KEY}) 
+                body: JSON.stringify({message: "Pro Studio Ultimate Fix V16", content: b64, sha: SHA_KEY}) 
             });
             
             if(res.ok) { 
