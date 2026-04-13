@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SVG Pro Studio | Ultimate JSON CMS V21</title>
+    <title>SVG Pro Studio | Kusursuz CMS V22</title>
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Merriweather:wght@400;700&family=Montserrat:wght@400;700;800&family=Nunito:wght@400;700&family=Open+Sans:wght@400;700&family=Oswald:wght@400;700&family=Pacifico&family=Playfair+Display:wght@400;700&family=Poppins:wght@400;700&family=Raleway:wght@400;700&family=Roboto:wght@400;700&family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { --accent: #10b981; --bg: #0f172a; --panel: #1e293b; --border: #334155; --handle-move: #3b82f6; --handle-rotate: #f59e0b; --handle-radius: #ec4899; }
@@ -210,7 +210,7 @@
 
 <div id="login-screen">
     <div class="login-card">
-        <h2 style="margin-top:0; color:white;">Pro Studio JSON CMS</h2>
+        <h2 style="margin-top:0; color:white;">Pro Studio CMS V22</h2>
         <div style="font-size:12px; color:#94a3b8; margin-bottom:20px;">Lütfen Cloudflare Worker şifrenizi girin.</div>
         <input type="password" id="passInput" placeholder="Sunucu Şifresi">
         <button id="loginBtn">Sunucuya Bağlan</button>
@@ -238,7 +238,7 @@
         </div>
         <div id="status-bar">
             <div id="status-count">Nesne Sayısı: 0</div>
-            <div>SVG Pro Studio Ultimate V21</div>
+            <div>SVG Pro Studio Ultimate V22</div>
             <div id="status-time">Son Kayıt: Bekleniyor...</div>
         </div>
     </div>
@@ -246,7 +246,7 @@
     <div id="sidebar">
         <div class="sidebar-nav">
             <div style="display:flex; gap:5px; margin-bottom: 10px;">
-                <button id="saveBtn" class="action-btn active" style="flex:2; font-size:12px;">💾 KAYDET</button>
+                <button onclick="saveData()" class="action-btn active" style="flex:2; font-size:12px;">💾 KAYDET</button>
                 <button onclick="openExport('png')" class="action-btn special" style="flex:1; background:#0284c7;">📥 PNG</button>
                 <button onclick="openExport('svg')" class="action-btn svg" style="flex:1; background:#ea580c;">📥 SVG</button>
             </div>
@@ -260,7 +260,7 @@
             <details style="margin-bottom: 10px;">
                 <summary style="font-size:11px; font-weight:bold; color:#f59e0b; cursor:pointer; margin-bottom:5px;">🎬 SEÇİLİ SLAYT AYARLARI (JSON)</summary>
                 <div class="group-box" style="margin-top:5px;">
-                    <div style="font-size:10px; color:#94a3b8; margin-bottom:10px; font-style:italic;">Değişiklikler doğrudan setting.json dosyasına işlenir.</div>
+                    <div style="font-size:10px; color:#94a3b8; margin-bottom:10px; font-style:italic;">Değişiklikler doğrudan settings.json dosyasına işlenir.</div>
                     <div class="input-group" style="margin-bottom:10px;">
                         <span class="label-text">BU SLAYTIN EKRANDA KALMA SÜRESİ (ms)</span>
                         <input type="number" id="slide-time" value="5000">
@@ -389,32 +389,30 @@
         if(!passVal) { alert("Lütfen Worker şifrenizi girin!"); return; }
         SESSION_PASS = passVal; 
         
-        await loadSettings(); // Önce JSON ayarlarını çek
-        await loadSlide();    // Sonra tuvali yükle
+        await loadSettings();
+        await loadSlide();    
     };
     
     document.getElementById('loginBtn').addEventListener('click', login);
     document.getElementById('passInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') login(); });
     
-    // SLAYT DEĞİŞTİRİNCE HEM SVG HEM JSON AYARLARI GÜNCELLENİR
     document.getElementById('file-selector').addEventListener('change', async () => {
         await loadSlide();
         updateSettingsUI();
     });
 
-    window.addEventListener('DOMContentLoaded', () => { if (WORKER_URL !== "") { /* Otokontrol */ } });
+    window.addEventListener('DOMContentLoaded', () => { if (WORKER_URL !== "") { /* Otokontrol yeri */ } });
 
-    // YENİ: JSON AYARLARINI YÜKLEYEN MOTOR
+    // YENİ: JSON AYARLARINI YÜKLEYEN MOTOR (HATA DÜZELTİLDİ)
     async function loadSettings() {
         try {
-            const res = await fetch(WORKER_URL, { headers: {"X-Auth-Key": SESSION_PASS, "X-File-Name": "setting.json"} });
+            const res = await fetch(WORKER_URL, { headers: {"X-Auth-Key": SESSION_PASS, "X-File-Name": "settings.json"} });
             if (res.ok) {
                 const data = await res.json();
                 settingsSha = data.sha || (data.content && data.content.sha) || "";
                 const content = decodeURIComponent(escape(atob(data.content)));
                 settingsData = JSON.parse(content);
             } else {
-                // Eğer setting.json yoksa varsayılan olarak başlat
                 settingsData = [
                     {file: "slayt.svg", effect: "zoom", duration: 5000},
                     {file: "kampanya.svg", effect: "cube", duration: 3000},
@@ -438,7 +436,6 @@
             document.getElementById('slide-time').value = slideConfig.duration || 3000;
             document.getElementById('slide-effect').value = slideConfig.effect || 'fade';
         } else {
-            // Slayt JSON'da yoksa varsayılan
             document.getElementById('slide-time').value = 3000;
             document.getElementById('slide-effect').value = 'fade';
         }
@@ -454,7 +451,6 @@
             const timeVal = parseInt(document.getElementById('slide-time').value) || 3000;
             const effectVal = document.getElementById('slide-effect').value;
 
-            // Dizideki eski veriyi bul veya yeni oluştur
             let slideConfig = settingsData.find(s => s.file === currentFile);
             if (slideConfig) {
                 slideConfig.duration = timeVal;
@@ -463,13 +459,12 @@
                 settingsData.push({ file: currentFile, effect: effectVal, duration: timeVal });
             }
 
-            // Güzelleştirilmiş JSON formatı oluştur
             const newContent = JSON.stringify(settingsData, null, 2);
             const b64 = btoa(unescape(encodeURIComponent(newContent)));
 
             const putRes = await fetch(WORKER_URL, { 
                 method: "PUT", 
-                headers: { "X-Auth-Key": SESSION_PASS, "X-File-Name": "setting.json" }, 
+                headers: { "X-Auth-Key": SESSION_PASS, "X-File-Name": "settings.json" }, 
                 body: JSON.stringify({message: "Slayt ayarları (JSON) güncellendi: " + currentFile, content: b64, sha: settingsSha}) 
             });
 
@@ -506,17 +501,17 @@
         } catch(e) { alert("Bağlantı Hatası! Sunucuya ulaşılamıyor."); st.style.display="none"; document.getElementById('login-screen').style.display = "flex"; document.getElementById('app-container').style.display = "none"; }
     }
 
-
-    // SÜRÜKLE BIRAK VE DOSYADAN RESİM EKLEME
     function handleImageFile(file) {
         if (!file || !file.type.startsWith('image/')) return;
         const reader = new FileReader();
         reader.onload = (ev) => {
-            const svg = document.querySelector('#canvas-inner svg'); const center = getCanvasCenter();
+            const svg = document.querySelector('#canvas-inner svg'); 
+            const center = getCanvasCenter();
             const img = document.createElementNS("http://www.w3.org/2000/svg", "image");
             img.id = "img_" + Date.now(); img.setAttribute("class", "duzenlenebilir"); 
             const w = 300; const h = 300;
-            img.setAttribute("x", center.cx - (w/2)); img.setAttribute("y", center.cy - (h/2)); 
+            img.setAttribute("x", center.cx - (w/2)); 
+            img.setAttribute("y", center.cy - (h/2)); 
             img.setAttribute("width", w); img.setAttribute("height", h); 
             img.dataset.rx = "0"; img.dataset.smoothing = "0.5"; img.dataset.maskShape = "none"; 
             img.setAttribute("href", ev.target.result); img.setAttributeNS("http://www.w3.org/1999/xlink", "href", ev.target.result);
@@ -618,7 +613,7 @@
             }
             
             svg.appendChild(innerSvg); selectedEl = innerSvg; saveState(); setupLayers(); window.updateEditorUI(innerSvg); renderEditor();
-        } catch(e) { alert("SVG kodu eklenirken hata oluştu. Lütfen geçerli bir SVG kodu girdiğinizden emin olun."); }
+        } catch(e) { alert("SVG kodu eklenirken hata oluştu."); }
     }
 
     function updateRulers() {
@@ -750,7 +745,6 @@
         if (bri != 100) filterStr += `brightness(${bri}%) `; if (con != 100) filterStr += `contrast(${con}%) `; if (sat != 100) filterStr += `saturate(${sat}%) `; if (gray > 0) filterStr += `grayscale(${gray}%) `; if (bl > 0) filterStr += `blur(${bl}px) `;
         el.style.filter = filterStr.trim(); el.style.mixBlendMode = blend; el.setAttribute('style', el.getAttribute('style') || ''); 
     }
-    
     window.applyFill = function(el) {
         if(el.tagName === 'image') return; const type = el.dataset.fillType || 'solid'; let fillVal = '';
         if (type === 'gradient') {
@@ -765,7 +759,6 @@
         el.setAttribute("fill", fillVal); if(el.tagName !== 'path') el.style.fill = fillVal;
         if(el.tagName === 'g' || el.tagName === 'svg') { el.querySelectorAll('path, circle, rect, polygon').forEach(child => { child.style.fill = fillVal; child.setAttribute('fill', fillVal); }); }
     }
-
     window.autoFitText = function(el) { if (el.tagName !== 'text') return; const mw = parseFloat(el.dataset.maxWidth) || 0; const baseFs = parseFloat(el.dataset.baseFontSize) || 60; el.style.fontSize = baseFs + "px"; el.setAttribute("font-size", baseFs); if (mw > 0) { let bbox = {width:0}; try { bbox = el.getBBox(); } catch(e){} if (bbox.width > mw && bbox.width > 0) { const scale = mw / bbox.width; const newFs = baseFs * scale; el.style.fontSize = newFs + "px"; el.setAttribute("font-size", newFs); } } };
     window.applyTextCurve = function(el) {
         if (el.tagName !== 'text') return; const curve = parseFloat(el.dataset.curve) || 0; if(!el.dataset.rawText) el.dataset.rawText = el.textContent; const rawText = el.dataset.rawText;
@@ -1098,9 +1091,28 @@
 
     function safeColor(c) { if(!c) return "#ffffff"; if(c.length === 4 && c.startsWith('#')) return "#" + c[1] + c[1] + c[2] + c[2] + c[3] + c[3]; return c.startsWith('#') && c.length === 7 ? c : "#ffffff"; }
 
-    document.getElementById('saveBtn').onclick = saveData;
+    // === ALT KISIMA TAŞINAN EKSİK FONKSİYONLAR (SORUN 2 ÇÖZÜMÜ) ===
+    window.addNewText = function() {
+        const svg = document.querySelector('#canvas-inner svg'); if(!svg) return; 
+        const center = getCanvasCenter();
+        const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        t.id = "txt_" + Date.now(); t.setAttribute("class", "duzenlenebilir"); 
+        t.setAttribute("x", center.cx); t.setAttribute("y", center.cy); 
+        t.setAttribute("text-anchor", "middle"); t.setAttribute("dominant-baseline", "central"); t.dataset.baseFontSize = "80"; t.dataset.maxWidth = "600"; t.dataset.rawText = "YENİ METİN"; t.dataset.solidColor = "#000000"; t.setAttribute("fill", "#000000"); t.setAttribute("font-size", "80"); t.setAttribute("font-family", "sans-serif"); t.textContent = "YENİ METİN";
+        svg.appendChild(t); selectedEl = t; saveState(); setupLayers(); window.updateEditorUI(t); renderEditor();
+    };
+    
+    window.addShape = function(type) {
+        const svg = document.querySelector('#canvas-inner svg'); if(!svg) return; 
+        const center = getCanvasCenter();
+        const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        rect.id = "shp_" + Date.now(); rect.setAttribute("class", "duzenlenebilir"); 
+        rect.setAttribute("x", center.cx - 100); rect.setAttribute("y", center.cy - 100); 
+        rect.setAttribute("width", 200); rect.setAttribute("height", 200); rect.dataset.solidColor = "#10b981"; rect.setAttribute("fill", "#10b981"); rect.dataset.maskShape = "none";
+        svg.appendChild(rect); selectedEl = rect; saveState(); setupLayers(); window.updateEditorUI(rect); renderEditor();
+    };
 
-    async function saveData() {
+    window.saveData = async function() {
         if (!WORKER_URL || WORKER_URL === "") { alert("Lütfen kodun içindeki WORKER_URL kısmına kendi linkinizi yazın!"); return; }
         const st = document.getElementById('status-info'); st.innerText = "KAYDEDİLİYOR..."; st.style.display = "block";
         
@@ -1114,7 +1126,7 @@
             const res = await fetch(WORKER_URL, { 
                 method: "PUT", 
                 headers: { "X-Auth-Key": SESSION_PASS, "X-File-Name": fileName }, 
-                body: JSON.stringify({message: "Pro Studio CMS V21", content: b64, sha: SHA_KEY}) 
+                body: JSON.stringify({message: "Pro Studio Ultimate Fix V22", content: b64, sha: SHA_KEY}) 
             });
             
             if(res.ok) { 
@@ -1133,7 +1145,7 @@
             setTimeout(() => st.style.display="none", 2000);
             if(selectedEl) window.updateEditorUI(selectedEl);
         } catch(e) { alert("Kayıt Hatası: Sunucu bağlantısı kurulamadı."); st.style.display="none"; }
-    }
+    };
 </script>
 </body>
 </html>
