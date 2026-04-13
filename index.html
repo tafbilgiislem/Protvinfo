@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SVG Pro Studio | Ultimate V18 (HTML CMS Editörü)</title>
+    <title>SVG Pro Studio | Temizlenmiş V19</title>
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Merriweather:wght@400;700&family=Montserrat:wght@400;700;800&family=Nunito:wght@400;700&family=Open+Sans:wght@400;700&family=Oswald:wght@400;700&family=Pacifico&family=Playfair+Display:wght@400;700&family=Poppins:wght@400;700&family=Raleway:wght@400;700&family=Roboto:wght@400;700&family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { --accent: #10b981; --bg: #0f172a; --panel: #1e293b; --border: #334155; --handle-move: #3b82f6; --handle-rotate: #f59e0b; --handle-radius: #ec4899; }
@@ -20,11 +20,12 @@
         /* ANA DÜZEN */
         #app-container { display: none; height: 100%; width: 100%; flex-direction: row; }
         #sidebar { width: 480px; background: var(--panel); border-left: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; height: 100%; z-index: 100; position: relative; }
-        .sidebar-nav { padding: 15px; background: #111827; border-bottom: 1px solid var(--border); flex-shrink: 0; overflow-y: auto;}
+        .sidebar-nav { padding: 15px; background: #111827; border-bottom: 1px solid var(--border); flex-shrink: 0; overflow-y: auto; max-height: 50%;}
         
-        #layers-wrapper { display: flex; flex-direction: column; height: 25%; border-bottom: 2px solid var(--border); background: #0f172a; flex-shrink: 0; }
+        #layers-wrapper { display: flex; flex-direction: column; height: 20%; border-bottom: 2px solid var(--border); background: #0f172a; flex-shrink: 0; }
         #layers-header { padding: 10px 15px; font-size: 12px; font-weight: bold; color: var(--accent); border-bottom: 1px solid var(--border); background: #111827; }
         #layers-list { flex: 1; overflow-y: auto; }
+        
         #editor-fields { flex: 1; min-height: 0; overflow-y: auto; padding: 20px; background: rgba(0,0,0,0.2); padding-bottom: 80px; }
 
         .layer-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; border-bottom: 1px solid var(--border); cursor: pointer; font-size: 12px; transition: 0.2s; background: #1e293b; color: #cbd5e1; }
@@ -37,6 +38,7 @@
         /* ÇİZİM VE ZOOM ALANI */
         #main-view { flex: 1; background: #020617; overflow: hidden; position: relative; height: calc(100% - 25px); display: flex; }
         #zoom-container { flex: 1; display: flex; align-items: center; justify-content: center; transform-origin: center center; transition: transform 0.2s ease-out; position: relative;}
+        
         #svg-wrapper { position: relative; background: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 50px black; touch-action: none; transition: transform 0.1s; }
         #canvas-inner { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
         #canvas-inner svg { width: auto; height: auto; max-width: 100%; max-height: 100%; object-fit: contain; overflow: visible; }
@@ -55,7 +57,7 @@
         .tool-btn { background: #0f172a; color: white; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; cursor: pointer; font-weight: bold; transition: 0.2s; }
         .tool-btn:hover { background: var(--accent); border-color: var(--accent); }
 
-        /* TUTAMAÇLAR VE KILAVUZLAR */
+        /* TUTAMAÇLAR */
         .duzenlenebilir { cursor: move; pointer-events: all; }
         .locked { cursor: not-allowed !important; }
         #control-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; overflow: visible; }
@@ -69,14 +71,14 @@
 
         /* ARAYÜZ KONTROLLERİ */
         input[type="range"] { width: 100%; accent-color: var(--accent); height: 6px; cursor: pointer; margin: 0; }
-        input[type="text"], input[type="number"] { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: #000; color: #fff; outline: none; font-size: 13px; }
-        input[type="text"]:focus, input[type="number"]:focus { border-color: var(--accent); }
+        input[type="text"], input[type="number"], textarea { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: #000; color: #fff; outline: none; font-size: 13px; }
+        input[type="text"]:focus, input[type="number"]:focus, textarea:focus { border-color: var(--accent); }
         .font-select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: #000; color: #fff; margin-bottom: 5px; outline: none; font-size: 13px; cursor: pointer; }
         
         .action-row { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
         .action-btn { flex: 1; background: #334155; color: white; border: none; border-radius: 8px; padding: 10px 15px; font-size: 12px; font-weight: bold; cursor: pointer; text-align:center;}
         .action-btn:hover { background: #475569; }
-        .action-btn.active { background: var(--accent); }
+        .action-btn.active { background: var(--accent); color: white; }
         .action-btn.danger { background: #991b1b; }
         .action-btn.special { background: #0284c7; }
 
@@ -109,7 +111,6 @@
         
         .modal-content.library-modal { width: 700px; }
         #library-search { width: 100%; padding: 15px; border-radius: 8px; border: 1px solid var(--border); background: #0f172a; color: white; font-size: 14px; margin-bottom: 15px; outline: none; }
-        #library-search:focus { border-color: var(--accent); }
         .library-scroll { flex: 1; overflow-y: auto; padding-right: 10px; margin-bottom: 15px; }
         .library-category { font-size: 12px; font-weight: bold; color: var(--accent); margin: 20px 0 10px 0; text-transform: uppercase; letter-spacing: 1px; }
         .library-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 10px; }
@@ -200,15 +201,15 @@
         <div class="library-scroll" id="library-container"></div>
         <div class="lib-custom">
             <div class="label-text" style="margin-bottom:8px;">DIŞARIDAN SVG KODU EKLE</div>
-            <textarea id="custom-svg-input" style="width:100%; height:60px; background:#000; color:var(--accent); font-family:monospace; font-size:11px; padding:10px; border-radius:8px; border:1px solid var(--border); resize:vertical; margin-bottom:10px;" placeholder="<path d='...' /> veya tam <svg> kodunu buraya yapıştırın..."></textarea>
-            <button class="action-btn special" style="width:100%;" onclick="addCustomSVG()">+ TUVALE EKLE</button>
+            <textarea id="custom-svg-input" placeholder="<path d='...' /> veya tam <svg> kodunu buraya yapıştırın..."></textarea>
+            <button class="action-btn special" style="width:100%; margin-top:10px;" onclick="addCustomSVG()">+ TUVALE EKLE</button>
         </div>
     </div>
 </div>
 
 <div id="login-screen">
     <div class="login-card">
-        <h2 style="margin-top:0; color:white;">Pro Studio CMS (V18)</h2>
+        <h2 style="margin-top:0; color:white;">Pro Studio V19</h2>
         <div style="font-size:12px; color:#94a3b8; margin-bottom:20px;">Lütfen Cloudflare Worker şifrenizi girin.</div>
         <input type="password" id="passInput" placeholder="Sunucu Şifresi">
         <button id="loginBtn">Sunucuya Bağlan</button>
@@ -236,7 +237,7 @@
         </div>
         <div id="status-bar">
             <div id="status-count">Nesne Sayısı: 0</div>
-            <div>SVG Pro Studio | Ultimate CMS V18</div>
+            <div>SVG Pro Studio Ultimate V19</div>
             <div id="status-time">Son Kayıt: Bekleniyor...</div>
         </div>
     </div>
@@ -320,21 +321,19 @@
     // =========================================================================
     // DİKKAT: BURAYA SADECE KENDİ CLOUDFLARE WORKER LİNKİNİZİ YAZIN. 
     // =========================================================================
-    const WORKER_URL = "https://githubtoken.tafbilgiislem.workers.dev""; 
-    let SHA_KEY = "", SESSION_PASS = "";
+    const WORKER_URL = "https://githubtoken.tafbilgiislem.workers.dev"; 
     
+    let SHA_KEY = "", SESSION_PASS = "";
     let recentColors = ['#10b981', '#3b82f6', '#ef4444', '#f59e0b', '#8b5cf6', '#ffffff'];
     function addRecentColor(c) { if(!recentColors.includes(c)) { recentColors.unshift(c); if(recentColors.length > 10) recentColors.pop(); if(selectedEl) renderProperties(); } }
 
     let selectedEl = null, resizingEl = null, rotatingEl = null, radiusingEl = null, activeHandle = null;
     let offset = {x:0, y:0}, startP = {x:0, y:0}, startData = {}, isModified = false;
-    let clipboard = null;
-    let currentZoom = 1; let panX = 0; let panY = 0;
-    let historyStack = []; let historyIndex = -1;
-    let isDrawingMode = false; let isDrawing = false; let currentPath = null; let pathData = "";
-    let isDraggingGuide = false; let currentGuide = null;
-    let isDraggingElement = false; 
-    let isSpacePressed = false; let isPanning = false; let panStart = {x:0, y:0}; let panOffsetStart = {x:0, y:0};
+    let clipboard = null, currentZoom = 1, panX = 0, panY = 0;
+    let historyStack = [], historyIndex = -1;
+    let isDrawingMode = false, isDrawing = false, currentPath = null, pathData = "";
+    let isDraggingGuide = false, currentGuide = null;
+    let isDraggingElement = false, isSpacePressed = false, isPanning = false, panStart = {x:0, y:0}, panOffsetStart = {x:0, y:0};
 
     window.updateEditorUI = null;
 
@@ -356,18 +355,10 @@
         "Arayüz & Araçlar": [
             { id: "home", name: "Ana Sayfa", svg: '<path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>' },
             { id: "settings", name: "Ayarlar", svg: '<path d="M19.4 13c.1-.6.1-1.3.1-2s0-1.4-.1-2l-2.1-.3c-.2-.8-.6-1.5-1-2.2l1.2-1.7c-.5-.6-1.1-1.2-1.7-1.7l-1.7 1.2c-.7-.4-1.4-.8-2.2-1l-.3-2.1h-2.6l-.3 2.1c-.8.2-1.5.6-2.2 1L5.3 3.6c-.6.5-1.2 1.1-1.7 1.7L4.8 7c-.4.7-.8 1.4-1 2.2L1.7 9.5c0 .7-.1 1.4-.1 2s0 1.4.1 2l2.1.3c.2.8.6 1.5 1 2.2l-1.2 1.7c.5.6 1.1 1.2 1.7 1.7l1.7-1.2c.7.4 1.4.8 2.2 1l1.7 1.2c.6-.5 1.2-1.1 1.7-1.7l-1.2-1.7c.4-.7.8-1.4 1-2.2l2.1-.3zm-7.4 3c-2.2 0-4-1.8-4-4s1.8-4 4-4 4 1.8 4 4-1.8 4-4 4z"/>' },
-            { id: "search", name: "Arama", svg: '<path d="M15.5 14h-.8l-.3-.3c1-1.1 1.6-2.6 1.6-4.2C16 5.9 13.1 3 9.5 3S3 5.9 3 9.5 5.9 16 9.5 16c1.6 0 3.1-.6 4.2-1.6l.3.3v.8l5 5 1.5-1.5-5-5zm-6 0C7 14 5 12 5 9.5S7 5 9.5 5 14 7 14 9.5 12 14 9.5 14z"/>' },
-            { id: "user", name: "Kullanıcı", svg: '<path d="M12 12c2.2 0 4-1.8 4-4s-1.8-4-4-4-4 1.8-4 4 1.8 4 4 4zm0 2c-2.7 0-8 1.3-8 4v2h16v-2c0-2.7-5.3-4-8-4z"/>' },
             { id: "check", name: "Tik", svg: '<path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>' },
             { id: "close", name: "Çarpı", svg: '<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>' },
             { id: "arrow", name: "Sağ Ok", svg: '<path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>' },
-            { id: "cloud", name: "Bulut", svg: '<path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/>' },
             { id: "bubble", name: "Konuşma", svg: '<path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>' }
-        ],
-        "Sosyal Medya": [
-            { id: "facebook", name: "Facebook", svg: '<path d="M22.675 0h-21.35c-.732 0-1.325.593-1.325 1.325v21.351c0 .731.593 1.324 1.325 1.324h11.495v-9.294h-3.128v-3.622h3.128v-2.671c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12v9.293h6.116c.73 0 1.323-.593 1.323-1.325v-21.35c0-.732-.593-1.325-1.325-1.325z"/>' },
-            { id: "twitter", name: "Twitter (X)", svg: '<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>' },
-            { id: "instagram", name: "Instagram", svg: '<path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 1.98-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 5 2.623 6.781 6.98 6.98 1.28.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-1.981 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-5-2.624-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>' }
         ]
     };
 
@@ -383,16 +374,15 @@
     }
 
     const login = async () => {
-        if (WORKER_URL === "") { alert("Lütfen HTML kodunun içindeki WORKER_URL kısmına kendi Cloudflare Worker linkinizi yazın!"); return; }
+        if (WORKER_URL === "") { alert("Lütfen kodun içindeki WORKER_URL kısmına Worker linkinizi yazın!"); return; }
         const passVal = document.getElementById('passInput').value;
         if(!passVal) { alert("Lütfen Worker şifrenizi girin!"); return; }
         SESSION_PASS = passVal; await loadSlide(); 
     };
-    
     document.getElementById('loginBtn').addEventListener('click', login);
     document.getElementById('passInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') login(); });
     document.getElementById('file-selector').addEventListener('change', loadSlide);
-    window.addEventListener('DOMContentLoaded', () => { if (WORKER_URL !== "") { /* Otokontrol yeri */ } });
+    window.addEventListener('DOMContentLoaded', () => { if (WORKER_URL !== "") { /* Otokontrol */ } });
 
     async function loadSlide() {
         const file = document.getElementById('file-selector').value;
@@ -414,19 +404,17 @@
         } catch(e) { alert("Bağlantı Hatası! Sunucuya ulaşılamıyor."); st.style.display="none"; document.getElementById('login-screen').style.display = "flex"; document.getElementById('app-container').style.display = "none"; }
     }
 
-    // === YENİ: INDEX.HTML SLAYT AYARLARINI KAYDETME (CMS MANTIĞI) ===
+    // YENİ: INDEX.HTML GÜNCELLEME SİSTEMİ
     window.saveHtmlSettings = async function() {
         if (!WORKER_URL || WORKER_URL === "") { alert("Worker URL eksik!"); return; }
         const st = document.getElementById('status-info'); st.innerText = "INDEX.HTML GÜNCELLENİYOR..."; st.style.display = "block";
         try {
-            // 1. Önce index.html'i çek
             const res = await fetch(WORKER_URL, { headers: {"X-Auth-Key": SESSION_PASS, "X-File-Name": "index.html"} });
             if (!res.ok) throw new Error("index.html bulunamadı");
             const data = await res.json();
             let htmlContent = decodeURIComponent(escape(atob(data.content)));
             let htmlSha = data.sha || (data.content && data.content.sha) || "";
 
-            // 2. Ayarları al ve regex ile güvenlice değiştir
             const timeVal = document.getElementById('slide-time').value;
             const effectVal = document.getElementById('slide-effect').value;
 
@@ -435,43 +423,32 @@
             newContent = newContent.replace(/var\s+SLIDE_EFFECT\s*=\s*['"][^'"]+['"];/, `var SLIDE_EFFECT = '${effectVal}';`);
 
             if(!newContent.includes('var SLIDE_TIME')) {
-                newContent = newContent.replace('</body>', `<script>var SLIDE_TIME = ${timeVal}; var SLIDE_EFFECT = '${effectVal}';</script>\n</body>`);
+                newContent = newContent.replace('</body>', `<script>var SLIDE_TIME = ${timeVal}; var SLIDE_EFFECT = '${effectVal}';<\/script>\n</body>`);
             }
 
-            // 3. Geri kaydet
             const b64 = btoa(unescape(encodeURIComponent(newContent)));
-            const putRes = await fetch(WORKER_URL, {
-                method: "PUT",
-                headers: { "X-Auth-Key": SESSION_PASS, "X-File-Name": "index.html" },
-                body: JSON.stringify({message: "Slayt ayarları güncellendi", content: b64, sha: htmlSha})
-            });
-
+            const putRes = await fetch(WORKER_URL, { method: "PUT", headers: { "X-Auth-Key": SESSION_PASS, "X-File-Name": "index.html" }, body: JSON.stringify({message: "Slayt ayarları güncellendi", content: b64, sha: htmlSha}) });
             if(putRes.ok) { st.innerText = "HTML AYARLARI KAYDEDİLDİ!"; } else { st.innerText = "KAYIT HATASI!"; }
             setTimeout(() => st.style.display="none", 2000);
-        } catch (e) {
-            alert("Hata: index.html dosyası okunamadı veya kaydedilemedi.");
-            st.style.display="none";
-        }
+        } catch (e) { alert("Hata: index.html dosyası okunamadı veya kaydedilemedi."); st.style.display="none"; }
     }
 
+    // SÜRÜKLE BIRAK VE DOSYADAN RESİM EKLEME
     function handleImageFile(file) {
         if (!file || !file.type.startsWith('image/')) return;
         const reader = new FileReader();
         reader.onload = (ev) => {
-            const svg = document.querySelector('#canvas-inner svg'); 
-            const center = getCanvasCenter();
+            const svg = document.querySelector('#canvas-inner svg'); const center = getCanvasCenter();
             const img = document.createElementNS("http://www.w3.org/2000/svg", "image");
             img.id = "img_" + Date.now(); img.setAttribute("class", "duzenlenebilir"); 
             const w = 300; const h = 300;
-            img.setAttribute("x", center.cx - (w/2)); 
-            img.setAttribute("y", center.cy - (h/2)); 
+            img.setAttribute("x", center.cx - (w/2)); img.setAttribute("y", center.cy - (h/2)); 
             img.setAttribute("width", w); img.setAttribute("height", h); 
             img.dataset.rx = "0"; img.dataset.smoothing = "0.5"; img.dataset.maskShape = "none"; 
             img.setAttribute("href", ev.target.result); img.setAttributeNS("http://www.w3.org/1999/xlink", "href", ev.target.result);
             svg.appendChild(img); selectedEl = img; saveState(); setupLayers(); window.updateEditorUI(img); renderEditor();
         }; reader.readAsDataURL(file);
     }
-
     document.getElementById('img-in').onchange = (e) => { handleImageFile(e.target.files[0]); e.target.value = ""; };
     const mainView = document.getElementById('main-view');
     mainView.addEventListener('dragover', (e) => { e.preventDefault(); mainView.style.opacity = '0.8'; });
@@ -560,9 +537,14 @@
             innerSvg.setAttribute("viewBox", parsedNode.getAttribute("viewBox") || "0 0 24 24");
             innerSvg.dataset.solidColor = "#10b981"; innerSvg.setAttribute("fill", "#10b981");
             
-            while(parsedNode.childNodes.length > 0) { innerSvg.appendChild(parsedNode.childNodes[0]); }
+            while(parsedNode.childNodes.length > 0) { 
+                let child = parsedNode.childNodes[0];
+                if(child.nodeType === 1) { child.removeAttribute('fill'); child.removeAttribute('stroke'); child.removeAttribute('style'); }
+                innerSvg.appendChild(child); 
+            }
+            
             svg.appendChild(innerSvg); selectedEl = innerSvg; saveState(); setupLayers(); window.updateEditorUI(innerSvg); renderEditor();
-        } catch(e) { alert("SVG kodu eklenirken hata oluştu."); }
+        } catch(e) { alert("SVG kodu eklenirken hata oluştu. Lütfen geçerli bir SVG kodu girdiğinizden emin olun."); }
     }
 
     function updateRulers() {
@@ -694,6 +676,7 @@
         if (bri != 100) filterStr += `brightness(${bri}%) `; if (con != 100) filterStr += `contrast(${con}%) `; if (sat != 100) filterStr += `saturate(${sat}%) `; if (gray > 0) filterStr += `grayscale(${gray}%) `; if (bl > 0) filterStr += `blur(${bl}px) `;
         el.style.filter = filterStr.trim(); el.style.mixBlendMode = blend; el.setAttribute('style', el.getAttribute('style') || ''); 
     }
+    
     window.applyFill = function(el) {
         if(el.tagName === 'image') return; const type = el.dataset.fillType || 'solid'; let fillVal = '';
         if (type === 'gradient') {
@@ -710,15 +693,30 @@
     }
 
     window.autoFitText = function(el) { if (el.tagName !== 'text') return; const mw = parseFloat(el.dataset.maxWidth) || 0; const baseFs = parseFloat(el.dataset.baseFontSize) || 60; el.style.fontSize = baseFs + "px"; el.setAttribute("font-size", baseFs); if (mw > 0) { let bbox = {width:0}; try { bbox = el.getBBox(); } catch(e){} if (bbox.width > mw && bbox.width > 0) { const scale = mw / bbox.width; const newFs = baseFs * scale; el.style.fontSize = newFs + "px"; el.setAttribute("font-size", newFs); } } };
+    
+    // KAVİS HATASI ÇÖZÜLDÜ
     window.applyTextCurve = function(el) {
         if (el.tagName !== 'text') return; const curve = parseFloat(el.dataset.curve) || 0; if(!el.dataset.rawText) el.dataset.rawText = el.textContent; const rawText = el.dataset.rawText;
-        if (curve === 0) { el.innerHTML = ''; el.textContent = rawText; } else {
+        if (curve === 0) { 
+            el.innerHTML = ''; el.textContent = rawText; 
+            const style = el.dataset.textStyle || 'normal';
+            if(style !== 'normal') window.applyTextStyle(el.id, style, el.getAttribute('text-anchor'));
+        } else {
             const svg = document.querySelector('#canvas-inner svg'); let defs = svg.querySelector('defs'); if (!defs) { defs = document.createElementNS("http://www.w3.org/2000/svg", "defs"); svg.prepend(defs); }
             const pathId = "curve_" + el.id; let curvePath = defs.querySelector("#" + pathId); if (!curvePath) { curvePath = document.createElementNS("http://www.w3.org/2000/svg", "path"); curvePath.id = pathId; curvePath.setAttribute("fill", "none"); defs.appendChild(curvePath); }
             const x = parseFloat(el.getAttribute('x')) || 0; const y = parseFloat(el.getAttribute('y')) || 0; const curveStrength = curve * 2.5; 
-            curvePath.setAttribute("d", `M ${x - 1500}, ${y - curveStrength/2} Q ${x}, ${y + curveStrength} ${x + 1500}, ${y - curveStrength/2}`); el.innerHTML = `<textPath href="#${pathId}" startOffset="50%" text-anchor="middle">${rawText}</textPath>`;
+            curvePath.setAttribute("d", `M ${x - 1500}, ${y - curveStrength/2} Q ${x}, ${y + curveStrength} ${x + 1500}, ${y - curveStrength/2}`); 
+            el.innerHTML = '';
+            const tp = document.createElementNS("http://www.w3.org/2000/svg", "textPath");
+            tp.setAttribute("href", "#" + pathId); tp.setAttribute("startOffset", "50%"); tp.setAttribute("text-anchor", "middle"); tp.textContent = rawText;
+            const style = el.dataset.textStyle || 'normal';
+            if(style === 'neon') { tp.setAttribute("font-weight", "bold"); tp.setAttribute("fill", "#ffffff"); tp.setAttribute("stroke", el.dataset.solidColor||"#000"); tp.setAttribute("stroke-width", "2"); tp.setAttribute("filter", `drop-shadow(0 0 15px ${el.dataset.solidColor||'#000'})`); } 
+            else if(style === '3d') { tp.setAttribute("font-weight", "bold"); tp.setAttribute("fill", el.dataset.solidColor||"#000"); tp.setAttribute("stroke", "#000000"); tp.setAttribute("stroke-width", "3"); tp.setAttribute("filter", `drop-shadow(6px 6px 0 #000000)`); } 
+            else if (style === 'hollow') { tp.setAttribute("fill", "none"); tp.setAttribute("stroke", el.dataset.solidColor||"#000"); tp.setAttribute("stroke-width", "4"); }
+            el.appendChild(tp);
         } window.autoFitText(el);
     };
+
     function describeRoundedRect(r, s, x, y, w, h) { if (r <= 0) return `M ${x} ${y} H ${x + w} V ${y + h} H ${x} Z`; r = Math.min(r, w / 2, h / 2); const kappa = (4 * (r * (1 - s)) * Math.tan(Math.PI / 4)) / 3; const pts = [ [x + r, y], [x + w - r, y], [x + w, y + r], [x + w, y + h - r], [x + w - r, y + h], [x + r, y + h], [x, y + h - r], [x, y + r] ]; return `M ${pts[0][0]} ${pts[0][1]} L ${pts[1][0]} ${pts[1][1]} C ${pts[1][0] + kappa} ${pts[1][1]} ${pts[2][0]} ${pts[2][1] - kappa} ${pts[2][0]} ${pts[2][1]} L ${pts[3][0]} ${pts[3][1]} C ${pts[3][0]} ${pts[3][1] + kappa} ${pts[4][0] + kappa} ${pts[4][1]} ${pts[4][0]} ${pts[4][1]} L ${pts[5][0]} ${pts[5][1]} C ${pts[5][0] - kappa} ${pts[5][1]} ${pts[6][0]} ${pts[6][1] + kappa} ${pts[6][0]} ${pts[6][1]} L ${pts[7][0]} ${pts[7][1]} C ${pts[7][0]} ${pts[7][1] - kappa} ${pts[0][0] - kappa} ${pts[0][1]} ${pts[0][0]} ${pts[0][1]} Z`; }
     window.applyShapeMask = function(el) { 
         if (el.tagName !== 'image' && el.tagName !== 'rect') return; if (!el.dataset.maskShape || el.dataset.maskShape === "none") { el.removeAttribute("clip-path"); return; }
@@ -884,7 +882,6 @@
         window.updateEditorUI = updateUI; 
     }
 
-    // === KATMANLAR VE ÖZELLİK PANELİ ===
     function renderEditor() { 
         renderLayers(); 
         if(selectedEl) renderProperties(); 
@@ -920,7 +917,7 @@
 
     function renderProperties() {
         const f = document.getElementById('editor-fields');
-        if (!selectedEl) return;
+        if (!selectedEl) { f.innerHTML = `<div style="text-align:center; color:#64748b; margin-top:50px; font-style:italic; font-size:13px;">👆 Düzenlemek için sahneden veya katmanlardan bir nesne seçin.</div>`; return; }
         
         try {
             const el = selectedEl; const id = el.id; const tag = el.tagName.toLowerCase();
@@ -971,8 +968,10 @@
 
             if (isText) {
                 const fs = parseFloat(el.dataset.baseFontSize) || 60; const mw = parseFloat(el.dataset.maxWidth) || 0; const ls = parseFloat(el.getAttribute("letter-spacing")) || 0; const currentFont = el.getAttribute("font-family") || "sans-serif"; const curve = parseFloat(el.dataset.curve) || 0;
+                
                 const isB = el.getAttribute('font-weight') === 'bold'; const isI = el.getAttribute('font-style') === 'italic'; const isU = el.getAttribute('text-decoration') === 'underline';
                 const tAlign = el.getAttribute('text-anchor') || 'middle';
+
                 let fontOptions = googleFonts.map(font => `<option value="${font.val}" style="font-family: ${font.val}" ${currentFont.includes(font.name) ? "selected" : ""}>${font.name}</option>`).join('');
                 
                 let fontHtml = `<select id="select-font-${id}" class="font-select" style="margin-bottom:15px;" onchange="const t=document.getElementById('${id}'); t.setAttribute('font-family', this.value); t.style.fontFamily=this.value; window.applyTextCurve(t); if(window.updateEditorUI) window.updateEditorUI(t);">${fontOptions}</select>
@@ -1056,7 +1055,7 @@
             const res = await fetch(WORKER_URL, { 
                 method: "PUT", 
                 headers: { "X-Auth-Key": SESSION_PASS, "X-File-Name": fileName }, 
-                body: JSON.stringify({message: "Pro Studio Ultimate Fix V17", content: b64, sha: SHA_KEY}) 
+                body: JSON.stringify({message: "Pro Studio Ultimate Fix V19", content: b64, sha: SHA_KEY}) 
             });
             
             if(res.ok) { 
