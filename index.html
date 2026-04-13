@@ -3,21 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SVG Pro Studio | Kusursuz V15 (Fixed Handles & Centering)</title>
+    <title>SVG Pro Studio | Kusursuz Final</title>
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Merriweather:wght@400;700&family=Montserrat:wght@400;700;800&family=Nunito:wght@400;700&family=Open+Sans:wght@400;700&family=Oswald:wght@400;700&family=Pacifico&family=Playfair+Display:wght@400;700&family=Poppins:wght@400;700&family=Raleway:wght@400;700&family=Roboto:wght@400;700&family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { --accent: #10b981; --bg: #0f172a; --panel: #1e293b; --border: #334155; --handle-move: #3b82f6; --handle-rotate: #f59e0b; --handle-radius: #ec4899; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         html, body { margin: 0; padding: 0; width: 100%; height: 100vh; height: 100dvh; overflow: hidden; background: var(--bg); color: white; font-family: 'Inter', sans-serif; overscroll-behavior-y: none; }
 
-        /* GİRİŞ EKRANI */
         #login-screen { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 10000; }
         .login-card { background: var(--panel); padding: 40px; border-radius: 20px; width: 340px; text-align: center; border: 1px solid var(--border); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
         .login-card input { width: 100%; padding: 14px; margin-bottom: 15px; border-radius: 10px; border: 1px solid var(--border); background: #000; color: #fff; text-align: center; outline: none; font-size:14px; }
         .login-card button { width: 100%; padding: 14px; background: var(--accent); border: none; color: white; font-weight: bold; border-radius: 10px; cursor: pointer; transition: 0.2s; font-size:14px; }
         .login-card button:hover { opacity: 0.9; }
 
-        /* ANA DÜZEN */
         #app-container { display: none; height: 100%; width: 100%; flex-direction: row; }
         #sidebar { width: 480px; background: var(--panel); border-left: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; height: 100%; z-index: 100; position: relative; }
         .sidebar-nav { padding: 15px; background: #111827; border-bottom: 1px solid var(--border); flex-shrink: 0; }
@@ -25,17 +23,14 @@
         #layers-wrapper { display: flex; flex-direction: column; height: 25%; border-bottom: 2px solid var(--border); background: #0f172a; flex-shrink: 0; }
         #layers-header { padding: 10px 15px; font-size: 12px; font-weight: bold; color: var(--accent); border-bottom: 1px solid var(--border); background: #111827; }
         #layers-list { flex: 1; overflow-y: auto; }
-        
         #editor-fields { flex: 1; min-height: 0; overflow-y: auto; padding: 20px; background: rgba(0,0,0,0.2); padding-bottom: 80px; }
 
         .layer-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; border-bottom: 1px solid var(--border); cursor: pointer; font-size: 12px; transition: 0.2s; background: #1e293b; color: #cbd5e1; }
-        .layer-item:hover { background: #334155; }
         .layer-item.active { border-left: 4px solid var(--accent); background: rgba(16, 185, 129, 0.15); color: white; font-weight: bold; }
         .layer-actions { display: flex; gap: 10px; align-items: center; }
         .layer-btn { background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 14px; padding: 0; transition: 0.2s; }
         .layer-btn:hover { color: white; transform: scale(1.2); }
 
-        /* ÇİZİM VE ZOOM ALANI */
         #main-view { flex: 1; background: #020617; overflow: hidden; position: relative; height: calc(100% - 25px); display: flex; }
         #zoom-container { flex: 1; display: flex; align-items: center; justify-content: center; transform-origin: center center; transition: transform 0.2s ease-out; position: relative;}
         
@@ -47,7 +42,6 @@
         .pan-mode { cursor: grab !important; }
         .panning { cursor: grabbing !important; }
 
-        /* CETVELLER */
         .ruler { position: absolute; background: #111827; border: 1px solid var(--border); z-index: 40; pointer-events: none; overflow: hidden; }
         .ruler-h { top: 0; left: 20px; right: 0; height: 20px; border-left: none; }
         .ruler-v { top: 20px; left: 0; bottom: 0; width: 20px; border-top: none; }
@@ -57,24 +51,19 @@
         .tool-btn { background: #0f172a; color: white; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; cursor: pointer; font-weight: bold; transition: 0.2s; }
         .tool-btn:hover { background: var(--accent); border-color: var(--accent); }
 
-        /* TUTAMAÇLAR (DÜZELTİLDİ) */
         .duzenlenebilir { cursor: move; pointer-events: all; }
         .locked { cursor: not-allowed !important; }
         #control-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; overflow: visible; }
-        /* TİTREME HATASI BURADA ÇÖZÜLDÜ: scale yerine stroke-width kullanıldı */
-        .handle { fill: white; stroke-width: 2; pointer-events: all; transition: all 0.15s ease-out; }
-        .handle:hover { stroke-width: 4; fill: #f8fafc; } 
+        .handle { fill: white; stroke-width: 2; pointer-events: all; transition: transform 0.2s; }
+        .handle:hover { transform: scale(1.3); }
         .handle-resize { stroke: var(--handle-move); cursor: nwse-resize; }
         .handle-rotate { stroke: var(--handle-rotate); cursor: crosshair; fill: var(--handle-rotate); }
         .handle-radius { stroke: var(--handle-radius); cursor: ns-resize; fill: var(--handle-radius); }
-        
         .snap-line { stroke: #ec4899; stroke-width: 1.5; stroke-dasharray: 4,4; pointer-events: none; z-index: 60; }
         .guide-line { stroke: #06b6d4; stroke-width: 3; stroke-dasharray: 8,4; cursor: grab; pointer-events: all; }
 
-        /* ARAYÜZ KONTROLLERİ */
         input[type="range"] { width: 100%; accent-color: var(--accent); height: 6px; cursor: pointer; margin: 0; }
         input[type="text"], input[type="number"] { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: #000; color: #fff; outline: none; font-size: 13px; }
-        input[type="text"]:focus, input[type="number"]:focus { border-color: var(--accent); }
         .font-select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: #000; color: #fff; margin-bottom: 5px; outline: none; font-size: 13px; cursor: pointer; }
         
         .action-row { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
@@ -85,11 +74,8 @@
         .action-btn.special { background: #0284c7; }
 
         .group-box { background: rgba(0,0,0,0.2); padding: 12px; border-radius: 10px; border: 1px solid #1e293b; margin-top: 10px; }
-        
-        /* AÇILIR/KAPANIR MENÜLER */
         .collapsible-section { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 12px; background: rgba(0,0,0,0.25); }
         .collapsible-header { background: #111827; padding: 12px 18px; cursor: pointer; font-size: 11px; text-transform: uppercase; font-weight: bold; color: var(--accent); letter-spacing: 1.5px; display: flex; justify-content: space-between; align-items: center; }
-        .collapsible-header:hover { background: rgba(16, 185, 129, 0.1); }
         .collapsible-header.active::after { content: '▼'; font-size: 9px; }
         .collapsible-header:not(.active)::after { content: '◀'; font-size: 9px; }
         .collapsible-content { display: none; padding: 18px; }
@@ -101,7 +87,6 @@
         .label-text { font-size: 11px; color: #94a3b8; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;}
         .value-badge { background: #000; color: var(--accent); font-size: 11px; padding: 3px 6px; border-radius: 4px; font-family: monospace; font-weight: bold; }
         
-        /* SAĞ TIK VE MODALLAR */
         #context-menu { display:none; position:absolute; background:#1e293b; border:1px solid var(--border); box-shadow:0 10px 30px rgba(0,0,0,0.7); border-radius:8px; padding:5px; z-index:20000; min-width:180px; }
         .ctx-item { padding:10px 15px; font-size:13px; cursor:pointer; color:#e2e8f0; border-radius:4px; display:flex; justify-content:space-between; align-items:center; }
         .ctx-item:hover { background:var(--accent); color:white; }
@@ -111,10 +96,9 @@
 
         .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:30000; align-items:center; justify-content:center; backdrop-filter:blur(5px); }
         .modal-content { background:#1e293b; border:1px solid var(--border); padding:30px; border-radius:16px; width:450px; box-shadow:0 25px 50px rgba(0,0,0,0.5); position:relative; max-height: 90vh; display: flex; flex-direction: column;}
-        
         .modal-content.library-modal { width: 700px; }
+        
         #library-search { width: 100%; padding: 15px; border-radius: 8px; border: 1px solid var(--border); background: #0f172a; color: white; font-size: 14px; margin-bottom: 15px; outline: none; }
-        #library-search:focus { border-color: var(--accent); }
         .library-scroll { flex: 1; overflow-y: auto; padding-right: 10px; margin-bottom: 15px; }
         .library-category { font-size: 12px; font-weight: bold; color: var(--accent); margin: 20px 0 10px 0; text-transform: uppercase; letter-spacing: 1px; }
         .library-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 10px; }
@@ -124,23 +108,13 @@
         .lib-custom { background: #0f172a; padding: 15px; border-radius: 8px; border: 1px dashed var(--border); margin-top: 10px; }
 
         .close-modal { position:absolute; top:15px; right:15px; cursor:pointer; color:#94a3b8; font-size:24px; font-weight:bold; line-height: 1; }
-        .close-modal:hover { color:white; }
         .shortcut-row { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border); font-size:13px; }
         .kbd { background:#0f172a; padding:3px 8px; border-radius:4px; border:1px solid var(--border); color:var(--accent); font-family:monospace; }
 
         .swatch-container { display:flex; gap:6px; margin-top:5px; flex-wrap:wrap; }
         .color-swatch { width:24px; height:24px; border-radius:4px; cursor:pointer; border:1px solid var(--border); transition:transform 0.1s; }
-        .color-swatch:hover { transform:scale(1.2); border-color:white; }
-
-        #status-info { position: fixed; top: 0; width: 100%; background: var(--accent); text-align: center; padding: 10px; z-index: 11000; display: none; font-weight: bold; letter-spacing: 1px;}
         
-        @media (max-width: 1023px) { 
-            #app-container { flex-direction: column; }
-            #sidebar { width: 100%; height: 50%; border-top: 1px solid var(--border); border-left: none; order: 2; }
-            #main-view { width: 100%; height: 50%; order: 1; }
-            .floating-tools { bottom: auto; top: 10px; left: 50%; transform: translateX(-50%); }
-            .modal-content.library-modal { width: 90vw; }
-        }
+        #status-info { position: fixed; top: 0; width: 100%; background: var(--accent); text-align: center; padding: 10px; z-index: 11000; display: none; font-weight: bold; letter-spacing: 1px;}
     </style>
 </head>
 <body>
@@ -241,7 +215,7 @@
         </div>
         <div id="status-bar">
             <div id="status-count">Nesne Sayısı: 0</div>
-            <div>SVG Pro Studio Ultimate V15</div>
+            <div>SVG Pro Studio | Kusursuz V15</div>
             <div id="status-time">Son Kayıt: Bekleniyor...</div>
         </div>
     </div>
@@ -353,6 +327,14 @@
         ]
     };
 
+    function getCanvasCenter() {
+        const svg = document.querySelector('#canvas-inner svg');
+        if(!svg) return { cx: 960, cy: 540 };
+        const vb = svg.viewBox.baseVal;
+        if(vb && vb.width > 0) return { cx: vb.width / 2, cy: vb.height / 2 };
+        return { cx: 960, cy: 540 };
+    }
+
     const login = async () => {
         if (WORKER_URL === "") { alert("Lütfen HTML kodunun içindeki WORKER_URL kısmına kendi Cloudflare Worker linkinizi yazın!"); return; }
         const passVal = document.getElementById('passInput').value;
@@ -362,16 +344,7 @@
     document.getElementById('loginBtn').addEventListener('click', login);
     document.getElementById('passInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') login(); });
     document.getElementById('file-selector').addEventListener('change', loadSlide);
-    window.addEventListener('DOMContentLoaded', () => { if (WORKER_URL !== "") { /* Otokontrol */ } });
-
-    // TUVAL MERKEZİNİ BULMA FONKSİYONU (YENİ - HATA ÇÖZÜCÜ)
-    function getCanvasCenter() {
-        const svg = document.querySelector('#canvas-inner svg');
-        if(!svg) return { cx: 960, cy: 540 };
-        const vb = svg.viewBox.baseVal;
-        if(vb && vb.width > 0) return { cx: vb.width / 2, cy: vb.height / 2 };
-        return { cx: 960, cy: 540 };
-    }
+    window.addEventListener('DOMContentLoaded', () => { if (WORKER_URL !== "") { /* Otokontrol yeri */ } });
 
     async function loadSlide() {
         const file = document.getElementById('file-selector').value;
@@ -499,9 +472,16 @@
             innerSvg.setAttribute("y", center.cy - (h/2)); 
             innerSvg.setAttribute("width", w); innerSvg.setAttribute("height", h); 
             innerSvg.setAttribute("viewBox", parsedNode.getAttribute("viewBox") || "0 0 24 24");
-            innerSvg.dataset.solidColor = "#10b981"; innerSvg.setAttribute("fill", "#10b981");
+            innerSvg.dataset.solidColor = "#10b981"; 
+            innerSvg.setAttribute("fill", "#10b981");
             
-            while(parsedNode.childNodes.length > 0) { innerSvg.appendChild(parsedNode.childNodes[0]); }
+            // Alt elementlerdeki fill ve stroke'ları temizle ki kendi rengimiz geçsin
+            while(parsedNode.childNodes.length > 0) { 
+                let child = parsedNode.childNodes[0];
+                if(child.nodeType === 1) { child.removeAttribute('fill'); child.removeAttribute('stroke'); }
+                innerSvg.appendChild(child); 
+            }
+            
             svg.appendChild(innerSvg); selectedEl = innerSvg; saveState(); setupLayers(); window.updateEditorUI(innerSvg); renderEditor();
         } catch(e) { alert("SVG kodu eklenirken hata oluştu."); }
     }
@@ -601,7 +581,7 @@
             if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); selectedEl.remove(); document.getElementById('control-layer').innerHTML = ''; selectedEl = null; saveState(); renderEditor(); }
             if (e.ctrlKey && e.key === 'c') { e.preventDefault(); clipboard = selectedEl.cloneNode(true); }
         }
-        if (e.ctrlKey && e.key === 'v' && clipboard) { e.preventDefault(); const clone = clipboard.cloneNode(true); clone.id = "el_" + Date.now(); clone.setAttribute("x", (parseFloat(clone.getAttribute("x")) || 0) + 30); clone.setAttribute("y", (parseFloat(clone.getAttribute("y")) || 0) + 30); document.querySelector('#canvas-inner svg').appendChild(clone); selectedEl = clone; saveState(); setupLayers(false); window.updateEditorUI(clone); renderEditor(); }
+        if (e.ctrlKey && e.key === 'v' && clipboard) { e.preventDefault(); const clone = clipboard.cloneNode(true); clone.id = "el_" + Date.now(); clone.setAttribute("x", (parseFloat(clone.getAttribute("x")) || 0) + 30); clone.setAttribute("y", (parseFloat(clone.getAttribute("y")) || 0) + 30); document.querySelector('#canvas-inner svg').appendChild(clone); selectedEl = clone; saveState(); setupLayers(); window.updateEditorUI(clone); renderEditor(); }
     });
     document.addEventListener('keyup', (e) => { 
         if (e.code === 'Space') { isSpacePressed = false; isPanning = false; document.getElementById('svg-wrapper').classList.remove('pan-mode'); document.getElementById('svg-wrapper').classList.remove('panning'); return; }
@@ -617,7 +597,7 @@
     }
     function undo() { if (historyIndex > 0) { historyIndex--; restoreState(); } }
     function redo() { if (historyIndex < historyStack.length - 1) { historyIndex++; restoreState(); } }
-    function restoreState() { const svg = document.querySelector('#canvas-inner svg'); svg.innerHTML = historyStack[historyIndex]; document.getElementById('control-layer').innerHTML = ""; selectedEl = null; setupLayers(false); updateHistoryButtons(); }
+    function restoreState() { const svg = document.querySelector('#canvas-inner svg'); svg.innerHTML = historyStack[historyIndex]; document.getElementById('control-layer').innerHTML = ""; selectedEl = null; setupLayers(); updateHistoryButtons(); }
     function updateHistoryButtons() { document.getElementById('btn-undo').disabled = historyIndex <= 0; document.getElementById('btn-redo').disabled = historyIndex >= historyStack.length - 1; }
 
     function changeZoom(amount) { currentZoom = Math.max(0.3, Math.min(3, currentZoom + amount)); applyZoom(); syncRulerTransform(); }
@@ -625,7 +605,7 @@
     function applyZoom() { document.getElementById('svg-wrapper').style.transform = `scale(${currentZoom}) translate(${panX}px, ${panY}px)`; document.getElementById('zoom-val').innerText = Math.round(currentZoom * 100) + "%"; }
 
     window.moveLayer = function(id, dir) { const el = document.getElementById(id); if(!el) return; if (dir === 1 && el.nextElementSibling && el.nextElementSibling.id !== 'guides-group') el.parentNode.insertBefore(el.nextElementSibling, el); else if (dir === -1 && el.previousElementSibling && el.previousElementSibling.id !== 'canvas-background') el.parentNode.insertBefore(el, el.previousElementSibling); saveState(); if(window.updateEditorUI) window.updateEditorUI(el); renderEditor(); };
-    window.cloneElement = function(id) { const el = document.getElementById(id); if(!el) return; const clone = el.cloneNode(true); clone.id = "el_" + Date.now(); clone.setAttribute("x", (parseFloat(el.getAttribute("x")) || 0) + 30); clone.setAttribute("y", (parseFloat(el.getAttribute("y")) || 0) + 30); el.parentNode.insertBefore(clone, el.nextSibling); selectedEl = clone; clone.classList.add("duzenlenebilir"); saveState(); setupLayers(false); window.updateEditorUI(clone); renderEditor(); };
+    window.cloneElement = function(id) { const el = document.getElementById(id); if(!el) return; const clone = el.cloneNode(true); clone.id = "el_" + Date.now(); clone.setAttribute("x", (parseFloat(el.getAttribute("x")) || 0) + 30); clone.setAttribute("y", (parseFloat(el.getAttribute("y")) || 0) + 30); el.parentNode.insertBefore(clone, el.nextSibling); selectedEl = clone; clone.classList.add("duzenlenebilir"); saveState(); setupLayers(); window.updateEditorUI(clone); renderEditor(); };
     window.toggleLock = function(id) { const el = document.getElementById(id); if(!el) return; const isLocked = el.dataset.locked === "true"; el.dataset.locked = isLocked ? "false" : "true"; el.classList.toggle('locked', !isLocked); saveState(); renderEditor(); if(window.updateEditorUI) window.updateEditorUI(el); }
     window.applyFilters = function(el) { 
         const sx = el.dataset.shadowX || 0, sy = el.dataset.shadowY || 0, sb = el.dataset.shadowBlur || 0, sc = el.dataset.shadowColor || '#000000'; 
@@ -637,14 +617,18 @@
     }
     window.applyFill = function(el) {
         if(el.tagName === 'image') return; const type = el.dataset.fillType || 'solid';
+        let fillVal = '';
         if (type === 'gradient') {
             const c1 = el.dataset.color1 || '#10b981'; const c2 = el.dataset.color2 || '#3b82f6';
             const svg = document.querySelector('#canvas-inner svg'); let defs = svg.querySelector('defs'); if (!defs) { defs = document.createElementNS("http://www.w3.org/2000/svg", "defs"); svg.prepend(defs); }
             let gradId = "grad_" + el.id; let grad = defs.querySelector("#" + gradId);
             if (!grad) { grad = document.createElementNS("http://www.w3.org/2000/svg", "linearGradient"); grad.id = gradId; grad.setAttribute("x1", "0%"); grad.setAttribute("y1", "0%"); grad.setAttribute("x2", "100%"); grad.setAttribute("y2", "100%"); const stop1 = document.createElementNS("http://www.w3.org/2000/svg", "stop"); stop1.setAttribute("offset", "0%"); stop1.className = "stop1"; const stop2 = document.createElementNS("http://www.w3.org/2000/svg", "stop"); stop2.setAttribute("offset", "100%"); stop2.className = "stop2"; grad.appendChild(stop1); grad.appendChild(stop2); defs.appendChild(grad); }
             grad.querySelector(".stop1").setAttribute("stop-color", c1); grad.querySelector(".stop2").setAttribute("stop-color", c2);
-            el.setAttribute("fill", `url(#${gradId})`); if(el.tagName !== 'path') el.style.fill = `url(#${gradId})`;
-        } else { const col = el.dataset.solidColor || '#000000'; el.setAttribute("fill", col); if(el.tagName !== 'path') el.style.fill = col; }
+            fillVal = `url(#${gradId})`;
+        } else { fillVal = el.dataset.solidColor || '#000000'; }
+        
+        el.setAttribute("fill", fillVal); if(el.tagName !== 'path') el.style.fill = fillVal;
+        if(el.tagName === 'g' || el.tagName === 'svg') { el.querySelectorAll('path, circle, rect, polygon').forEach(child => { child.removeAttribute('fill'); child.style.fill = fillVal; }); }
     }
     window.autoFitText = function(el) { if (el.tagName !== 'text') return; const mw = parseFloat(el.dataset.maxWidth) || 0; const baseFs = parseFloat(el.dataset.baseFontSize) || 60; el.style.fontSize = baseFs + "px"; el.setAttribute("font-size", baseFs); if (mw > 0) { let bbox = {width:0}; try { bbox = el.getBBox(); } catch(e){} if (bbox.width > mw && bbox.width > 0) { const scale = mw / bbox.width; const newFs = baseFs * scale; el.style.fontSize = newFs + "px"; el.setAttribute("font-size", newFs); } } };
     window.applyTextCurve = function(el) {
@@ -670,7 +654,7 @@
         if (!mainSvg.getAttribute('xmlns')) mainSvg.setAttribute('xmlns', "http://www.w3.org/2000/svg");
         const vb = mainSvg.getAttribute("viewBox") || `0 0 1920 1080`; mainSvg.setAttribute("viewBox", vb); ctrl.setAttribute("viewBox", vb);
         let editables = mainSvg.querySelectorAll('.duzenlenebilir');
-        if (editables.length === 0) { mainSvg.querySelectorAll('text, image, rect, svg:not(#control-layer), path:not(svg path)').forEach(el => { if(el.id !== 'control-layer' && el.id !== 'canvas-background' && !el.closest('#control-layer') && !el.classList.contains('guide-line')) { el.classList.add('duzenlenebilir'); } }); }
+        if (editables.length === 0) { mainSvg.querySelectorAll('text, image, rect, g:not(#guides-group), svg:not(#control-layer), path:not(svg path):not(g path)').forEach(el => { if(el.id !== 'control-layer' && el.id !== 'canvas-background' && !el.closest('#control-layer') && !el.classList.contains('guide-line')) { el.classList.add('duzenlenebilir'); } }); }
         mainSvg.querySelectorAll('.duzenlenebilir').forEach(el => {
             if(!el.id) el.id = "el_" + Math.random().toString(36).substr(2,9);
             if(el.dataset.locked === "true") el.classList.add('locked');
@@ -784,12 +768,12 @@
             if (isPanning) { isPanning = false; document.getElementById('svg-wrapper').classList.remove('panning'); return; }
             if (isDrawing) { isDrawing = false; selectedEl = currentPath; currentPath = null; isDrawingMode = false; document.getElementById('btn-draw').classList.remove('active'); document.getElementById('svg-wrapper').classList.remove('draw-mode'); saveState(); renderEditor(); updateUI(selectedEl); return; }
             if (isDraggingGuide) { isDraggingGuide = false; currentGuide = null; saveState(); return; }
+            
             if (isModified) saveState(); 
-            // BURASI HAYATİ! Panel yenilemelerinde seçimin kaybolmaması için sadece sürükleme değişkenleri sıfırlanır.
             resizingEl = null; rotatingEl = null; radiusingEl = null; activeHandle = null; isModified = false; 
             document.querySelectorAll('.snap-line').forEach(l=>l.remove());
             
-            // Eğer bir nesne seçiliyse, bırakınca paneldeki (varsa) değerlerin güncellenmesi için properties'i render et
+            // Seçimi sıfırlama, özellikleri yeniden oluştur!
             if(selectedEl) renderProperties();
         };
         window.onpointerup = release; window.onpointercancel = release;
@@ -824,7 +808,11 @@
         window.updateEditorUI = updateUI; 
     }
 
-    function renderEditor() { renderLayers(); renderProperties(); }
+    // === KATMANLAR VE ÖZELLİK PANELİ YÖNETİMİ ===
+    function renderEditor() { 
+        renderLayers(); 
+        if(selectedEl) renderProperties(); 
+    }
 
     function renderLayers() {
         const list = document.getElementById('layers-list'); list.innerHTML = "";
@@ -963,7 +951,7 @@
 
             f.innerHTML = sections.join('');
             
-            // BURADA İŞLEM YAPILDIĞINDA SEÇİMİN KAYBOLMAMASI İÇİN KAYIT ATILIYOR.
+            // Eylem yapıldığında kaydet (Kod kutusu hariç)
             f.querySelectorAll('input, select').forEach(inpt => { 
                 inpt.addEventListener('change', () => { 
                     if(inpt.id !== 'raw-svg-code') saveState(); 
@@ -982,7 +970,22 @@
     document.getElementById('saveBtn').onclick = saveData;
     document.getElementById('addTextBtn').onclick = addNewText;
     document.getElementById('addImgBtn').onclick = () => document.getElementById('img-in').click();
-    document.getElementById('img-in').onchange = (e) => addNewImage(e.target);
+    document.getElementById('img-in').onchange = (e) => {
+        const file = e.target.files[0]; if(!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            const svg = document.querySelector('#canvas-inner svg'); const center = getCanvasCenter();
+            const img = document.createElementNS("http://www.w3.org/2000/svg", "image");
+            img.id = "img_" + Date.now(); img.setAttribute("class", "duzenlenebilir"); 
+            const w = 300; const h = 300;
+            img.setAttribute("x", center.cx - (w/2)); img.setAttribute("y", center.cy - (h/2)); 
+            img.setAttribute("width", w); img.setAttribute("height", h); 
+            img.dataset.rx = "0"; img.dataset.smoothing = "0.5"; img.dataset.maskShape = "none"; 
+            img.setAttribute("href", ev.target.result); img.setAttributeNS("http://www.w3.org/1999/xlink", "href", ev.target.result);
+            svg.appendChild(img); selectedEl = img; saveState(); setupLayers(); window.updateEditorUI(img); renderEditor();
+        }; reader.readAsDataURL(file);
+        e.target.value = ""; // Inputu sıfırla
+    };
 
     function addNewText() {
         const svg = document.querySelector('#canvas-inner svg'); if(!svg) return; 
@@ -991,7 +994,7 @@
         t.id = "txt_" + Date.now(); t.setAttribute("class", "duzenlenebilir"); 
         t.setAttribute("x", center.cx); t.setAttribute("y", center.cy); 
         t.setAttribute("text-anchor", "middle"); t.setAttribute("dominant-baseline", "central"); t.dataset.baseFontSize = "80"; t.dataset.maxWidth = "600"; t.dataset.rawText = "YENİ METİN"; t.dataset.solidColor = "#000000"; t.setAttribute("fill", "#000000"); t.setAttribute("font-size", "80"); t.setAttribute("font-family", "sans-serif"); t.textContent = "YENİ METİN";
-        svg.appendChild(t); selectedEl = t; saveState(); setupLayers(false); window.updateEditorUI(t); renderEditor();
+        svg.appendChild(t); selectedEl = t; saveState(); setupLayers(); window.updateEditorUI(t); renderEditor();
     }
     
     function addShape(type) {
@@ -1001,7 +1004,7 @@
         rect.id = "shp_" + Date.now(); rect.setAttribute("class", "duzenlenebilir"); 
         rect.setAttribute("x", center.cx - 100); rect.setAttribute("y", center.cy - 100); 
         rect.setAttribute("width", 200); rect.setAttribute("height", 200); rect.dataset.solidColor = "#10b981"; rect.setAttribute("fill", "#10b981"); rect.dataset.maskShape = "none";
-        svg.appendChild(rect); selectedEl = rect; saveState(); setupLayers(false); window.updateEditorUI(rect); renderEditor();
+        svg.appendChild(rect); selectedEl = rect; saveState(); setupLayers(); window.updateEditorUI(rect); renderEditor();
     }
 
     async function saveData() {
