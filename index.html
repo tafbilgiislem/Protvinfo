@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SVG Pro Studio | Kusursuz CMS V20</title>
+    <title>SVG Pro Studio | Ultimate JSON CMS V21</title>
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Merriweather:wght@400;700&family=Montserrat:wght@400;700;800&family=Nunito:wght@400;700&family=Open+Sans:wght@400;700&family=Oswald:wght@400;700&family=Pacifico&family=Playfair+Display:wght@400;700&family=Poppins:wght@400;700&family=Raleway:wght@400;700&family=Roboto:wght@400;700&family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { --accent: #10b981; --bg: #0f172a; --panel: #1e293b; --border: #334155; --handle-move: #3b82f6; --handle-rotate: #f59e0b; --handle-radius: #ec4899; }
@@ -210,7 +210,7 @@
 
 <div id="login-screen">
     <div class="login-card">
-        <h2 style="margin-top:0; color:white;">Pro Studio CMS V20</h2>
+        <h2 style="margin-top:0; color:white;">Pro Studio JSON CMS</h2>
         <div style="font-size:12px; color:#94a3b8; margin-bottom:20px;">Lütfen Cloudflare Worker şifrenizi girin.</div>
         <input type="password" id="passInput" placeholder="Sunucu Şifresi">
         <button id="loginBtn">Sunucuya Bağlan</button>
@@ -238,7 +238,7 @@
         </div>
         <div id="status-bar">
             <div id="status-count">Nesne Sayısı: 0</div>
-            <div>SVG Pro Studio Ultimate V20</div>
+            <div>SVG Pro Studio Ultimate V21</div>
             <div id="status-time">Son Kayıt: Bekleniyor...</div>
         </div>
     </div>
@@ -258,9 +258,9 @@
             </select>
             
             <details style="margin-bottom: 10px;">
-                <summary style="font-size:11px; font-weight:bold; color:#f59e0b; cursor:pointer; margin-bottom:5px;">🎬 SEÇİLİ SLAYT AYARLARI</summary>
+                <summary style="font-size:11px; font-weight:bold; color:#f59e0b; cursor:pointer; margin-bottom:5px;">🎬 SEÇİLİ SLAYT AYARLARI (JSON)</summary>
                 <div class="group-box" style="margin-top:5px;">
-                    <div style="font-size:10px; color:#94a3b8; margin-bottom:10px; font-style:italic;">Değişiklikler index.html'deki svgFiles dizisine işlenir.</div>
+                    <div style="font-size:10px; color:#94a3b8; margin-bottom:10px; font-style:italic;">Değişiklikler doğrudan setting.json dosyasına işlenir.</div>
                     <div class="input-group" style="margin-bottom:10px;">
                         <span class="label-text">BU SLAYTIN EKRANDA KALMA SÜRESİ (ms)</span>
                         <input type="number" id="slide-time" value="5000">
@@ -277,7 +277,7 @@
                             <option value="none">Efektsiz</option>
                         </select>
                     </div>
-                    <button class="action-btn" style="width:100%; background:#f59e0b; color:black;" onclick="saveHtmlSettings()">💾 INDEX.HTML GÜNCELLE</button>
+                    <button class="action-btn" style="width:100%; background:#f59e0b; color:black;" onclick="saveSlideSettings()">💾 AYARLARI KAYDET (JSON)</button>
                 </div>
             </details>
 
@@ -329,6 +329,11 @@
     const WORKER_URL = "https://githubtoken.tafbilgiislem.workers.dev"; 
     
     let SHA_KEY = "", SESSION_PASS = "";
+    
+    // JSON CMS DEĞİŞKENLERİ
+    let settingsData = [];
+    let settingsSha = "";
+
     let recentColors = ['#10b981', '#3b82f6', '#ef4444', '#f59e0b', '#8b5cf6', '#ffffff'];
     function addRecentColor(c) { if(!recentColors.includes(c)) { recentColors.unshift(c); if(recentColors.length > 10) recentColors.pop(); if(selectedEl) renderProperties(); } }
 
@@ -382,11 +387,104 @@
         if (WORKER_URL === "") { alert("Lütfen kodun içindeki WORKER_URL kısmına Worker linkinizi yazın!"); return; }
         const passVal = document.getElementById('passInput').value;
         if(!passVal) { alert("Lütfen Worker şifrenizi girin!"); return; }
-        SESSION_PASS = passVal; await loadSlide(); 
+        SESSION_PASS = passVal; 
+        
+        await loadSettings(); // Önce JSON ayarlarını çek
+        await loadSlide();    // Sonra tuvali yükle
     };
+    
     document.getElementById('loginBtn').addEventListener('click', login);
     document.getElementById('passInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') login(); });
-    document.getElementById('file-selector').addEventListener('change', loadSlide);
+    
+    // SLAYT DEĞİŞTİRİNCE HEM SVG HEM JSON AYARLARI GÜNCELLENİR
+    document.getElementById('file-selector').addEventListener('change', async () => {
+        await loadSlide();
+        updateSettingsUI();
+    });
+
+    window.addEventListener('DOMContentLoaded', () => { if (WORKER_URL !== "") { /* Otokontrol */ } });
+
+    // YENİ: JSON AYARLARINI YÜKLEYEN MOTOR
+    async function loadSettings() {
+        try {
+            const res = await fetch(WORKER_URL, { headers: {"X-Auth-Key": SESSION_PASS, "X-File-Name": "setting.json"} });
+            if (res.ok) {
+                const data = await res.json();
+                settingsSha = data.sha || (data.content && data.content.sha) || "";
+                const content = decodeURIComponent(escape(atob(data.content)));
+                settingsData = JSON.parse(content);
+            } else {
+                // Eğer setting.json yoksa varsayılan olarak başlat
+                settingsData = [
+                    {file: "slayt.svg", effect: "zoom", duration: 5000},
+                    {file: "kampanya.svg", effect: "cube", duration: 3000},
+                    {file: "duyuru.svg", effect: "zoom", duration: 4000}
+                ];
+            }
+            updateSettingsUI();
+        } catch (e) {
+            console.log("Ayarlar yüklenemedi, varsayılanlar kullanılacak.");
+            settingsData = [];
+            updateSettingsUI();
+        }
+    }
+
+    // YENİ: ARAYÜZDEKİ AYARLARI JSON'A GÖRE GÜNCELLE
+    function updateSettingsUI() {
+        const currentFile = document.getElementById('file-selector').value;
+        const slideConfig = settingsData.find(s => s.file === currentFile);
+        
+        if (slideConfig) {
+            document.getElementById('slide-time').value = slideConfig.duration || 3000;
+            document.getElementById('slide-effect').value = slideConfig.effect || 'fade';
+        } else {
+            // Slayt JSON'da yoksa varsayılan
+            document.getElementById('slide-time').value = 3000;
+            document.getElementById('slide-effect').value = 'fade';
+        }
+    }
+
+    // YENİ: JSON AYARLARINI WORKER'A KAYDET (CMS)
+    window.saveSlideSettings = async function() {
+        if (!WORKER_URL || WORKER_URL === "") { alert("Worker URL eksik!"); return; }
+        const st = document.getElementById('status-info'); st.innerText = "AYARLAR (JSON) GÜNCELLENİYOR..."; st.style.display = "block";
+        
+        try {
+            const currentFile = document.getElementById('file-selector').value;
+            const timeVal = parseInt(document.getElementById('slide-time').value) || 3000;
+            const effectVal = document.getElementById('slide-effect').value;
+
+            // Dizideki eski veriyi bul veya yeni oluştur
+            let slideConfig = settingsData.find(s => s.file === currentFile);
+            if (slideConfig) {
+                slideConfig.duration = timeVal;
+                slideConfig.effect = effectVal;
+            } else {
+                settingsData.push({ file: currentFile, effect: effectVal, duration: timeVal });
+            }
+
+            // Güzelleştirilmiş JSON formatı oluştur
+            const newContent = JSON.stringify(settingsData, null, 2);
+            const b64 = btoa(unescape(encodeURIComponent(newContent)));
+
+            const putRes = await fetch(WORKER_URL, { 
+                method: "PUT", 
+                headers: { "X-Auth-Key": SESSION_PASS, "X-File-Name": "setting.json" }, 
+                body: JSON.stringify({message: "Slayt ayarları (JSON) güncellendi: " + currentFile, content: b64, sha: settingsSha}) 
+            });
+
+            if(putRes.ok) { 
+                try {
+                    const data = await putRes.json();
+                    settingsSha = data.content?.sha || data.sha || settingsSha;
+                } catch(e) {}
+                st.innerText = "AYARLAR (JSON) KAYDEDİLDİ!"; 
+            } else { 
+                st.innerText = "AYAR KAYIT HATASI!"; 
+            }
+            setTimeout(() => st.style.display="none", 2000);
+        } catch (e) { alert("Hata: Ayarlar kaydedilemedi."); st.style.display="none"; }
+    }
 
     async function loadSlide() {
         const file = document.getElementById('file-selector').value;
@@ -408,49 +506,6 @@
         } catch(e) { alert("Bağlantı Hatası! Sunucuya ulaşılamıyor."); st.style.display="none"; document.getElementById('login-screen').style.display = "flex"; document.getElementById('app-container').style.display = "none"; }
     }
 
-    // CMS (INDEX.HTML) GÜNCELLEME ALGORİTMASI
-    window.saveHtmlSettings = async function() {
-        if (!WORKER_URL || WORKER_URL === "") { alert("Worker URL eksik!"); return; }
-        const st = document.getElementById('status-info'); st.innerText = "INDEX.HTML GÜNCELLENİYOR..."; st.style.display = "block";
-        try {
-            // 1. Önce index.html'i çekiyoruz
-            const res = await fetch(WORKER_URL, { headers: {"X-Auth-Key": SESSION_PASS, "X-File-Name": "index.html"} });
-            if (!res.ok) throw new Error("index.html bulunamadı");
-            const data = await res.json();
-            let htmlContent = decodeURIComponent(escape(atob(data.content)));
-            let htmlSha = data.sha || (data.content && data.content.sha) || "";
-
-            // 2. Arayüzdeki yeni değerleri alıyoruz
-            const timeVal = document.getElementById('slide-time').value;
-            const effectVal = document.getElementById('slide-effect').value;
-            const currentFile = document.getElementById('file-selector').value;
-
-            // 3. Akıllı Nokta Atışı: index.html içindeki o dosyaya ait ayar bloğunu buluyoruz
-            // Örnek Regex Eşleşmesi: {file:"slayt.svg", effect:"zoom", duration:10000}
-            const regex = new RegExp(`\\{[^{}]*file\\s*:\\s*['"]` + currentFile.replace('.', '\\.') + `['"][^{}]*\\}`, 'g');
-            const replacement = `{file:"${currentFile}", effect:"${effectVal}", duration:${timeVal}}`;
-            
-            let newContent = htmlContent;
-            if (regex.test(newContent)) {
-                newContent = newContent.replace(regex, replacement);
-            } else {
-                alert("Uyarı: index.html dosyasında bu slayta ('" + currentFile + "') ait bir ayar dizisi bulunamadı. Lütfen index.html içindeki svgFiles dizisini kontrol edin.");
-                st.style.display = "none";
-                return;
-            }
-
-            // 4. Geri kaydediyoruz
-            const b64 = btoa(unescape(encodeURIComponent(newContent)));
-            const putRes = await fetch(WORKER_URL, { 
-                method: "PUT", 
-                headers: { "X-Auth-Key": SESSION_PASS, "X-File-Name": "index.html" }, 
-                body: JSON.stringify({message: "Slayt ayarları güncellendi: " + currentFile, content: b64, sha: htmlSha}) 
-            });
-
-            if(putRes.ok) { st.innerText = "HTML AYARLARI KAYDEDİLDİ!"; } else { st.innerText = "KAYIT HATASI!"; }
-            setTimeout(() => st.style.display="none", 2000);
-        } catch (e) { alert("Hata: index.html dosyası okunamadı veya kaydedilemedi."); st.style.display="none"; }
-    }
 
     // SÜRÜKLE BIRAK VE DOSYADAN RESİM EKLEME
     function handleImageFile(file) {
@@ -972,8 +1027,10 @@
 
             if (isText) {
                 const fs = parseFloat(el.dataset.baseFontSize) || 60; const mw = parseFloat(el.dataset.maxWidth) || 0; const ls = parseFloat(el.getAttribute("letter-spacing")) || 0; const currentFont = el.getAttribute("font-family") || "sans-serif"; const curve = parseFloat(el.dataset.curve) || 0;
+                
                 const isB = el.getAttribute('font-weight') === 'bold'; const isI = el.getAttribute('font-style') === 'italic'; const isU = el.getAttribute('text-decoration') === 'underline';
                 const tAlign = el.getAttribute('text-anchor') || 'middle';
+
                 let fontOptions = googleFonts.map(font => `<option value="${font.val}" style="font-family: ${font.val}" ${currentFont.includes(font.name) ? "selected" : ""}>${font.name}</option>`).join('');
                 
                 let fontHtml = `<select id="select-font-${id}" class="font-select" style="margin-bottom:15px;" onchange="const t=document.getElementById('${id}'); t.setAttribute('font-family', this.value); t.style.fontFamily=this.value; window.applyTextCurve(t); if(window.updateEditorUI) window.updateEditorUI(t);">${fontOptions}</select>
@@ -1057,7 +1114,7 @@
             const res = await fetch(WORKER_URL, { 
                 method: "PUT", 
                 headers: { "X-Auth-Key": SESSION_PASS, "X-File-Name": fileName }, 
-                body: JSON.stringify({message: "Pro Studio Ultimate CMS V20", content: b64, sha: SHA_KEY}) 
+                body: JSON.stringify({message: "Pro Studio CMS V21", content: b64, sha: SHA_KEY}) 
             });
             
             if(res.ok) { 
