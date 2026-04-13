@@ -3,26 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SVG Pro Studio | Kusursuz CMS V22</title>
+    <title>SVG Pro Studio | Kusursuz CMS V23</title>
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Merriweather:wght@400;700&family=Montserrat:wght@400;700;800&family=Nunito:wght@400;700&family=Open+Sans:wght@400;700&family=Oswald:wght@400;700&family=Pacifico&family=Playfair+Display:wght@400;700&family=Poppins:wght@400;700&family=Raleway:wght@400;700&family=Roboto:wght@400;700&family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { --accent: #10b981; --bg: #0f172a; --panel: #1e293b; --border: #334155; --handle-move: #3b82f6; --handle-rotate: #f59e0b; --handle-radius: #ec4899; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         html, body { margin: 0; padding: 0; width: 100%; height: 100vh; height: 100dvh; overflow: hidden; background: var(--bg); color: white; font-family: 'Inter', sans-serif; overscroll-behavior-y: none; }
 
-        /* GİRİŞ EKRANI */
         #login-screen { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 10000; }
         .login-card { background: var(--panel); padding: 40px; border-radius: 20px; width: 340px; text-align: center; border: 1px solid var(--border); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
         .login-card input { width: 100%; padding: 14px; margin-bottom: 15px; border-radius: 10px; border: 1px solid var(--border); background: #000; color: #fff; text-align: center; outline: none; font-size:14px; }
         .login-card button { width: 100%; padding: 14px; background: var(--accent); border: none; color: white; font-weight: bold; border-radius: 10px; cursor: pointer; transition: 0.2s; font-size:14px; }
         .login-card button:hover { opacity: 0.9; }
 
-        /* ANA DÜZEN */
         #app-container { display: none; height: 100%; width: 100%; flex-direction: row; }
         #sidebar { width: 480px; background: var(--panel); border-left: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; height: 100%; z-index: 100; position: relative; }
         .sidebar-nav { padding: 15px; background: #111827; border-bottom: 1px solid var(--border); flex-shrink: 0; overflow-y: auto; max-height: 50%;}
         
-        #layers-wrapper { display: flex; flex-direction: column; height: 20%; border-bottom: 2px solid var(--border); background: #0f172a; flex-shrink: 0; }
+        /* Katmanlar alanının yüksekliği %20'den %30'a çıkarıldı */
+        #layers-wrapper { display: flex; flex-direction: column; height: 30%; border-bottom: 2px solid var(--border); background: #0f172a; flex-shrink: 0; }
         #layers-header { padding: 10px 15px; font-size: 12px; font-weight: bold; color: var(--accent); border-bottom: 1px solid var(--border); background: #111827; }
         #layers-list { flex: 1; overflow-y: auto; }
         
@@ -35,7 +34,6 @@
         .layer-btn { background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 14px; padding: 0; transition: 0.2s; }
         .layer-btn:hover { color: white; transform: scale(1.2); }
 
-        /* ÇİZİM VE ZOOM ALANI */
         #main-view { flex: 1; background: #020617; overflow: hidden; position: relative; height: calc(100% - 25px); display: flex; }
         #zoom-container { flex: 1; display: flex; align-items: center; justify-content: center; transform-origin: center center; transition: transform 0.2s ease-out; position: relative;}
         
@@ -47,7 +45,6 @@
         .pan-mode { cursor: grab !important; }
         .panning { cursor: grabbing !important; }
 
-        /* CETVELLER (RULERS) */
         .ruler { position: absolute; background: #111827; border: 1px solid var(--border); z-index: 40; pointer-events: none; overflow: hidden; }
         .ruler-h { top: 0; left: 20px; right: 0; height: 20px; border-left: none; }
         .ruler-v { top: 20px; left: 0; bottom: 0; width: 20px; border-top: none; }
@@ -57,7 +54,6 @@
         .tool-btn { background: #0f172a; color: white; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; cursor: pointer; font-weight: bold; transition: 0.2s; }
         .tool-btn:hover { background: var(--accent); border-color: var(--accent); }
 
-        /* TUTAMAÇLAR */
         .duzenlenebilir { cursor: move; pointer-events: all; }
         .locked { cursor: not-allowed !important; }
         #control-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; overflow: visible; }
@@ -69,7 +65,6 @@
         .snap-line { stroke: #ec4899; stroke-width: 1.5; stroke-dasharray: 4,4; pointer-events: none; z-index: 60; }
         .guide-line { stroke: #06b6d4; stroke-width: 3; stroke-dasharray: 8,4; cursor: grab; pointer-events: all; }
 
-        /* ARAYÜZ KONTROLLERİ */
         input[type="range"] { width: 100%; accent-color: var(--accent); height: 6px; cursor: pointer; margin: 0; }
         input[type="text"], input[type="number"], textarea { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: #000; color: #fff; outline: none; font-size: 13px; }
         input[type="text"]:focus, input[type="number"]:focus, textarea:focus { border-color: var(--accent); }
@@ -98,7 +93,6 @@
         .label-text { font-size: 11px; color: #94a3b8; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;}
         .value-badge { background: #000; color: var(--accent); font-size: 11px; padding: 3px 6px; border-radius: 4px; font-family: monospace; font-weight: bold; }
         
-        /* SAĞ TIK VE MODALLAR */
         #context-menu { display:none; position:absolute; background:#1e293b; border:1px solid var(--border); box-shadow:0 10px 30px rgba(0,0,0,0.7); border-radius:8px; padding:5px; z-index:20000; min-width:180px; }
         .ctx-item { padding:10px 15px; font-size:13px; cursor:pointer; color:#e2e8f0; border-radius:4px; display:flex; justify-content:space-between; align-items:center; }
         .ctx-item:hover { background:var(--accent); color:white; }
@@ -210,7 +204,7 @@
 
 <div id="login-screen">
     <div class="login-card">
-        <h2 style="margin-top:0; color:white;">Pro Studio CMS V22</h2>
+        <h2 style="margin-top:0; color:white;">Pro Studio CMS V23</h2>
         <div style="font-size:12px; color:#94a3b8; margin-bottom:20px;">Lütfen Cloudflare Worker şifrenizi girin.</div>
         <input type="password" id="passInput" placeholder="Sunucu Şifresi">
         <button id="loginBtn">Sunucuya Bağlan</button>
@@ -238,7 +232,7 @@
         </div>
         <div id="status-bar">
             <div id="status-count">Nesne Sayısı: 0</div>
-            <div>SVG Pro Studio Ultimate V22</div>
+            <div>SVG Pro Studio Ultimate V23</div>
             <div id="status-time">Son Kayıt: Bekleniyor...</div>
         </div>
     </div>
@@ -297,14 +291,19 @@
                 </div>
             </details>
             
-            <div class="action-row" style="margin-bottom:5px;">
-                <button onclick="addNewText()" class="action-btn" style="background:#475569;">+ YAZI</button>
-                <button onclick="document.getElementById('img-in').click()" class="action-btn" style="background:#475569;" title="Sürükle-Bırak da Yapabilirsiniz">+ RESİM</button>
-                <button onclick="addShape('rect')" class="action-btn" style="background:#475569;">+ KARE</button>
-                <button id="btn-draw" onclick="toggleDrawMode()" class="action-btn draw" style="background:#8b5cf6;" title="Fırça Aracı">🖌️ ÇİZİM</button>
-            </div>
-            
-            <button class="action-btn special" style="width:100%; padding:12px; margin-top:5px; font-size:13px;" onclick="openLibrary()">📚 DEV KÜTÜPHANEYİ AÇ</button>
+            <details style="margin-bottom: 5px;">
+                <summary style="font-size:11px; font-weight:bold; color:#8b5cf6; cursor:pointer; margin-bottom:5px;">🎨 NESNE EKLE & ARAÇLAR (GÖSTER)</summary>
+                <div class="group-box" style="margin-top:5px;">
+                    <div class="action-row" style="margin-bottom:5px;">
+                        <button onclick="addNewText()" class="action-btn" style="background:#475569;">+ YAZI</button>
+                        <button onclick="document.getElementById('img-in').click()" class="action-btn" style="background:#475569;" title="Sürükle-Bırak da Yapabilirsiniz">+ RESİM</button>
+                        <button onclick="addShape('rect')" class="action-btn" style="background:#475569;">+ KARE</button>
+                        <button id="btn-draw" onclick="toggleDrawMode()" class="action-btn draw" style="background:#8b5cf6;" title="Fırça Aracı">🖌️ ÇİZİM</button>
+                    </div>
+                    <button class="action-btn special" style="width:100%; padding:12px; margin-top:5px; font-size:13px;" onclick="openLibrary()">📚 DEV KÜTÜPHANEYİ AÇ</button>
+                </div>
+            </details>
+
             <button class="action-btn" style="width:100%; background:#0f172a; border:1px solid var(--border); color:#cbd5e1; margin-top:10px;" onclick="document.getElementById('hotkey-modal').style.display='flex'">⌨️ KISAYOL HARİTASI</button>
             <input type="file" id="img-in" accept="image/*" hidden>
         </div>
@@ -403,7 +402,7 @@
 
     window.addEventListener('DOMContentLoaded', () => { if (WORKER_URL !== "") { /* Otokontrol yeri */ } });
 
-    // YENİ: JSON AYARLARINI YÜKLEYEN MOTOR (HATA DÜZELTİLDİ)
+    // YENİ: JSON AYARLARINI YÜKLEYEN MOTOR
     async function loadSettings() {
         try {
             const res = await fetch(WORKER_URL, { headers: {"X-Auth-Key": SESSION_PASS, "X-File-Name": "settings.json"} });
@@ -427,7 +426,7 @@
         }
     }
 
-    // YENİ: ARAYÜZDEKİ AYARLARI JSON'A GÖRE GÜNCELLE
+    // ARAYÜZDEKİ AYARLARI JSON'A GÖRE GÜNCELLE
     function updateSettingsUI() {
         const currentFile = document.getElementById('file-selector').value;
         const slideConfig = settingsData.find(s => s.file === currentFile);
@@ -441,7 +440,7 @@
         }
     }
 
-    // YENİ: JSON AYARLARINI WORKER'A KAYDET (CMS)
+    // JSON AYARLARINI WORKER'A KAYDET (CMS)
     window.saveSlideSettings = async function() {
         if (!WORKER_URL || WORKER_URL === "") { alert("Worker URL eksik!"); return; }
         const st = document.getElementById('status-info'); st.innerText = "AYARLAR (JSON) GÜNCELLENİYOR..."; st.style.display = "block";
@@ -501,17 +500,16 @@
         } catch(e) { alert("Bağlantı Hatası! Sunucuya ulaşılamıyor."); st.style.display="none"; document.getElementById('login-screen').style.display = "flex"; document.getElementById('app-container').style.display = "none"; }
     }
 
+    // SÜRÜKLE BIRAK VE DOSYADAN RESİM EKLEME
     function handleImageFile(file) {
         if (!file || !file.type.startsWith('image/')) return;
         const reader = new FileReader();
         reader.onload = (ev) => {
-            const svg = document.querySelector('#canvas-inner svg'); 
-            const center = getCanvasCenter();
+            const svg = document.querySelector('#canvas-inner svg'); const center = getCanvasCenter();
             const img = document.createElementNS("http://www.w3.org/2000/svg", "image");
             img.id = "img_" + Date.now(); img.setAttribute("class", "duzenlenebilir"); 
             const w = 300; const h = 300;
-            img.setAttribute("x", center.cx - (w/2)); 
-            img.setAttribute("y", center.cy - (h/2)); 
+            img.setAttribute("x", center.cx - (w/2)); img.setAttribute("y", center.cy - (h/2)); 
             img.setAttribute("width", w); img.setAttribute("height", h); 
             img.dataset.rx = "0"; img.dataset.smoothing = "0.5"; img.dataset.maskShape = "none"; 
             img.setAttribute("href", ev.target.result); img.setAttributeNS("http://www.w3.org/1999/xlink", "href", ev.target.result);
@@ -613,7 +611,7 @@
             }
             
             svg.appendChild(innerSvg); selectedEl = innerSvg; saveState(); setupLayers(); window.updateEditorUI(innerSvg); renderEditor();
-        } catch(e) { alert("SVG kodu eklenirken hata oluştu."); }
+        } catch(e) { alert("SVG kodu eklenirken hata oluştu. Lütfen geçerli bir SVG kodu girdiğinizden emin olun."); }
     }
 
     function updateRulers() {
@@ -745,6 +743,7 @@
         if (bri != 100) filterStr += `brightness(${bri}%) `; if (con != 100) filterStr += `contrast(${con}%) `; if (sat != 100) filterStr += `saturate(${sat}%) `; if (gray > 0) filterStr += `grayscale(${gray}%) `; if (bl > 0) filterStr += `blur(${bl}px) `;
         el.style.filter = filterStr.trim(); el.style.mixBlendMode = blend; el.setAttribute('style', el.getAttribute('style') || ''); 
     }
+    
     window.applyFill = function(el) {
         if(el.tagName === 'image') return; const type = el.dataset.fillType || 'solid'; let fillVal = '';
         if (type === 'gradient') {
@@ -759,6 +758,7 @@
         el.setAttribute("fill", fillVal); if(el.tagName !== 'path') el.style.fill = fillVal;
         if(el.tagName === 'g' || el.tagName === 'svg') { el.querySelectorAll('path, circle, rect, polygon').forEach(child => { child.style.fill = fillVal; child.setAttribute('fill', fillVal); }); }
     }
+
     window.autoFitText = function(el) { if (el.tagName !== 'text') return; const mw = parseFloat(el.dataset.maxWidth) || 0; const baseFs = parseFloat(el.dataset.baseFontSize) || 60; el.style.fontSize = baseFs + "px"; el.setAttribute("font-size", baseFs); if (mw > 0) { let bbox = {width:0}; try { bbox = el.getBBox(); } catch(e){} if (bbox.width > mw && bbox.width > 0) { const scale = mw / bbox.width; const newFs = baseFs * scale; el.style.fontSize = newFs + "px"; el.setAttribute("font-size", newFs); } } };
     window.applyTextCurve = function(el) {
         if (el.tagName !== 'text') return; const curve = parseFloat(el.dataset.curve) || 0; if(!el.dataset.rawText) el.dataset.rawText = el.textContent; const rawText = el.dataset.rawText;
@@ -1091,7 +1091,7 @@
 
     function safeColor(c) { if(!c) return "#ffffff"; if(c.length === 4 && c.startsWith('#')) return "#" + c[1] + c[1] + c[2] + c[2] + c[3] + c[3]; return c.startsWith('#') && c.length === 7 ? c : "#ffffff"; }
 
-    // === ALT KISIMA TAŞINAN EKSİK FONKSİYONLAR (SORUN 2 ÇÖZÜMÜ) ===
+    // === EKLENEN BUTON FONKSİYONLARI ===
     window.addNewText = function() {
         const svg = document.querySelector('#canvas-inner svg'); if(!svg) return; 
         const center = getCanvasCenter();
@@ -1126,7 +1126,7 @@
             const res = await fetch(WORKER_URL, { 
                 method: "PUT", 
                 headers: { "X-Auth-Key": SESSION_PASS, "X-File-Name": fileName }, 
-                body: JSON.stringify({message: "Pro Studio Ultimate Fix V22", content: b64, sha: SHA_KEY}) 
+                body: JSON.stringify({message: "Pro Studio Ultimate Fix V23", content: b64, sha: SHA_KEY}) 
             });
             
             if(res.ok) { 
