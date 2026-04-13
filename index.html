@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SVG Pro Studio | Ultimate Masterpiece V14</title>
+    <title>SVG Pro Studio | Ultimate Masterpiece (Fixed)</title>
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Merriweather:wght@400;700&family=Montserrat:wght@400;700;800&family=Nunito:wght@400;700&family=Open+Sans:wght@400;700&family=Oswald:wght@400;700&family=Pacifico&family=Playfair+Display:wght@400;700&family=Poppins:wght@400;700&family=Raleway:wght@400;700&family=Roboto:wght@400;700&family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { --accent: #10b981; --bg: #0f172a; --panel: #1e293b; --border: #334155; --handle-move: #3b82f6; --handle-rotate: #f59e0b; --handle-radius: #ec4899; }
@@ -81,11 +81,9 @@
         .action-btn.active { background: var(--accent); }
         .action-btn.danger { background: #991b1b; }
         .action-btn.special { background: #0284c7; }
-        .action-btn.svg { background: #ea580c; }
 
         .group-box { background: rgba(0,0,0,0.2); padding: 12px; border-radius: 10px; border: 1px solid #1e293b; margin-top: 10px; }
         
-        /* AÇILIR/KAPANIR MENÜLER */
         .collapsible-section { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 12px; background: rgba(0,0,0,0.25); }
         .collapsible-header { background: #111827; padding: 12px 18px; cursor: pointer; font-size: 11px; text-transform: uppercase; font-weight: bold; color: var(--accent); letter-spacing: 1.5px; display: flex; justify-content: space-between; align-items: center; }
         .collapsible-header:hover { background: rgba(16, 185, 129, 0.1); }
@@ -483,7 +481,6 @@
             innerSvg.id = "icn_" + Date.now(); innerSvg.setAttribute("class", "duzenlenebilir"); 
             
             const w = 100; const h = 100;
-            // TIKLANAN İKONU EKRANIN TAM ORTASINA GETİRME
             innerSvg.setAttribute("x", vb.width ? (vb.width/2) - (w/2) : 100); 
             innerSvg.setAttribute("y", vb.height ? (vb.height/2) - (h/2) : 100); 
             innerSvg.setAttribute("width", w); innerSvg.setAttribute("height", h); 
@@ -495,7 +492,6 @@
         } catch(e) { alert("SVG kodu eklenirken hata oluştu."); }
     }
 
-    // CETVELLERİ GÜNCELLEME
     function updateRulers() {
         const hRuler = document.getElementById('horizontal-ruler'); const vRuler = document.getElementById('vertical-ruler'); if(!hRuler || !vRuler) return;
         const svg = document.querySelector('#canvas-inner svg'); if(!svg) return; const vb = svg.viewBox.baseVal; const w = vb.width || 1920; const h = vb.height || 1080;
@@ -717,7 +713,7 @@
             if (resizingEl) {
                 isModified = true; let { x, y, w, h } = startData;
                 if (activeHandle === 'br') { w += dx; h += dy; } else if (activeHandle === 'bl') { x += dx; w -= dx; h += dy; } else if (activeHandle === 'tr') { y += dy; w += dx; h -= dy; } else if (activeHandle === 'tl') { x += dx; y += dy; w -= dx; h -= dy; }
-                if (resizingEl.tagName === "image" || resizingEl.tagName === "rect" || resizingEl.tagName === "svg") { if (w > 10 && h > 10) { resizingEl.setAttribute("x", x); resizingEl.setAttribute("y", y); resizingEl.setAttribute("width", w); resizingEl.setAttribute("height", h); if(resizingEl.tagName !== "svg" && resizingEl.dataset.maskShape && resizingEl.dataset.maskShape !== "none") window.applyShapeMask(resizingEl); } } else if(resizingEl.tagName === 'text') { resizingEl.dataset.baseFontSize = Math.max(5, startData.baseFontSize + dx/2); window.applyTextCurve(resizingEl); }
+                if (resizingEl.tagName === "image" || resizingEl.tagName === "rect" || resizingEl.tagName === "svg" || resizingEl.tagName === "g") { if (w > 10 && h > 10) { resizingEl.setAttribute("x", x); resizingEl.setAttribute("y", y); resizingEl.setAttribute("width", w); resizingEl.setAttribute("height", h); if(resizingEl.tagName !== "svg" && resizingEl.tagName !== "g" && resizingEl.dataset.maskShape && resizingEl.dataset.maskShape !== "none") window.applyShapeMask(resizingEl); } } else if(resizingEl.tagName === 'text') { resizingEl.dataset.baseFontSize = Math.max(5, startData.baseFontSize + dx/2); window.applyTextCurve(resizingEl); }
                 updateUI(resizingEl); syncSliders(resizingEl);
             } 
             else if (rotatingEl) {
@@ -771,7 +767,11 @@
             if (isPanning) { isPanning = false; document.getElementById('svg-wrapper').classList.remove('panning'); return; }
             if (isDrawing) { isDrawing = false; selectedEl = currentPath; currentPath = null; isDrawingMode = false; document.getElementById('btn-draw').classList.remove('active'); document.getElementById('svg-wrapper').classList.remove('draw-mode'); saveState(); renderEditor(); updateUI(selectedEl); return; }
             if (isDraggingGuide) { isDraggingGuide = false; currentGuide = null; saveState(); return; }
-            if (isModified) saveState(); selectedEl = null; resizingEl = null; rotatingEl = null; radiusingEl = null; activeHandle = null; isModified = false; document.querySelectorAll('.snap-line').forEach(l=>l.remove()); 
+            
+            if (isModified) saveState(); 
+            // BURASI HAYATİ! selectedEl = null asla yapmıyoruz!
+            resizingEl = null; rotatingEl = null; radiusingEl = null; activeHandle = null; isModified = false; 
+            document.querySelectorAll('.snap-line').forEach(l=>l.remove()); 
         };
         window.onpointerup = release; window.onpointercancel = release;
 
@@ -815,7 +815,7 @@
         elements.forEach((el) => {
             const isLocked = el.dataset.locked === "true"; const isActive = selectedEl === el;
             let typeName = el.tagName.toUpperCase(); 
-            if (typeName === 'RECT') typeName = 'ŞEKİL'; if (typeName === 'SVG') typeName = 'İKON'; 
+            if (typeName === 'RECT') typeName = 'ŞEKİL'; if (typeName === 'G' || typeName === 'SVG') typeName = 'İKON'; 
             if (typeName === 'PATH') typeName = 'ÇİZİM'; if (typeName === 'IMAGE') typeName = 'RESİM';
             if (el.tagName === 'text') { let txt = el.dataset.rawText || el.textContent; typeName = `T: ${txt.substring(0,10)}${txt.length>10?'...':''}`; }
 
@@ -849,7 +849,7 @@
             let headerHtml = `
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; padding-bottom:10px; border-bottom:1px solid var(--border);">
                     <div style="font-size:14px; color:white; font-weight:bold; letter-spacing:1px;">${typeName} AYARLARI ${isLocked ? '🔒' : ''}</div>
-                    <div class="delete-btn" title="Sil" onclick="if(confirm('Silinecek?')){ document.getElementById('${id}').remove(); saveState(); renderEditor(); document.getElementById('control-layer').innerHTML=''; }">×</div>
+                    <div class="delete-btn" title="Sil" onclick="if(confirm('Silinecek?')){ document.getElementById('${id}').remove(); selectedEl=null; saveState(); renderEditor(); document.getElementById('control-layer').innerHTML=''; }">×</div>
                 </div>
                 <div class="action-row" style="margin-bottom:15px;">
                     <button class="action-btn" onclick="toggleLock('${id}')" style="background:${isLocked?'var(--error)':'#334155'}">${isLocked ? '🔓 KİLİDİ AÇ' : '🔒 KİLİTLE'}</button>
@@ -870,7 +870,7 @@
 
             if (isText) {
                 const rawText = (el.dataset.rawText || el.textContent).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
-                let contentHtml = `<input type="text" value="${rawText}" oninput="const t=document.getElementById('${id}'); t.dataset.rawText=this.value; window.applyTextCurve(t); if(window.updateEditorUI) window.updateEditorUI(t);" onchange="saveState()" placeholder="Metni girin...">`;
+                let contentHtml = `<input type="text" value="${rawText}" oninput="const t=document.getElementById('${id}'); t.dataset.rawText=this.value; window.applyTextCurve(t); if(window.updateEditorUI) window.updateEditorUI(t);" placeholder="Metni girin...">`;
                 sections.push(createPropertySection("Metin İçeriği", contentHtml, "text-content"));
             }
 
@@ -943,7 +943,12 @@
             sections.push(createPropertySection("</> Canlı SVG Kodu", codeHtml, "code-editor"));
 
             f.innerHTML = sections.join('');
-            f.querySelectorAll('input, select').forEach(inpt => { inpt.addEventListener('change', () => { if(!isModified) saveState(); }); });
+            
+            f.querySelectorAll('input, select').forEach(inpt => { 
+                inpt.addEventListener('change', () => { 
+                    if(inpt.id !== 'raw-svg-code') saveState(); 
+                }); 
+            });
         
         } catch(err) {
             console.error("Özellik Paneli Hatası:", err);
@@ -953,6 +958,7 @@
 
     function safeColor(c) { if(!c) return "#ffffff"; if(c.length === 4 && c.startsWith('#')) return "#" + c[1] + c[1] + c[2] + c[2] + c[3] + c[3]; return c.startsWith('#') && c.length === 7 ? c : "#ffffff"; }
 
+    // === EKLEME FONKSİYONLARI ===
     document.getElementById('saveBtn').onclick = saveData;
     document.getElementById('addTextBtn').onclick = addNewText;
     document.getElementById('addImgBtn').onclick = () => document.getElementById('img-in').click();
