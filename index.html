@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SVG Pro Studio | Ultimate Masterpiece V15</title>
+    <title>SVG Pro Studio | Kusursuz V15 (Fixed Handles & Centering)</title>
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Merriweather:wght@400;700&family=Montserrat:wght@400;700;800&family=Nunito:wght@400;700&family=Open+Sans:wght@400;700&family=Oswald:wght@400;700&family=Pacifico&family=Playfair+Display:wght@400;700&family=Poppins:wght@400;700&family=Raleway:wght@400;700&family=Roboto:wght@400;700&family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { --accent: #10b981; --bg: #0f172a; --panel: #1e293b; --border: #334155; --handle-move: #3b82f6; --handle-rotate: #f59e0b; --handle-radius: #ec4899; }
@@ -47,7 +47,7 @@
         .pan-mode { cursor: grab !important; }
         .panning { cursor: grabbing !important; }
 
-        /* CETVELLER (RULERS) */
+        /* CETVELLER */
         .ruler { position: absolute; background: #111827; border: 1px solid var(--border); z-index: 40; pointer-events: none; overflow: hidden; }
         .ruler-h { top: 0; left: 20px; right: 0; height: 20px; border-left: none; }
         .ruler-v { top: 20px; left: 0; bottom: 0; width: 20px; border-top: none; }
@@ -57,15 +57,17 @@
         .tool-btn { background: #0f172a; color: white; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; cursor: pointer; font-weight: bold; transition: 0.2s; }
         .tool-btn:hover { background: var(--accent); border-color: var(--accent); }
 
-        /* TUTAMAÇLAR VE KILAVUZLAR */
+        /* TUTAMAÇLAR (DÜZELTİLDİ) */
         .duzenlenebilir { cursor: move; pointer-events: all; }
         .locked { cursor: not-allowed !important; }
         #control-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; overflow: visible; }
-        .handle { fill: white; stroke-width: 2; pointer-events: all; transition: transform 0.2s; }
-        .handle:hover { transform: scale(1.3); }
+        /* TİTREME HATASI BURADA ÇÖZÜLDÜ: scale yerine stroke-width kullanıldı */
+        .handle { fill: white; stroke-width: 2; pointer-events: all; transition: all 0.15s ease-out; }
+        .handle:hover { stroke-width: 4; fill: #f8fafc; } 
         .handle-resize { stroke: var(--handle-move); cursor: nwse-resize; }
         .handle-rotate { stroke: var(--handle-rotate); cursor: crosshair; fill: var(--handle-rotate); }
         .handle-radius { stroke: var(--handle-radius); cursor: ns-resize; fill: var(--handle-radius); }
+        
         .snap-line { stroke: #ec4899; stroke-width: 1.5; stroke-dasharray: 4,4; pointer-events: none; z-index: 60; }
         .guide-line { stroke: #06b6d4; stroke-width: 3; stroke-dasharray: 8,4; cursor: grab; pointer-events: all; }
 
@@ -357,11 +359,19 @@
         if(!passVal) { alert("Lütfen Worker şifrenizi girin!"); return; }
         SESSION_PASS = passVal; await loadSlide(); 
     };
-    
     document.getElementById('loginBtn').addEventListener('click', login);
     document.getElementById('passInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') login(); });
     document.getElementById('file-selector').addEventListener('change', loadSlide);
-    window.addEventListener('DOMContentLoaded', () => { if (WORKER_URL !== "") { /* Otokontrol yeri */ } });
+    window.addEventListener('DOMContentLoaded', () => { if (WORKER_URL !== "") { /* Otokontrol */ } });
+
+    // TUVAL MERKEZİNİ BULMA FONKSİYONU (YENİ - HATA ÇÖZÜCÜ)
+    function getCanvasCenter() {
+        const svg = document.querySelector('#canvas-inner svg');
+        if(!svg) return { cx: 960, cy: 540 };
+        const vb = svg.viewBox.baseVal;
+        if(vb && vb.width > 0) return { cx: vb.width / 2, cy: vb.height / 2 };
+        return { cx: 960, cy: 540 };
+    }
 
     async function loadSlide() {
         const file = document.getElementById('file-selector').value;
@@ -384,8 +394,6 @@
     }
 
     const mainView = document.getElementById('main-view');
-    const zoomContainer = document.getElementById('zoom-container');
-
     mainView.addEventListener('dragover', (e) => { e.preventDefault(); mainView.style.opacity = '0.8'; });
     mainView.addEventListener('dragleave', (e) => { e.preventDefault(); mainView.style.opacity = '1'; });
     mainView.addEventListener('drop', (e) => {
@@ -395,16 +403,17 @@
             if (file.type.startsWith('image/')) {
                 const reader = new FileReader();
                 reader.onload = (ev) => {
-                    const svg = document.querySelector('#canvas-inner svg'); const vb = svg.viewBox.baseVal; 
+                    const svg = document.querySelector('#canvas-inner svg'); 
+                    const center = getCanvasCenter();
                     const img = document.createElementNS("http://www.w3.org/2000/svg", "image");
                     img.id = "img_" + Date.now(); img.setAttribute("class", "duzenlenebilir"); 
                     const w = 300; const h = 300;
-                    img.setAttribute("x", vb.width ? (vb.width/2) - (w/2) : 100); 
-                    img.setAttribute("y", vb.height ? (vb.height/2) - (h/2) : 100); 
+                    img.setAttribute("x", center.cx - (w/2)); 
+                    img.setAttribute("y", center.cy - (h/2)); 
                     img.setAttribute("width", w); img.setAttribute("height", h); 
                     img.dataset.rx = "0"; img.dataset.smoothing = "0.5"; img.dataset.maskShape = "none"; 
                     img.setAttribute("href", ev.target.result); img.setAttributeNS("http://www.w3.org/1999/xlink", "href", ev.target.result);
-                    svg.appendChild(img); selectedEl = img; saveState(); setupLayers(false); window.updateEditorUI(img); renderEditor();
+                    svg.appendChild(img); selectedEl = img; saveState(); setupLayers(); window.updateEditorUI(img); renderEditor();
                 }; reader.readAsDataURL(file);
             }
         }
@@ -474,7 +483,8 @@
     window.addCustomSVG = function() { const rawCode = document.getElementById('custom-svg-input').value.trim(); if(!rawCode) { alert("Lütfen SVG kodu yapıştırın."); return; } insertRawSVGToCanvas(rawCode); document.getElementById('custom-svg-input').value = ""; document.getElementById('library-modal').style.display = 'none'; }
 
     function insertRawSVGToCanvas(rawCode) {
-        const svg = document.querySelector('#canvas-inner svg'); if(!svg) return; const vb = svg.viewBox.baseVal; 
+        const svg = document.querySelector('#canvas-inner svg'); if(!svg) return; 
+        const center = getCanvasCenter();
         try {
             let parser = new DOMParser();
             if(rawCode.startsWith("<path") || rawCode.startsWith("<circle") || rawCode.startsWith("<polygon")) { rawCode = `<svg viewBox="0 0 24 24">${rawCode}</svg>`; }
@@ -485,14 +495,14 @@
             innerSvg.id = "icn_" + Date.now(); innerSvg.setAttribute("class", "duzenlenebilir"); 
             
             const w = 100; const h = 100;
-            innerSvg.setAttribute("x", vb.width ? (vb.width/2) - (w/2) : 100); 
-            innerSvg.setAttribute("y", vb.height ? (vb.height/2) - (h/2) : 100); 
+            innerSvg.setAttribute("x", center.cx - (w/2)); 
+            innerSvg.setAttribute("y", center.cy - (h/2)); 
             innerSvg.setAttribute("width", w); innerSvg.setAttribute("height", h); 
             innerSvg.setAttribute("viewBox", parsedNode.getAttribute("viewBox") || "0 0 24 24");
             innerSvg.dataset.solidColor = "#10b981"; innerSvg.setAttribute("fill", "#10b981");
             
             while(parsedNode.childNodes.length > 0) { innerSvg.appendChild(parsedNode.childNodes[0]); }
-            svg.appendChild(innerSvg); selectedEl = innerSvg; saveState(); setupLayers(false); window.updateEditorUI(innerSvg); renderEditor();
+            svg.appendChild(innerSvg); selectedEl = innerSvg; saveState(); setupLayers(); window.updateEditorUI(innerSvg); renderEditor();
         } catch(e) { alert("SVG kodu eklenirken hata oluştu."); }
     }
 
@@ -702,10 +712,7 @@
                 updateUI(selectedEl); renderEditor();
                 if(selectedEl.dataset.locked !== "true") { try { wrapper.setPointerCapture(e.pointerId); } catch(err){} }
             } else { 
-                // BURASI ÖNEMLİ: Eğer herhangi bir butona tıklanmadıysa (Özellik panelinde değilse) seçimi kaldır
-                if(!e.target.closest('#sidebar')) {
-                    selectedEl = null; ctrl.innerHTML = ""; renderEditor(); 
-                }
+                if(!e.target.closest('#sidebar')) { selectedEl = null; ctrl.innerHTML = ""; renderEditor(); }
             }
         };
 
@@ -724,7 +731,7 @@
                 isModified = true; let { x, y, w, h } = startData;
                 if (activeHandle === 'br') { w += dx; h += dy; } else if (activeHandle === 'bl') { x += dx; w -= dx; h += dy; } else if (activeHandle === 'tr') { y += dy; w += dx; h -= dy; } else if (activeHandle === 'tl') { x += dx; y += dy; w -= dx; h -= dy; }
                 if (resizingEl.tagName === "image" || resizingEl.tagName === "rect" || resizingEl.tagName === "svg" || resizingEl.tagName === "g") { if (w > 10 && h > 10) { resizingEl.setAttribute("x", x); resizingEl.setAttribute("y", y); resizingEl.setAttribute("width", w); resizingEl.setAttribute("height", h); if(resizingEl.tagName !== "svg" && resizingEl.tagName !== "g" && resizingEl.dataset.maskShape && resizingEl.dataset.maskShape !== "none") window.applyShapeMask(resizingEl); } } else if(resizingEl.tagName === 'text') { resizingEl.dataset.baseFontSize = Math.max(5, startData.baseFontSize + dx/2); window.applyTextCurve(resizingEl); }
-                updateUI(resizingEl); syncSliders(resizingEl);
+                updateUI(resizingEl);
             } 
             else if (rotatingEl) {
                 isModified = true; let bbox = {x:0, y:0, width:0, height:0}; try{ bbox = rotatingEl.getBBox(); }catch(e){}
@@ -732,7 +739,7 @@
                 rotatingEl.dataset.angle = angle; window.applyTransforms(rotatingEl); updateUI(rotatingEl);
             }
             else if (radiusingEl && (radiusingEl.tagName === "image" || radiusingEl.tagName === "rect")) {
-                isModified = true; radiusingEl.dataset.rx = Math.max(0, Math.min(startData.w/2, startData.h/2, startData.rx + dy)); window.applyShapeMask(radiusingEl); updateUI(radiusingEl); syncSliders(radiusingEl);
+                isModified = true; radiusingEl.dataset.rx = Math.max(0, Math.min(startData.w/2, startData.h/2, startData.rx + dy)); window.applyShapeMask(radiusingEl); updateUI(radiusingEl);
             }
             else if (selectedEl && isDraggingElement) {
                 isModified = true; let newX = p.x - offset.x, newY = p.y - offset.y;
@@ -777,11 +784,13 @@
             if (isPanning) { isPanning = false; document.getElementById('svg-wrapper').classList.remove('panning'); return; }
             if (isDrawing) { isDrawing = false; selectedEl = currentPath; currentPath = null; isDrawingMode = false; document.getElementById('btn-draw').classList.remove('active'); document.getElementById('svg-wrapper').classList.remove('draw-mode'); saveState(); renderEditor(); updateUI(selectedEl); return; }
             if (isDraggingGuide) { isDraggingGuide = false; currentGuide = null; saveState(); return; }
-            
-            // BURASI HAYATİ! selectedEl = null asla yapmıyoruz! Sadece işlem durumlarını sıfırlıyoruz.
             if (isModified) saveState(); 
+            // BURASI HAYATİ! Panel yenilemelerinde seçimin kaybolmaması için sadece sürükleme değişkenleri sıfırlanır.
             resizingEl = null; rotatingEl = null; radiusingEl = null; activeHandle = null; isModified = false; 
-            document.querySelectorAll('.snap-line').forEach(l=>l.remove()); 
+            document.querySelectorAll('.snap-line').forEach(l=>l.remove());
+            
+            // Eğer bir nesne seçiliyse, bırakınca paneldeki (varsa) değerlerin güncellenmesi için properties'i render et
+            if(selectedEl) renderProperties();
         };
         window.onpointerup = release; window.onpointercancel = release;
 
@@ -954,6 +963,7 @@
 
             f.innerHTML = sections.join('');
             
+            // BURADA İŞLEM YAPILDIĞINDA SEÇİMİN KAYBOLMAMASI İÇİN KAYIT ATILIYOR.
             f.querySelectorAll('input, select').forEach(inpt => { 
                 inpt.addEventListener('change', () => { 
                     if(inpt.id !== 'raw-svg-code') saveState(); 
@@ -975,15 +985,22 @@
     document.getElementById('img-in').onchange = (e) => addNewImage(e.target);
 
     function addNewText() {
-        const svg = document.querySelector('#canvas-inner svg'); if(!svg) return; const vb = svg.viewBox.baseVal; const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        t.id = "txt_" + Date.now(); t.setAttribute("class", "duzenlenebilir"); t.setAttribute("x", vb.width ? vb.width/2 : 500); t.setAttribute("y", vb.height ? vb.height/2 : 500); 
+        const svg = document.querySelector('#canvas-inner svg'); if(!svg) return; 
+        const center = getCanvasCenter();
+        const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        t.id = "txt_" + Date.now(); t.setAttribute("class", "duzenlenebilir"); 
+        t.setAttribute("x", center.cx); t.setAttribute("y", center.cy); 
         t.setAttribute("text-anchor", "middle"); t.setAttribute("dominant-baseline", "central"); t.dataset.baseFontSize = "80"; t.dataset.maxWidth = "600"; t.dataset.rawText = "YENİ METİN"; t.dataset.solidColor = "#000000"; t.setAttribute("fill", "#000000"); t.setAttribute("font-size", "80"); t.setAttribute("font-family", "sans-serif"); t.textContent = "YENİ METİN";
         svg.appendChild(t); selectedEl = t; saveState(); setupLayers(false); window.updateEditorUI(t); renderEditor();
     }
     
     function addShape(type) {
-        const svg = document.querySelector('#canvas-inner svg'); if(!svg) return; const vb = svg.viewBox.baseVal; const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-        rect.id = "shp_" + Date.now(); rect.setAttribute("class", "duzenlenebilir"); rect.setAttribute("x", vb.width ? (vb.width/2)-100 : 100); rect.setAttribute("y", vb.height ? (vb.height/2)-100 : 100); rect.setAttribute("width", 200); rect.setAttribute("height", 200); rect.dataset.solidColor = "#10b981"; rect.setAttribute("fill", "#10b981"); rect.dataset.maskShape = "none";
+        const svg = document.querySelector('#canvas-inner svg'); if(!svg) return; 
+        const center = getCanvasCenter();
+        const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        rect.id = "shp_" + Date.now(); rect.setAttribute("class", "duzenlenebilir"); 
+        rect.setAttribute("x", center.cx - 100); rect.setAttribute("y", center.cy - 100); 
+        rect.setAttribute("width", 200); rect.setAttribute("height", 200); rect.dataset.solidColor = "#10b981"; rect.setAttribute("fill", "#10b981"); rect.dataset.maskShape = "none";
         svg.appendChild(rect); selectedEl = rect; saveState(); setupLayers(false); window.updateEditorUI(rect); renderEditor();
     }
 
@@ -1018,6 +1035,7 @@
             } 
             else { st.innerText = "KAYIT HATASI!"; }
             setTimeout(() => st.style.display="none", 2000);
+            if(selectedEl) window.updateEditorUI(selectedEl);
         } catch(e) { alert("Kayıt Hatası: Sunucu bağlantısı kurulamadı."); st.style.display="none"; }
     }
 </script>
